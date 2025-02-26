@@ -1,6 +1,5 @@
 import {
   ActionIcon,
-  Box,
   Button,
   Card,
   Group,
@@ -9,8 +8,7 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core';
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
-import { DataTable } from 'mantine-datatable';
+import { IconEdit, IconPlus } from '@tabler/icons-react';
 
 function ClassesPage() {
   const records = [
@@ -84,8 +82,8 @@ function ClassesPage() {
           <Card key={record.name} shadow="xs" padding="md">
             <Text ta="center">{record.name}</Text>
             <Group mt="lg" justify="center">
-              <Tooltip label="Edit" position="top">
-                <ActionIcon color="blue" variant="light" size="sm">
+              <Tooltip label="Edit" withArrow>
+                <ActionIcon color="orange" variant="light" size="sm">
                   <IconEdit size={14} />
                 </ActionIcon>
               </Tooltip>

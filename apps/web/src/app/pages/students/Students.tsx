@@ -1,5 +1,13 @@
-import { ActionIcon, Box, Button, Group, Title, Tooltip } from '@mantine/core';
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  ActionIcon,
+  Box,
+  Button,
+  Group,
+  TextInput,
+  Title,
+  Tooltip,
+} from '@mantine/core';
+import { IconEdit, IconPlus, IconSearch, IconX } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 
 function StudentsPage() {
@@ -13,6 +21,7 @@ function StudentsPage() {
           variant="filled"
           size="xs"
           radius="sm"
+          color="orange"
           leftSection={<IconPlus size={14} />}
         >
           Add
@@ -25,6 +34,10 @@ function StudentsPage() {
         borderRadius="sm"
         striped
         highlightOnHover
+        totalRecords={100}
+        recordsPerPage={10}
+        page={1}
+        onPageChange={(p) => console.log(p)}
         records={[
           {
             reg_no: 1001,
@@ -55,10 +68,65 @@ function StudentsPage() {
           {
             accessor: 'reg_no',
             title: 'Reg No.',
+            sortable: true,
+            filter: (
+              <TextInput
+                label="Reg No."
+                leftSection={<IconSearch size={16} />}
+                rightSection={
+                  <ActionIcon size="sm" variant="transparent" c="dimmed">
+                    <IconX size={14} />
+                  </ActionIcon>
+                }
+              />
+            ),
           },
-          { accessor: 'reg_year', title: 'Reg Year' },
-          { accessor: 'name', title: 'Name' },
-          { accessor: 'father_name', title: "Father's Name" },
+          {
+            accessor: 'reg_year',
+            title: 'Reg Year',
+            sortable: true,
+            filter: (
+              <TextInput
+                label="Reg Year"
+                leftSection={<IconSearch size={16} />}
+                rightSection={
+                  <ActionIcon size="sm" variant="transparent" c="dimmed">
+                    <IconX size={14} />
+                  </ActionIcon>
+                }
+              />
+            ),
+          },
+          {
+            accessor: 'name',
+            title: 'Name',
+            filter: (
+              <TextInput
+                label="Name"
+                leftSection={<IconSearch size={16} />}
+                rightSection={
+                  <ActionIcon size="sm" variant="transparent" c="dimmed">
+                    <IconX size={14} />
+                  </ActionIcon>
+                }
+              />
+            ),
+          },
+          {
+            accessor: 'father_name',
+            title: "Father's Name",
+            filter: (
+              <TextInput
+                label="Father's Name"
+                leftSection={<IconSearch size={16} />}
+                rightSection={
+                  <ActionIcon size="sm" variant="transparent" c="dimmed">
+                    <IconX size={14} />
+                  </ActionIcon>
+                }
+              />
+            ),
+          },
           {
             accessor: 'actions',
             title: <Box mr={6}>Actions</Box>,
@@ -66,7 +134,7 @@ function StudentsPage() {
             render: (company) => (
               <Group gap={4} justify="right" wrap="nowrap">
                 <Tooltip label="Edit" withArrow>
-                  <ActionIcon size="sm" variant="subtle" color="blue">
+                  <ActionIcon size="sm" variant="subtle" color="orange">
                     <IconEdit size={16} />
                   </ActionIcon>
                 </Tooltip>
