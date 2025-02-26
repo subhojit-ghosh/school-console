@@ -12,7 +12,7 @@ function DashboardPage() {
       <Paper withBorder p="md" radius="sm" key={stat.title}>
         <Group justify="apart">
           <div>
-            <Text c="dimmed" tt="uppercase" fw={700} fz="xs">
+            <Text tt="uppercase" fw={700} fz="xs" c="orange">
               {stat.title}
             </Text>
             <Text fw={700} fz="xl">
