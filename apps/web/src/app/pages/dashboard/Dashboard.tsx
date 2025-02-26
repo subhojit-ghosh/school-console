@@ -9,7 +9,7 @@ const data = [
 function DashboardPage() {
   const stats = data.map((stat) => {
     return (
-      <Paper withBorder p="md" radius="md" key={stat.title}>
+      <Paper withBorder p="md" radius="sm" key={stat.title}>
         <Group justify="apart">
           <div>
             <Text c="dimmed" tt="uppercase" fw={700} fz="xs">
