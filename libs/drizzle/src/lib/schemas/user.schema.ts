@@ -1,35 +1,27 @@
 import {
   boolean,
+  char,
   index,
-  integer,
-  pgEnum,
-  pgTable,
+  int,
+  mysqlEnum,
+  mysqlTable,
   timestamp,
-  unique,
   varchar,
-} from 'drizzle-orm/pg-core';
+} from 'drizzle-orm/mysql-core';
 
-export const userRoleEnum = pgEnum('userRole', ['admin', 'staff']);
-
-export const usersTable = pgTable(
+export const usersTable = mysqlTable(
   'users',
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar({ length: 255 }).notNull(),
-    username: varchar({ length: 255 }).notNull(),
-    password: varchar({ length: 255 }).notNull(),
-    role: userRoleEnum().notNull(),
+    id: int().primaryKey().autoincrement(),
+    name: varchar({ length: 100 }).notNull(),
+    username: varchar({ length: 100 }).notNull().unique(),
+    password: char({ length: 60 }).notNull(),
+    role: mysqlEnum(['admin', 'staff']).notNull(),
     isActive: boolean().notNull().default(false),
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp(),
   },
   (table) => [
-    // Single indexes
-
-    // Composite indexes
     index('username_is_active_idx').on(table.username, table.isActive),
-
-    // Unique indexes
-    unique('username_unique_idx').on(table.username),
   ]
 );

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { drizzle, MySql2Database } from 'drizzle-orm/mysql2';
 import * as schema from './schemas';
 
 export const DRIZZLE = Symbol('drizzle-connection');
-export type DrizzleDB = NodePgDatabase<typeof schema>;
+export type DrizzleDB = MySql2Database<typeof schema>;
 export * from './schemas';
 
 @Module({
@@ -17,7 +17,6 @@ export * from './schemas';
         const databaseUrl = configService.get<string>('DATABASE_URL') as string;
         return drizzle(databaseUrl, {
           casing: 'snake_case',
-          schema,
         });
       },
     },

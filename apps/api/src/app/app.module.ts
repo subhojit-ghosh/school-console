@@ -1,21 +1,22 @@
 import { Module } from '@nestjs/common';
+import { DrizzleModule } from '@school-console/drizzle';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
-import { DashboardController } from './dashboard/dashboard.controller';
-import { StudentsController } from './students/students.controller';
+import { AuthService } from './auth/auth.service';
 import { ClassesController } from './classes/classes.controller';
+import { ClassesService } from './classes/classes.service';
+import { DashboardController } from './dashboard/dashboard.controller';
+import { DashboardService } from './dashboard/dashboard.service';
 import { PaymentsController } from './payments/payments.controller';
+import { PaymentsService } from './payments/payments.service';
+import { StudentsController } from './students/students.controller';
+import { StudentsService } from './students/students.service';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
-import { StudentsService } from './students/students.service';
-import { PaymentsService } from './payments/payments.service';
-import { DashboardService } from './dashboard/dashboard.service';
-import { ClassesService } from './classes/classes.service';
-import { AuthService } from './auth/auth.service';
 
 @Module({
-  imports: [],
+  imports: [DrizzleModule],
   controllers: [
     AppController,
     AuthController,

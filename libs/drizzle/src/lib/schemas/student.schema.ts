@@ -1,31 +1,24 @@
 import {
   index,
-  integer,
-  pgTable,
+  int,
+  mysqlTable,
   timestamp,
-  unique,
   varchar,
-} from 'drizzle-orm/pg-core';
+} from 'drizzle-orm/mysql-core';
 
-export const studentsTable = pgTable(
+export const studentsTable = mysqlTable(
   'students',
   {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    regNo: varchar({ length: 255 }).notNull(),
-    regYear: varchar({ length: 255 }).notNull(),
-    name: varchar({ length: 255 }).notNull(),
-    fatherName: varchar({ length: 255 }).notNull(),
+    id: int().primaryKey().autoincrement(),
+    regNo: varchar({ length: 100 }).notNull().unique(),
+    regYear: varchar({ length: 50 }).notNull(),
+    name: varchar({ length: 100 }).notNull(),
+    fatherName: varchar({ length: 100 }).notNull(),
     createdAt: timestamp().defaultNow().notNull(),
-    updatedAt: timestamp(),
+    updatedAt: timestamp().onUpdateNow(),
   },
   (table) => [
-    // Single indexes
     index('reg_no_idx').on(table.regNo),
     index('name_idx').on(table.name),
-
-    // Composite indexes
-
-    // Unique indexes
-    unique('reg_no_unique_idx').on(table.regNo),
   ]
 );
