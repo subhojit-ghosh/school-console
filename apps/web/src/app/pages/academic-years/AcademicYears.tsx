@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Group,
+  Switch,
   TextInput,
   Title,
   Tooltip,
@@ -10,12 +11,13 @@ import {
 import { useDebouncedState } from '@mantine/hooks';
 import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import StudentForm from './StudentForm';
+import AcademicYearForm from './AcademicYearForm';
 
-export default function StudentsPage() {
+export default function AcademicYearsPage() {
   const [isListLoading, setIsListLoading] = useState(true);
   const [listData, setListData] = useState({
     data: [],
@@ -26,9 +28,7 @@ export default function StudentsPage() {
   });
   const [filters, setFilters] = useDebouncedState(
     {
-      id: '',
       name: '',
-      fatherName: '',
     },
     200
   );
@@ -49,7 +49,7 @@ export default function StudentsPage() {
     setIsListLoading(true);
 
     try {
-      const { data } = await httpClient.get(endpoints.students.list(), {
+      const { data } = await httpClient.get(endpoints.academicYears.list(), {
         params: {
           ...filters,
           size: listData.size,
@@ -74,11 +74,24 @@ export default function StudentsPage() {
     setIsListLoading(false);
   };
 
+  const updateStatus = async (id: string, isActive: boolean) => {
+    try {
+      setIsListLoading(true);
+      await httpClient.put(endpoints.academicYears.updateStatus(id), {
+        isActive,
+      });
+      fetchList();
+    } catch (error) {
+      console.error(error);
+      setIsListLoading(false);
+    }
+  };
+
   return (
     <>
       <Group justify="space-between">
         <Title size="md" mb="lg">
-          Students
+          Academic Years
         </Title>
         <Button
           variant="filled"
@@ -112,22 +125,6 @@ export default function StudentsPage() {
         onSortStatusChange={setSortStatus}
         columns={[
           {
-            accessor: 'id',
-            title: 'ID',
-            sortable: true,
-            filter: (
-              <TextInput
-                label="ID"
-                leftSection={<IconSearch size={16} />}
-                defaultValue={filters.id}
-                onChange={(e) =>
-                  setFilters({ ...filters, id: e.currentTarget.value })
-                }
-              />
-            ),
-            filtering: !!filters.id,
-          },
-          {
             accessor: 'name',
             title: 'Name',
             sortable: true,
@@ -144,20 +141,28 @@ export default function StudentsPage() {
             filtering: !!filters.name,
           },
           {
-            accessor: 'fatherName',
-            title: "Father's Name",
+            accessor: 'startDate',
+            title: 'Start Date',
+            render: (row: any) => moment(row.startDate).format('MMMM DD, YYYY'),
+          },
+          {
+            accessor: 'endDate',
+            title: 'End Date',
+            render: (row: any) => moment(row.endDate).format('MMMM DD, YYYY'),
+          },
+          {
+            accessor: 'isActive',
+            title: 'Status',
             sortable: true,
-            filter: (
-              <TextInput
-                label="Father's Name"
-                leftSection={<IconSearch size={16} />}
-                defaultValue={filters.fatherName}
-                onChange={(e) =>
-                  setFilters({ ...filters, fatherName: e.currentTarget.value })
-                }
+            render: (row: any) => (
+              <Switch
+                checked={row.isActive}
+                color="green"
+                size="xs"
+                style={{ cursor: 'pointer' }}
+                onChange={() => updateStatus(row.id, !row.isActive)}
               />
             ),
-            filtering: !!filters.fatherName,
           },
           {
             accessor: 'actions',
@@ -184,7 +189,7 @@ export default function StudentsPage() {
         ]}
       />
 
-      <StudentForm
+      <AcademicYearForm
         opened={formOpened}
         close={() => setFormOpened(false)}
         mode={formMode}

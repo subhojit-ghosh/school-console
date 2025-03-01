@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DrizzleModule } from '@school-console/drizzle';
+import { AcademicYearsController } from './academic-years/academic-years.controller';
+import { AcademicYearsService } from './academic-years/academic-years.service';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
@@ -25,6 +27,7 @@ import { UsersService } from './users/users.service';
     ClassesController,
     PaymentsController,
     UsersController,
+    AcademicYearsController,
   ],
   providers: [
     AppService,
@@ -34,6 +37,7 @@ import { UsersService } from './users/users.service';
     DashboardService,
     ClassesService,
     AuthService,
+    AcademicYearsService,
   ],
 })
 export class AppModule {}

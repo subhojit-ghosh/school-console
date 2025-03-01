@@ -33,7 +33,6 @@ function LoginPage() {
         <Button
           fullWidth
           mt="xl"
-          color="orange"
           onClick={() => navigate('/dashboard')}
         >
           Sign in

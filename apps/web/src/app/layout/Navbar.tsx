@@ -1,20 +1,23 @@
-import { Group, Image } from '@mantine/core';
 import {
+  IconCalendar,
   IconCash,
   IconChalkboard,
+  IconCoins,
   IconDashboard,
-  IconLogout,
   IconPasswordUser,
+  IconSchool,
   IconUsers,
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '../../assets/logo.png';
 import classes from './Navbar.module.scss';
 
 const data = [
   { link: '/dashboard', label: 'Dashboard', icon: IconDashboard },
+  { link: '/academic-years', label: 'Academic Years', icon: IconCalendar },
   { link: '/students', label: 'Students', icon: IconUsers },
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
+  { link: '/fees-structure', label: 'Fees Structure', icon: IconCoins },
+  { link: '/enrollments', label: 'Enrollments', icon: IconSchool },
   { link: '/payments', label: 'Payments', icon: IconCash },
   { link: '/users', label: 'Users', icon: IconPasswordUser },
 ];
@@ -43,22 +46,7 @@ export function Navbar() {
 
   return (
     <nav className={classes.navbar}>
-      <div className={classes.navbarMain}>
-        <Group mb={20} className={classes.header}>
-          <Image src={logo} height={40} />
-        </Group>
-        {links}
-      </div>
-
-      <div className={classes.footer}>
-        <Link
-          to="/login"
-          className={classes.link}
-        >
-          <IconLogout className={classes.linkIcon} stroke={1.5} />
-          <span>Logout</span>
-        </Link>
-      </div>
+      <div className={classes.navbarMain}>{links}</div>
     </nav>
   );
 }

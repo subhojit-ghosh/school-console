@@ -1,7 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, DrizzleDB, usersTable } from '@school-console/drizzle';
 import bcrypt from 'bcryptjs';
-import { asc, count, desc, eq, like } from 'drizzle-orm';
+import { and, asc, count, desc, eq, like, ne } from 'drizzle-orm';
 import { CreateUserDto, UpdateUserDto, UserQueryDto } from './users.dto';
 
 @Injectable()
@@ -38,11 +38,12 @@ export class UsersService {
           name: usersTable.name,
           username: usersTable.username,
           role: usersTable.role,
+          isActive: usersTable.isActive,
           createdAt: usersTable.createdAt,
           updatedAt: usersTable.updatedAt,
         })
         .from(usersTable)
-        .where(whereConditions)
+        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
         .orderBy(
           sortOrder === 'asc'
             ? asc(usersTable[sortBy])
@@ -53,7 +54,7 @@ export class UsersService {
       this.db
         .select({ count: count() })
         .from(usersTable)
-        .where(whereConditions)
+        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
         .then((res) => res[0].count),
     ]);
 
@@ -69,18 +70,47 @@ export class UsersService {
   }
 
   async create(user: CreateUserDto) {
+    const isUsernameExists = await this.db
+      .select({ count: count() })
+      .from(usersTable)
+      .where(eq(usersTable.username, user.username))
+      .then((res) => res[0].count > 0);
+
+    if (isUsernameExists) {
+      throw new BadRequestException('Username already exists');
+    }
+
     const hashedPassword = await bcrypt.hash(user.password, 12);
     user.password = hashedPassword;
     return await this.db.insert(usersTable).values(user);
   }
 
   async update(id: number, user: UpdateUserDto) {
+    const isUsernameExists = await this.db
+      .select({ count: count() })
+      .from(usersTable)
+      .where(and(eq(usersTable.username, user.username), ne(usersTable.id, id)))
+      .then((res) => res[0].count > 0);
+
+    if (isUsernameExists) {
+      throw new BadRequestException('Username already exists');
+    }
+
     if (user.password) {
       user.password = await bcrypt.hash(user.password, 12);
     }
     return await this.db
       .update(usersTable)
       .set(user)
+      .where(eq(usersTable.id, id));
+  }
+
+  async updateStatus(id: number, isActive: boolean) {
+    return await this.db
+      .update(usersTable)
+      .set({
+        isActive,
+      })
       .where(eq(usersTable.id, id));
   }
 }

@@ -1,71 +1,81 @@
 import {
   ActionIcon,
+  Box,
   Button,
-  Card,
   Group,
-  SimpleGrid,
-  Text,
+  TextInput,
   Title,
   Tooltip,
 } from '@mantine/core';
-import { IconEdit, IconPlus } from '@tabler/icons-react';
+import { useDebouncedState } from '@mantine/hooks';
+import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
+import { DataTable, DataTableSortStatus } from 'mantine-datatable';
+import { useEffect, useState } from 'react';
+import endpoints from '../../api/endpoints';
+import httpClient from '../../api/http-client';
+import ClassForm from './ClassForm';
 
-function ClassesPage() {
-  const records = [
+export default function ClassesPage() {
+  const [isListLoading, setIsListLoading] = useState(true);
+  const [listData, setListData] = useState({
+    data: [],
+    totalRecords: 0,
+    totalPages: 0,
+    size: 10,
+    page: 1,
+  });
+  const [filters, setFilters] = useDebouncedState(
     {
-      name: 'Toddler',
+      name: '',
     },
-    {
-      name: 'Nursery',
-    },
-    {
-      name: 'LKG',
-    },
-    {
-      name: 'UKG',
-    },
-    {
-      name: '1st Standard',
-    },
-    {
-      name: '2nd Standard',
-    },
-    {
-      name: '3rd Standard',
-    },
-    {
-      name: '4th Standard',
-    },
-    {
-      name: '5th Standard',
-    },
-    {
-      name: '6th Standard',
-    },
-    {
-      name: '7th Standard',
-    },
-    {
-      name: '8th Standard',
-    },
-    {
-      name: '9th Standard',
-    },
-    {
-      name: '10th Standard',
-    },
-    {
-      name: '11th Standard',
-    },
-    {
-      name: '12th Standard',
-    },
-  ];
+    200
+  );
+  const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
+    columnAccessor: '',
+    direction: 'asc',
+  });
+  const [formOpened, setFormOpened] = useState(false);
+  const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
+  const [formData, setFormData] = useState<any>(null);
+
+  useEffect(() => {
+    fetchList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, sortStatus]);
+
+  const fetchList = async (page: number | null = null) => {
+    setIsListLoading(true);
+
+    try {
+      const { data } = await httpClient.get(endpoints.classes.list(), {
+        params: {
+          ...filters,
+          size: listData.size,
+          page: page || listData.page,
+          ...(sortStatus.columnAccessor
+            ? {
+                sortBy: sortStatus.columnAccessor,
+                sortOrder: sortStatus.direction,
+              }
+            : {}),
+        },
+      });
+
+      setListData({
+        ...listData,
+        ...data,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
+    setIsListLoading(false);
+  };
 
   return (
     <>
       <Group justify="space-between">
-        <Title size="md" mt="md" mb="lg">
+        <Title size="md" mb="lg">
           Classes
         </Title>
         <Button
@@ -73,26 +83,85 @@ function ClassesPage() {
           size="xs"
           radius="sm"
           leftSection={<IconPlus size={14} />}
+          onClick={() => {
+            setFormMode('add');
+            setFormData(null);
+            setFormOpened(true);
+          }}
         >
           Add
         </Button>
       </Group>
-      <SimpleGrid cols={4} spacing="lg">
-        {records.map((record) => (
-          <Card key={record.name} shadow="xs" padding="md">
-            <Text ta="center">{record.name}</Text>
-            <Group mt="lg" justify="center">
-              <Tooltip label="Edit" withArrow>
-                <ActionIcon color="orange" variant="light" size="sm">
-                  <IconEdit size={14} />
-                </ActionIcon>
-              </Tooltip>
-            </Group>
-          </Card>
-        ))}
-      </SimpleGrid>
+
+      <DataTable
+        withTableBorder
+        withColumnBorders
+        borderRadius="sm"
+        striped
+        highlightOnHover
+        minHeight={300}
+        fetching={isListLoading}
+        totalRecords={listData.totalRecords}
+        recordsPerPage={listData.size}
+        page={listData.page}
+        onPageChange={(p) => fetchList(p)}
+        records={listData.data}
+        sortStatus={sortStatus}
+        onSortStatusChange={setSortStatus}
+        columns={[
+          {
+            accessor: 'name',
+            title: 'Name',
+            sortable: true,
+            filter: (
+              <TextInput
+                label="Name"
+                leftSection={<IconSearch size={16} />}
+                defaultValue={filters.name}
+                onChange={(e) =>
+                  setFilters({ ...filters, name: e.currentTarget.value })
+                }
+              />
+            ),
+            filtering: !!filters.name,
+          },
+          {
+            accessor: 'sections',
+            title: 'Sections',
+            render: (row: any) => row.sections.join(', '),
+          },
+          {
+            accessor: 'actions',
+            title: <Box mr={6}>Actions</Box>,
+            textAlign: 'center',
+            render: (row: any) => (
+              <Group gap={4} justify="center" wrap="nowrap">
+                <Tooltip label="Edit" withArrow>
+                  <ActionIcon
+                    size="sm"
+                    variant="subtle"
+                    onClick={() => {
+                      setFormMode('edit');
+                      setFormData(row);
+                      setFormOpened(true);
+                    }}
+                  >
+                    <IconEdit size={16} />
+                  </ActionIcon>
+                </Tooltip>
+              </Group>
+            ),
+          },
+        ]}
+      />
+
+      <ClassForm
+        opened={formOpened}
+        close={() => setFormOpened(false)}
+        mode={formMode}
+        data={formData}
+        fetchList={fetchList}
+      />
     </>
   );
 }
-
-export default ClassesPage;

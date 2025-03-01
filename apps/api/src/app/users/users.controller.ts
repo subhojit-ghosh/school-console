@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto, UserQueryDto } from './users.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UpdateUserStatusDto,
+  UserQueryDto,
+} from './users.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -19,5 +24,13 @@ export class UsersController {
   @Put(':id')
   async update(@Body() body: UpdateUserDto, @Param('id') id: number) {
     return this.usersService.update(id, body);
+  }
+
+  @Put(':id/status')
+  async updateStatus(
+    @Body() body: UpdateUserStatusDto,
+    @Param('id') id: number
+  ) {
+    return this.usersService.updateStatus(id, body.isActive);
   }
 }

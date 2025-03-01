@@ -1,0 +1,18 @@
+import {
+  boolean,
+  date,
+  mysqlTable,
+  serial,
+  timestamp,
+  varchar,
+} from 'drizzle-orm/mysql-core';
+
+export const academicYearsTable = mysqlTable('academic_years', {
+  id: serial().primaryKey(),
+  name: varchar({ length: 100 }).notNull(),
+  startDate: date().notNull(),
+  endDate: date().notNull(),
+  isActive: boolean().notNull().default(false).notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().onUpdateNow(),
+});

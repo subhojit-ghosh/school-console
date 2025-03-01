@@ -27,7 +27,7 @@ function DashboardPage() {
   return (
     <>
       <Group justify="space-between">
-        <Title size="md" mt="md" mb="lg">
+        <Title size="md" mb="lg">
           Dashboard
         </Title>
       </Group>

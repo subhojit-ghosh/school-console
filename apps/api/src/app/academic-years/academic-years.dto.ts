@@ -1,64 +1,50 @@
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsEnum,
+  IsDateString,
   IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsPositive,
   IsString,
-  ValidateIf,
 } from 'class-validator';
 
-export enum UserRoleEnum {
-  ADMIN = 'admin',
-  STAFF = 'staff',
-}
-
-export class CreateUserDto {
+export class CreateAcademicYearDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsString()
+  @IsDateString()
   @IsNotEmpty()
-  username: string;
+  startDate: Date;
 
-  @IsString()
+  @IsDateString()
   @IsNotEmpty()
-  password: string;
-
-  @IsEnum(UserRoleEnum)
-  @IsNotEmpty()
-  role: UserRoleEnum;
+  endDate: Date;
 }
 
-export class UpdateUserDto {
+export class UpdateAcademicYearDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsString()
+  @IsDateString()
   @IsNotEmpty()
-  username: string;
+  startDate: Date;
 
-  @IsString()
-  @IsOptional()
-  password?: string;
-
-  @IsEnum(UserRoleEnum)
+  @IsDateString()
   @IsNotEmpty()
-  role: UserRoleEnum;
+  endDate: Date;
 }
 
-export class UpdateUserStatusDto {
+export class UpdateAcademicYearStatusDto {
   @IsBoolean()
   @IsNotEmpty()
   isActive: boolean;
 }
 
-export class UserQueryDto {
+export class AcademicYearQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -82,13 +68,4 @@ export class UserQueryDto {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @IsOptional()
-  @IsString()
-  username?: string;
-
-  @IsOptional()
-  @ValidateIf((o) => o.role !== '')
-  @IsEnum(UserRoleEnum)
-  role?: UserRoleEnum;
 }

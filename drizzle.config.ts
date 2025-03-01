@@ -3,6 +3,7 @@ import { defineConfig } from 'drizzle-kit';
 
 export default defineConfig({
   dialect: 'mysql',
+  out: './drizzle',
   schema: './libs/drizzle/src/lib/schemas',
   casing: 'snake_case',
   dbCredentials: {
