@@ -21,7 +21,7 @@ const theme = createTheme({
 
 export function App() {
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} defaultColorScheme="light">
       <Notifications position="top-center" />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
