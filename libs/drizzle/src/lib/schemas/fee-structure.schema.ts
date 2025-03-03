@@ -1,7 +1,5 @@
 import {
   bigint,
-  char,
-  int,
   mysqlTable,
   serial,
   timestamp,
@@ -9,25 +7,16 @@ import {
 } from 'drizzle-orm/mysql-core';
 import { academicYearsTable } from './academic-year.schema';
 import { classesTable } from './class.schema';
-import { feeStructuresTable } from './fee-structure.schema';
-import { studentsTable } from './student.schema';
 
-export const enrollmentsTable = mysqlTable('enrollments', {
+export const feeStructuresTable = mysqlTable('fee_structures', {
   id: serial().primaryKey(),
   academicYearId: bigint({ mode: 'number', unsigned: true })
     .notNull()
     .references(() => academicYearsTable.id),
-  studentId: varchar({ length: 100 })
-    .notNull()
-    .references(() => studentsTable.id),
   classId: bigint({ mode: 'number', unsigned: true })
     .notNull()
     .references(() => classesTable.id),
-  feeStructureId: bigint({ mode: 'number', unsigned: true })
-    .notNull()
-    .references(() => feeStructuresTable.id),
-  rollNumber: int().notNull(),
-  section: char({ length: 1 }).notNull(),
+  name: varchar({ length: 100 }).notNull(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().onUpdateNow(),
 });

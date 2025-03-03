@@ -16,7 +16,7 @@ const data = [
   { link: '/academic-years', label: 'Academic Years', icon: IconCalendar },
   { link: '/students', label: 'Students', icon: IconUsers },
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
-  { link: '/fees-structure', label: 'Fees Structure', icon: IconCoins },
+  { link: '/fee-structures', label: 'Fee Structures', icon: IconCoins },
   { link: '/enrollments', label: 'Enrollments', icon: IconSchool },
   { link: '/payments', label: 'Payments', icon: IconCash },
   { link: '/users', label: 'Users', icon: IconPasswordUser },

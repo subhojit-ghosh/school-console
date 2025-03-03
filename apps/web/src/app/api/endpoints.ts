@@ -28,6 +28,11 @@ const endpoints = {
     create: () => api('classes'),
     update: (id: string) => api(`classes/${id}`),
   },
+  feeStructures: {
+    list: () => api('fee-structures'),
+    create: () => api('fee-structures'),
+    update: (id: string) => api(`fee-structures/${id}`),
+  },
 };
 
 export default endpoints;
