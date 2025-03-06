@@ -1,4 +1,3 @@
-import { FeeCategory } from '@school-console/utils';
 import {
   bigint,
   date,
@@ -11,6 +10,13 @@ import {
 } from 'drizzle-orm/mysql-core';
 import { academicYearsTable } from './academic-year.schema';
 import { classesTable } from './class.schema';
+
+export enum FeeCategory {
+  Enrollment = 'enrollment',
+  Tuition = 'tuition',
+  Material = 'material',
+  Miscellaneous = 'miscellaneous',
+}
 
 export const feeTable = mysqlTable('fees', {
   id: serial().primaryKey(),

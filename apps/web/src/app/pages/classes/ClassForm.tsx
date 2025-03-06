@@ -66,6 +66,7 @@ export default function ClassForm({
       }
 
       fetchList();
+      form.reset();
       close();
     } catch (error) {
       console.error(error);

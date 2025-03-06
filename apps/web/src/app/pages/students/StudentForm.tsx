@@ -61,6 +61,7 @@ export default function StudentForm({
       }
 
       fetchList();
+      form.reset();
       close();
     } catch (error) {
       console.error(error);

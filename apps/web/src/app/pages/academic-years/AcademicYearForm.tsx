@@ -68,6 +68,7 @@ export default function AcademicYearForm({
       }
 
       fetchList();
+      form.reset();
       close();
     } catch (error) {
       console.error(error);
