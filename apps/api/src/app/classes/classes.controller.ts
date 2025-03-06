@@ -11,6 +11,11 @@ export class ClassesController {
     return this.classesService.findAll(query);
   }
 
+  @Get('dropdown')
+  async findAllForDropdown() {
+    return this.classesService.findAllForDropdown();
+  }
+
   @Post()
   async create(@Body() body: CreateClassDto) {
     return this.classesService.create(body);

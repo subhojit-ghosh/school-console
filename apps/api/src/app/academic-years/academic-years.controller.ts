@@ -16,6 +16,11 @@ export class AcademicYearsController {
     return this.academicYearsService.findAll(query);
   }
 
+  @Get('dropdown')
+  async findAllForDropdown() {
+    return this.academicYearsService.findAllForDropdown();
+  }
+
   @Post()
   async create(@Body() body: CreateAcademicYearDto) {
     return this.academicYearsService.create(body);

@@ -10,6 +10,8 @@ import { ClassesController } from './classes/classes.controller';
 import { ClassesService } from './classes/classes.service';
 import { DashboardController } from './dashboard/dashboard.controller';
 import { DashboardService } from './dashboard/dashboard.service';
+import { FeeController } from './fees/fees.controller';
+import { FeeService } from './fees/fees.service';
 import { PaymentsController } from './payments/payments.controller';
 import { PaymentsService } from './payments/payments.service';
 import { StudentsController } from './students/students.controller';
@@ -28,6 +30,7 @@ import { UsersService } from './users/users.service';
     PaymentsController,
     UsersController,
     AcademicYearsController,
+    FeeController,
   ],
   providers: [
     AppService,
@@ -38,6 +41,7 @@ import { UsersService } from './users/users.service';
     ClassesService,
     AuthService,
     AcademicYearsService,
+    FeeService,
   ],
 })
 export class AppModule {}

@@ -2,10 +2,10 @@ import {
   IconCalendar,
   IconCash,
   IconChalkboard,
-  IconCoins,
   IconDashboard,
   IconPasswordUser,
   IconSchool,
+  IconTag,
   IconUsers,
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -16,7 +16,7 @@ const data = [
   { link: '/academic-years', label: 'Academic Years', icon: IconCalendar },
   { link: '/students', label: 'Students', icon: IconUsers },
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
-  { link: '/fee-structures', label: 'Fee Structures', icon: IconCoins },
+  { link: '/fees', label: 'Fees', icon: IconTag },
   { link: '/enrollments', label: 'Enrollments', icon: IconSchool },
   { link: '/payments', label: 'Payments', icon: IconCash },
   { link: '/users', label: 'Users', icon: IconPasswordUser },

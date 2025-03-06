@@ -14,6 +14,7 @@ const endpoints = {
   },
   academicYears: {
     list: () => api('academic-years'),
+    dropdown: () => api('academic-years/dropdown'),
     create: () => api('academic-years'),
     update: (id: string) => api(`academic-years/${id}`),
     updateStatus: (id: string) => api(`academic-years/${id}/status`),
@@ -25,13 +26,14 @@ const endpoints = {
   },
   classes: {
     list: () => api('classes'),
+    dropdown: () => api('classes/dropdown'),
     create: () => api('classes'),
     update: (id: string) => api(`classes/${id}`),
   },
-  feeStructures: {
-    list: () => api('fee-structures'),
-    create: () => api('fee-structures'),
-    update: (id: string) => api(`fee-structures/${id}`),
+  fees: {
+    list: () => api('fees'),
+    create: () => api('fees'),
+    update: (id: string) => api(`fees/${id}`),
   },
 };
 

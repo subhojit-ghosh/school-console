@@ -10,6 +10,7 @@ import Layout from './layout/Layout';
 import AcademicYearsPage from './pages/academic-years/AcademicYears';
 import ClassesPage from './pages/classes/Classes';
 import DashboardPage from './pages/dashboard/Dashboard';
+import FeesPage from './pages/fees/Fees';
 import LoginPage from './pages/Login';
 import PaymentsPage from './pages/payments/Payments';
 import StudentsPage from './pages/students/Students';
@@ -31,6 +32,7 @@ export function App() {
           <Route path="/academic-years" element={<AcademicYearsPage />} />
           <Route path="/students" element={<StudentsPage />} />
           <Route path="/classes" element={<ClassesPage />} />
+          <Route path="/fees" element={<FeesPage />} />
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/users" element={<UsersPage />} />
         </Route>

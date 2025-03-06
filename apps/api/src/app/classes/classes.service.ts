@@ -58,6 +58,19 @@ export class ClassesService {
     };
   }
 
+  async findAllForDropdown() {
+    const classes = await this.db
+      .select({
+        id: classesTable.id,
+        name: classesTable.name,
+      })
+      .from(classesTable);
+
+    return {
+      data: classes,
+    };
+  }
+
   async create(payload: CreateClassDto) {
     const isClassNameExists = await this.db
       .select({ count: count() })

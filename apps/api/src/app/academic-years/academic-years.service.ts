@@ -68,6 +68,20 @@ export class AcademicYearsService {
     };
   }
 
+  async findAllForDropdown() {
+    const academicYears = await this.db
+      .select({
+        id: academicYearsTable.id,
+        name: academicYearsTable.name,
+        isActive: academicYearsTable.isActive,
+      })
+      .from(academicYearsTable);
+
+    return {
+      data: academicYears,
+    };
+  }
+
   async create(academicYear: CreateAcademicYearDto) {
     const isAcademicYearNameExists = await this.db
       .select({ count: count() })

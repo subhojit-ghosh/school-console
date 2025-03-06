@@ -9,7 +9,6 @@ import {
 } from 'drizzle-orm/mysql-core';
 import { academicYearsTable } from './academic-year.schema';
 import { classesTable } from './class.schema';
-import { feeStructuresTable } from './fee-structure.schema';
 import { studentsTable } from './student.schema';
 
 export const enrollmentsTable = mysqlTable('enrollments', {
@@ -23,9 +22,6 @@ export const enrollmentsTable = mysqlTable('enrollments', {
   classId: bigint({ mode: 'number', unsigned: true })
     .notNull()
     .references(() => classesTable.id),
-  feeStructureId: bigint({ mode: 'number', unsigned: true })
-    .notNull()
-    .references(() => feeStructuresTable.id),
   rollNumber: int().notNull(),
   section: char({ length: 1 }).notNull(),
   createdAt: timestamp().defaultNow().notNull(),

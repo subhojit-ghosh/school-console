@@ -1,6 +1,8 @@
+import { FeeCategory } from '@school-console/utils';
 import { Type } from 'class-transformer';
 import {
-  IsArray,
+  IsDateString,
+  IsEnum,
   IsIn,
   IsInt,
   IsNotEmpty,
@@ -8,45 +10,42 @@ import {
   IsOptional,
   IsPositive,
   IsString,
-  ValidateNested,
+  ValidateIf,
 } from 'class-validator';
 
-class FeeStructureItemDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
-
-  @IsNumber()
-  @IsPositive()
-  amount: number;
-}
-
-export class CreateFeeStructureDto {
+export class CreateFeeDto {
   @IsInt()
   @IsPositive()
   academicYearId: number;
 
   @IsInt()
   @IsPositive()
+  @IsNotEmpty()
+  @ValidateIf((o) => o.category === FeeCategory.Tuition)
   classId: number;
 
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => FeeStructureItemDto)
-  items: FeeStructureItemDto[];
+  @IsEnum(FeeCategory)
+  @IsNotEmpty()
+  category: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  amount: number;
+
+  @IsDateString()
+  @IsNotEmpty()
+  @ValidateIf((o) => o.category === FeeCategory.Tuition)
+  dueDate: Date;
 }
 
-export class UpdateFeeStructureDto extends CreateFeeStructureDto {}
+export class UpdateFeeDto extends CreateFeeDto {}
 
-export class FeeStructureQueryDto {
+export class FeeQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -72,10 +71,16 @@ export class FeeStructureQueryDto {
   name?: string;
 
   @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @Type(() => Number)
   @IsInt()
   classId?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   academicYearId?: number;
 }

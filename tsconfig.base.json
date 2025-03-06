@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@school-console/drizzle": ["libs/drizzle/src/index.ts"]
+      "@school-console/drizzle": ["libs/drizzle/src/index.ts"],
+      "@school-console/utils": ["libs/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
