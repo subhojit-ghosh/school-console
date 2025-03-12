@@ -1,6 +1,5 @@
 import { AppShell, useMantineTheme } from '@mantine/core';
 import { Outlet } from 'react-router-dom';
-import Header from './Header';
 import { Navbar } from './Navbar';
 
 const gradients = {
@@ -27,11 +26,13 @@ function Layout() {
         <Header />
       </AppShell.Header> */}
 
-      <AppShell.Navbar style={{ background: gradients[3] }}>
+      <AppShell.Navbar
+        style={{ background: 'linear-gradient(135deg, #1E3C72, #2A5298)' }}
+      >
         <Navbar />
       </AppShell.Navbar>
 
-      <AppShell.Main style={{background: '#F4F6F8'}}>
+      <AppShell.Main style={{ background: '#F4F6F8' }}>
         <Outlet />
       </AppShell.Main>
     </AppShell>

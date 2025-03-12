@@ -12,32 +12,37 @@ import logo from '../../assets/logo.png';
 function LoginPage() {
   const navigate = useNavigate();
   return (
-    <Container size={420} my={40}>
-      {/* <Title ta="center" size="lg">
-        Fees Collection
-      </Title> */}
-      {/* <Text c="dimmed" size="sm" ta="center" mt={5}>
-        JDS Public School
-      </Text> */}
-      <Image src={logo} alt="JDS Public School" mt={20} fit="contain" />
+    <Container
+      fluid
+      style={{
+        background: 'linear-gradient(135deg, #1E3C72, #2A5298)',
+        height: '100vh',
+        width: '100vw',
+      }}
+    >
+      <Container size={420} py={40}>
+        {/* <Title ta="center" size="lg">
+          Fees Collection
+        </Title>
+        <Text c="dimmed" size="sm" ta="center" mt={5}>
+          JDS Public School
+        </Text> */}
+        <Image src={logo} height={60} alt="JDS Public School" fit="contain" />
 
-      <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-        <TextInput label="Username" required />
-        <PasswordInput label="Password" required mt="md" />
-        {/* <Group justify="space-between" mt="lg">
-          <Checkbox label="Remember me" />
-          <Anchor component="button" size="sm">
-            Forgot password?
-          </Anchor>
-        </Group> */}
-        <Button
-          fullWidth
-          mt="xl"
-          onClick={() => navigate('/dashboard')}
-        >
-          Sign in
-        </Button>
-      </Paper>
+        <Paper withBorder shadow="md" p={30} mt={30} radius="sm">
+          <TextInput label="Username" required />
+          <PasswordInput label="Password" required mt="md" />
+          {/* <Group justify="space-between" mt="lg">
+            <Checkbox label="Remember me" />
+            <Anchor component="button" size="sm">
+              Forgot password?
+            </Anchor>
+          </Group> */}
+          <Button fullWidth mt="xl" onClick={() => navigate('/dashboard')}>
+            Sign in
+          </Button>
+        </Paper>
+      </Container>
     </Container>
   );
 }

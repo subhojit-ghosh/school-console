@@ -35,10 +35,8 @@ function DashboardPage() {
 
   return (
     <>
-      <Group justify="space-between">
-        <Title size="lg" mb="lg">
-          Dashboard
-        </Title>
+      <Group justify="space-between" align="center" mb="md">
+        <Title size="lg">Dashboard</Title>
       </Group>
       <div>
         <SimpleGrid cols={{ base: 1, sm: 3 }}>{stats}</SimpleGrid>
