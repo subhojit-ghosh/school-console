@@ -1,3 +1,4 @@
+import { Group, Image } from '@mantine/core';
 import {
   IconCalendar,
   IconCash,
@@ -9,6 +10,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 import classes from './Navbar.module.scss';
 
 const data = [
@@ -46,7 +48,12 @@ export function Navbar() {
 
   return (
     <nav className={classes.navbar}>
-      <div className={classes.navbarMain}>{links}</div>
+      <div className={classes.navbarMain}>
+        <Group className={classes.header} justify="center" align="center">
+          <Image src={logo} height={35} />
+        </Group>
+        {links}
+      </div>
     </nav>
   );
 }

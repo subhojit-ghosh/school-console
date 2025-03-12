@@ -91,7 +91,7 @@ export default function UsersPage() {
   return (
     <>
       <Group justify="space-between">
-        <Title size="md" mb="lg">
+        <Title size="lg" mb="lg">
           Users
         </Title>
         <Button

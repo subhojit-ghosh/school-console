@@ -75,7 +75,7 @@ export default function ClassesPage() {
   return (
     <>
       <Group justify="space-between">
-        <Title size="md" mb="lg">
+        <Title size="lg" mb="lg">
           Classes
         </Title>
         <Button
