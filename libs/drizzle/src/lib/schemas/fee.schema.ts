@@ -1,6 +1,7 @@
 import {
   bigint,
   date,
+  index,
   int,
   mysqlEnum,
   mysqlTable,
@@ -18,20 +19,29 @@ export enum FeeCategory {
   Miscellaneous = 'miscellaneous',
 }
 
-export const feeTable = mysqlTable('fees', {
-  id: serial().primaryKey(),
-  academicYearId: bigint({ mode: 'number', unsigned: true })
-    .notNull()
-    .references(() => academicYearsTable.id),
-  name: varchar({ length: 100 }).notNull(),
-  category: mysqlEnum(
-    Object.values(FeeCategory) as [string, ...string[]]
-  ).notNull(),
-  classId: bigint({ mode: 'number', unsigned: true }).references(
-    () => classesTable.id
-  ),
-  amount: int().notNull(),
-  dueDate: date(),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp().onUpdateNow(),
-});
+export const feeTable = mysqlTable(
+  'fees',
+  {
+    id: serial().primaryKey(),
+    academicYearId: bigint({ mode: 'number', unsigned: true })
+      .notNull()
+      .references(() => academicYearsTable.id),
+    name: varchar({ length: 100 }).notNull(),
+    category: mysqlEnum(
+      Object.values(FeeCategory) as [string, ...string[]]
+    ).notNull(),
+    classId: bigint({ mode: 'number', unsigned: true }).references(
+      () => classesTable.id
+    ),
+    amount: int().notNull(),
+    dueDate: date(),
+    createdAt: timestamp().defaultNow().notNull(),
+    updatedAt: timestamp().onUpdateNow(),
+  },
+  (table) => [
+    index('academic_year_id_category_idx').on(
+      table.academicYearId,
+      table.category
+    ),
+  ]
+);

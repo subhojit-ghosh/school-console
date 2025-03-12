@@ -194,37 +194,39 @@ function FeesPage() {
             title: 'Amount',
             sortable: true,
           },
-          ...(category === FeeCategory.Tuition
+          {
+            accessor: 'classId',
+            title: 'Class',
+            render: (row: any) =>
+              classes.find((item) => item.id === row.classId)?.name,
+            sortable: true,
+            filter: (
+              <Select
+                data={classes.map((item) => ({
+                  label: item.name,
+                  value: String(item.id),
+                }))}
+                label="Class"
+                placeholder="Select"
+                clearable
+                comboboxProps={{ withinPortal: false }}
+                defaultValue={filters.classId}
+                onChange={(value) =>
+                  setFilters({ ...filters, classId: value || '' })
+                }
+              />
+            ),
+            filtering: !!filters.classId,
+          },
+          ...(category !== FeeCategory.Enrollment
             ? [
-                {
-                  accessor: 'classId',
-                  title: 'Class',
-                  render: (row: any) =>
-                    classes.find((item) => item.id === row.classId)?.name,
-                  sortable: true,
-                  filter: (
-                    <Select
-                      data={classes.map((item) => ({
-                        label: item.name,
-                        value: String(item.id),
-                      }))}
-                      label="Class"
-                      placeholder="Select"
-                      clearable
-                      comboboxProps={{ withinPortal: false }}
-                      defaultValue={filters.classId}
-                      onChange={(value) =>
-                        setFilters({ ...filters, classId: value || '' })
-                      }
-                    />
-                  ),
-                  filtering: !!filters.classId,
-                },
                 {
                   accessor: 'dueDate',
                   title: 'Due Date',
                   render: (row: any) =>
-                    moment(row.dueDate).format('MMMM DD, YYYY'),
+                    row.dueDate
+                      ? moment(row.dueDate).format('MMMM DD, YYYY')
+                      : '',
                   sortable: true,
                 },
               ]

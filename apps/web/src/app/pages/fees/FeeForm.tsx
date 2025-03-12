@@ -44,24 +44,13 @@ export default function FeeForm({
           .string()
           .trim()
           .required('Academic Year is required'),
-        classId: yup
-          .string()
-          .trim()
-          .when([], {
-            is: () => category === FeeCategory.Tuition,
-            then: (schema) => schema.required('Class is required'),
-            otherwise: (schema) => schema.notRequired(),
-          }),
+        classId: yup.string().trim().required('Class is required'),
         name: yup.string().trim().required('Name is required'),
         amount: yup
           .number()
           .typeError('Amount must be a number')
           .required('Amount is required'),
-        dueDate: yup.string().when([], {
-          is: () => category === FeeCategory.Tuition,
-          then: (schema) => schema.required('Due Date is required'),
-          otherwise: (schema) => schema.notRequired(),
-        }),
+        dueDate: yup.string(),
       })
     ),
   });
@@ -142,20 +131,18 @@ export default function FeeForm({
               {...form.getInputProps('academicYearId')}
             />
           </Grid.Col>
-          {category === FeeCategory.Tuition && (
-            <Grid.Col span={12}>
-              <Select
-                label="Class"
-                placeholder="Select"
-                data={classes.map((item: any) => ({
-                  label: item.name,
-                  value: String(item.id),
-                }))}
-                withAsterisk
-                {...form.getInputProps('classId')}
-              />
-            </Grid.Col>
-          )}
+          <Grid.Col span={12}>
+            <Select
+              label="Class"
+              placeholder="Select"
+              data={classes.map((item: any) => ({
+                label: item.name,
+                value: String(item.id),
+              }))}
+              withAsterisk
+              {...form.getInputProps('classId')}
+            />
+          </Grid.Col>
           <Grid.Col span={12}>
             <TextInput
               label="Name"
@@ -171,11 +158,10 @@ export default function FeeForm({
               {...form.getInputProps('amount')}
             />
           </Grid.Col>
-          {category === FeeCategory.Tuition && (
+          {category !== FeeCategory.Enrollment && (
             <Grid.Col span={12}>
               <DateInput
                 label="Due Date"
-                withAsterisk
                 size="xs"
                 {...form.getInputProps('dueDate')}
               />

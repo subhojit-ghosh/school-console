@@ -21,7 +21,6 @@ export class CreateFeeDto {
   @IsInt()
   @IsPositive()
   @IsNotEmpty()
-  @ValidateIf((o) => o.category === FeeCategory.Tuition)
   classId: number;
 
   @IsString()
@@ -38,8 +37,8 @@ export class CreateFeeDto {
   amount: number;
 
   @IsDateString()
-  @IsNotEmpty()
-  @ValidateIf((o) => o.category === FeeCategory.Tuition)
+  @IsOptional()
+  @ValidateIf((o) => o.category !== FeeCategory.Enrollment)
   dueDate: Date;
 }
 
