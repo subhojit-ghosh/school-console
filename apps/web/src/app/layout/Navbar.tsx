@@ -10,7 +10,6 @@ import {
   IconCalendar,
   IconCash,
   IconChalkboard,
-  IconChevronDown,
   IconChevronRight,
   IconDashboard,
   IconLogout,
@@ -30,7 +29,7 @@ const data = [
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
   { link: '/fees', label: 'Fees', icon: IconTag },
   { link: '/enrollments', label: 'Enrollments', icon: IconSchool },
-  { link: '/payments', label: 'Payments', icon: IconCash },
+  { link: '/transactions', label: 'Transactions', icon: IconCash },
   { link: '/users', label: 'Users', icon: IconPasswordUser },
 ];
 
