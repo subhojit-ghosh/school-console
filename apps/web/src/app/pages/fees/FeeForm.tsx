@@ -160,11 +160,7 @@ export default function FeeForm({
           </Grid.Col>
           {category !== FeeCategory.Enrollment && (
             <Grid.Col span={12}>
-              <DateInput
-                label="Due Date"
-                size="xs"
-                {...form.getInputProps('dueDate')}
-              />
+              <DateInput label="Due Date" {...form.getInputProps('dueDate')} />
             </Grid.Col>
           )}
           <Grid.Col span={12}>

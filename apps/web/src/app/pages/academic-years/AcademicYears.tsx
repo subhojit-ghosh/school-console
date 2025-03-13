@@ -33,8 +33,8 @@ export default function AcademicYearsPage() {
     200
   );
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-    columnAccessor: '',
-    direction: 'asc',
+    columnAccessor: 'name',
+    direction: 'desc',
   });
   const [formOpened, setFormOpened] = useState(false);
   const [formMode, setFormMode] = useState<'add' | 'edit'>('add');

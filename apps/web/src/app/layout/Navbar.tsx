@@ -7,6 +7,7 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import {
+  IconAddressBook,
   IconCalendar,
   IconCash,
   IconChalkboard,
@@ -25,6 +26,7 @@ import classes from './Navbar.module.scss';
 const data = [
   { link: '/dashboard', label: 'Dashboard', icon: IconDashboard },
   { link: '/academic-years', label: 'Academic Years', icon: IconCalendar },
+  { link: '/registrations', label: 'Registrations', icon: IconAddressBook },
   { link: '/students', label: 'Students', icon: IconUsers },
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
   { link: '/fees', label: 'Fees', icon: IconTag },

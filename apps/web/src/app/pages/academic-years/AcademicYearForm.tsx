@@ -1,9 +1,10 @@
-import { Button, Grid, Group, Modal, TextInput } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
+import { Button, Grid, Group, Modal } from '@mantine/core';
+import { DateInput, YearPickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
+import { IconCalendar } from '@tabler/icons-react';
 import { yupResolver } from 'mantine-form-yup-resolver';
 import moment from 'moment';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
@@ -20,15 +21,15 @@ export default function AcademicYearForm({
   const form = useForm({
     validateInputOnChange: true,
     initialValues: {
+      startYear: null,
+      endYear: null,
       name: '',
       startDate: '',
       endDate: '',
     },
     validate: yupResolver(
       yup.object().shape({
-        name: yup.string().trim().required('Name is required'),
-        startDate: yup.date().required('Start Date is required'),
-        endDate: yup.date().required('End Date is required'),
+        startYear: yup.string().trim().required('Start Year is required'),
       })
     ),
   });
@@ -40,6 +41,8 @@ export default function AcademicYearForm({
 
     if (mode === 'edit') {
       form.setValues({
+        startYear: new Date(data.startDate) as any,
+        endYear: new Date(data.endDate) as any,
         name: data.name,
         startDate: new Date(data.startDate) as any,
         endDate: new Date(data.endDate) as any,
@@ -47,6 +50,19 @@ export default function AcademicYearForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, mode]);
+
+  useEffect(() => {
+    if (form.values.startYear) {
+      const startYear = (form.values.startYear as Date).getFullYear();
+      form.setValues({
+        endYear: new Date(`${startYear + 1}-01-01`) as any,
+        name: `${startYear} - ${startYear + 1}`,
+        startDate: new Date(`${startYear}-04-01`) as any,
+        endDate: new Date(`${startYear + 1}-03-31`) as any,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.values.startYear]);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -86,30 +102,33 @@ export default function AcademicYearForm({
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Grid>
-          <Grid.Col span={12}>
-            <TextInput
-              label="Name"
+          <Grid.Col span={6}>
+            <YearPickerInput
+              label="Start Year"
+              leftSection={<IconCalendar size={18} />}
               withAsterisk
-              {...form.getInputProps('name')}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                const upperCasedValue = e.target.value.toUpperCase();
-                form.setFieldValue('name', upperCasedValue);
-              }}
+              {...form.getInputProps('startYear')}
             />
           </Grid.Col>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
+            <YearPickerInput
+              label="End Year"
+              readOnly
+              leftSection={<IconCalendar size={18} />}
+              {...form.getInputProps('endYear')}
+            />
+          </Grid.Col>
+          <Grid.Col span={6}>
             <DateInput
               label="Start Date"
-              withAsterisk
-              size="xs"
+              readOnly
               {...form.getInputProps('startDate')}
             />
           </Grid.Col>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
             <DateInput
               label="End Date"
-              withAsterisk
-              size="xs"
+              readOnly
               {...form.getInputProps('endDate')}
             />
           </Grid.Col>
