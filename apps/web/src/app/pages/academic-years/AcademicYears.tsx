@@ -93,7 +93,7 @@ export default function AcademicYearsPage() {
         <Title size="lg">Academic Years</Title>
         <Button
           variant="filled"
-          radius="sm"
+          
           leftSection={<IconPlus size={16} />}
           onClick={() => {
             setFormMode('add');

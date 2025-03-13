@@ -18,7 +18,7 @@ function DashboardPage() {
 
   const stats = data.map((stat) => {
     return (
-      <Paper withBorder p="md" radius="sm" key={stat.title}>
+      <Paper withBorder p="md"  key={stat.title}>
         <Group justify="apart">
           <div>
             <Text tt="uppercase" fw={700} fz="sm" c={theme.colors.indigo[9]}>

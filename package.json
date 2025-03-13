@@ -6,7 +6,9 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "db:push": "drizzle-kit push",
-    "serve": "nx serve"
+    "reset": "nx reset",
+    "serve": "nx serve",
+    "build": "nx build"
   },
   "private": true,
   "devDependencies": {

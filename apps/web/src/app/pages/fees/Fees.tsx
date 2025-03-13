@@ -139,11 +139,11 @@ function FeesPage() {
             setFilters({ ...filters, academicYearId: value || '' })
           }
           size="xs"
-          radius="sm"
+          
         />
         <Button
           variant="filled"
-          radius="sm"
+          
           leftSection={<IconPlus size={14} />}
           onClick={() => {
             setFormMode('add');

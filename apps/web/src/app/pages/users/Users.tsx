@@ -96,7 +96,7 @@ export default function UsersPage() {
         </Title>
         <Button
           variant="filled"
-          radius="sm"
+          
           leftSection={<IconPlus size={14} />}
           onClick={() => {
             setFormMode('add');

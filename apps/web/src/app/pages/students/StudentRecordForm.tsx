@@ -1,12 +1,8 @@
-import { useForm } from '@mantine/form';
 import {
   ActionIcon,
-  Badge,
-  Box,
   Button,
   Center,
   Checkbox,
-  Container,
   Divider,
   FileInput,
   Grid,
@@ -20,27 +16,27 @@ import {
   Text,
   Textarea,
   TextInput,
+  Title,
   Tooltip,
 } from '@mantine/core';
-import { StudentPersonalType } from './type';
 import { DateInput, YearPickerInput } from '@mantine/dates';
+import { useForm } from '@mantine/form';
+import { randomId } from '@mantine/hooks';
 import {
+  IconArrowBack,
   IconCalendar,
   IconCalendarMonth,
-  IconChevronLeft,
-  IconFile,
-  IconPhone,
-  IconPin,
   IconPlus,
   IconTrash,
+  IconUpload,
 } from '@tabler/icons-react';
 import moment from 'moment';
-import { randomId } from '@mantine/hooks';
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { StudentPersonalType } from './type';
 
 export default function StudentRecordForm() {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const form = useForm<Partial<StudentPersonalType>>({
     mode: 'uncontrolled',
@@ -165,17 +161,18 @@ export default function StudentRecordForm() {
 
   return (
     <>
-      <Paper radius="md" withBorder shadow="md" p="md">
-        <Group align="center">
-          <Button
-            variant="transparent"
-            leftSection={<IconChevronLeft />}
-            onClick={() => navigate('/students')}
-          >
-            Back
-          </Button>
-        </Group>
-        <Space />
+      <Group justify="space-between" align="center" mb="md">
+        <Title size="lg">Add Student</Title>
+        <Button
+          variant="light"
+          leftSection={<IconArrowBack size={14} />}
+          component={Link}
+          to="/students"
+        >
+          Back
+        </Button>
+      </Group>
+      <Paper withBorder shadow="md" p="md">
         <form onSubmit={form.onSubmit((values) => console.log(values))}>
           <Divider
             my="xs"
@@ -192,19 +189,7 @@ export default function StudentRecordForm() {
               <TextInput
                 label="Reg No."
                 key={form.key('regNo')}
-                leftSection={
-                  <Box miw={30}>
-                    <Text size="xs" fw={600} c="dark">
-                      &nbsp;JDS/&nbsp;
-                    </Text>
-                  </Box>
-                }
-                size="xs"
-                styles={{
-                  input: {
-                    paddingLeft: '35px',
-                  },
-                }}
+                leftSection={'J-'}
                 {...form.getInputProps('regNo')}
               />
             </Grid.Col>
@@ -212,16 +197,14 @@ export default function StudentRecordForm() {
               <DateInput
                 label="Admission Date"
                 key={form.key('admissionDate')}
-                size="xs"
                 {...form.getInputProps('admissionDate')}
-                rightSection={<IconCalendar />}
+                leftSection={<IconCalendar size={18} />}
               />
             </Grid.Col>
             <Grid.Col span={4}>
               <Select
                 label="Class"
                 key={form.key('classId')}
-                size="xs"
                 {...form.getInputProps('classId')}
               />
             </Grid.Col>
@@ -231,8 +214,7 @@ export default function StudentRecordForm() {
                 label="Student Photo"
                 key={form.key('studentPhoto')}
                 {...form.getInputProps('studentPhoto')}
-                size="xs"
-                rightSection={<IconFile />}
+                leftSection={<IconUpload size={18} />}
               />
             </Grid.Col>
             <Grid.Col span={4}>
@@ -240,8 +222,7 @@ export default function StudentRecordForm() {
                 label="Father Photo"
                 key={form.key('fatherPhoto')}
                 {...form.getInputProps('fatherPhoto')}
-                size="xs"
-                rightSection={<IconFile />}
+                leftSection={<IconUpload size={18} />}
               />
             </Grid.Col>
             <Grid.Col span={4}>
@@ -249,8 +230,7 @@ export default function StudentRecordForm() {
                 label="Mother Photo"
                 key={form.key('motherPhoto')}
                 {...form.getInputProps('motherPhoto')}
-                size="xs"
-                rightSection={<IconFile />}
+                leftSection={<IconUpload size={18} />}
               />
             </Grid.Col>
           </Grid>
@@ -259,7 +239,6 @@ export default function StudentRecordForm() {
               <TextInput
                 label="Student Name"
                 key={form.key('studentName')}
-                size="xs"
                 {...form.getInputProps('studentName')}
               />
             </Grid.Col>
@@ -267,10 +246,9 @@ export default function StudentRecordForm() {
               <DateInput
                 label="Date of Birth"
                 maxDate={moment(new Date()).add(1, 'month').toDate()}
-                size="xs"
                 key={form.key('dob')}
                 {...form.getInputProps('dob')}
-                rightSection={<IconCalendar />}
+                leftSection={<IconCalendar size={18} />}
               />
             </Grid.Col>
             <Grid.Col span={4}>
@@ -278,7 +256,6 @@ export default function StudentRecordForm() {
                 name="gender"
                 label="Gender"
                 withAsterisk
-                size="xs"
                 key={form.key('gender')}
                 {...form.getInputProps('gender')}
               >
@@ -295,7 +272,6 @@ export default function StudentRecordForm() {
                 label="Religion"
                 data={[]}
                 key={form.key('religion')}
-                size="xs"
                 {...form.getInputProps('religion')}
               />
             </Grid.Col>
@@ -304,7 +280,6 @@ export default function StudentRecordForm() {
                 label="Nationality"
                 data={[]}
                 key={form.key('nationality')}
-                size="xs"
                 {...form.getInputProps('nationality')}
               />
             </Grid.Col>
@@ -313,7 +288,6 @@ export default function StudentRecordForm() {
                 label="Native Language"
                 data={[]}
                 key={form.key('nativeLanguage')}
-                size="xs"
                 {...form.getInputProps('nativeLanguage')}
               />
             </Grid.Col>
@@ -322,7 +296,6 @@ export default function StudentRecordForm() {
                 label="Caste"
                 data={[]}
                 key={form.key('caste')}
-                size="xs"
                 {...form.getInputProps('caste')}
               />
             </Grid.Col>
@@ -331,7 +304,6 @@ export default function StudentRecordForm() {
               <TextInput
                 label="Father's Name"
                 key={form.key('fatherName')}
-                size="xs"
                 {...form.getInputProps('fatherName')}
               />
             </Grid.Col>
@@ -339,7 +311,6 @@ export default function StudentRecordForm() {
               <NumberInput
                 label="Father's No"
                 key={form.key('fatherNo')}
-                size="xs"
                 {...form.getInputProps('fatherNo')}
                 hideControls
               />
@@ -348,7 +319,6 @@ export default function StudentRecordForm() {
               <TextInput
                 label="Mother's Name"
                 key={form.key('motherName')}
-                size="xs"
                 {...form.getInputProps('motherName')}
               />
             </Grid.Col>
@@ -356,7 +326,6 @@ export default function StudentRecordForm() {
               <NumberInput
                 label="Mother's No"
                 key={form.key('motherNo')}
-                size="xs"
                 {...form.getInputProps('motherNo')}
                 hideControls
               />
@@ -366,7 +335,6 @@ export default function StudentRecordForm() {
               <Textarea
                 label="Present Address"
                 key={form.key('pAddress')}
-                size="xs"
                 {...form.getInputProps('pAddress')}
               />
             </Grid.Col>
@@ -374,7 +342,6 @@ export default function StudentRecordForm() {
               <TextInput
                 label="P.O"
                 key={form.key('pPo')}
-                size="xs"
                 {...form.getInputProps('pPo')}
               />
             </Grid.Col>
@@ -382,7 +349,6 @@ export default function StudentRecordForm() {
               <TextInput
                 label="P.S"
                 key={form.key('pPs')}
-                size="xs"
                 {...form.getInputProps('pPs')}
               />
             </Grid.Col>
@@ -390,7 +356,6 @@ export default function StudentRecordForm() {
               <NumberInput
                 label="Pin"
                 key={form.key('pPin')}
-                size="xs"
                 {...form.getInputProps('pPin')}
                 hideControls
               />
@@ -400,7 +365,6 @@ export default function StudentRecordForm() {
               <Checkbox
                 label="Is Both Address are same?"
                 key={form.key('isBothAddressSame')}
-                size="xs"
                 {...form.getInputProps('isBothAddressSame')}
               />
             </Grid.Col>
@@ -409,7 +373,6 @@ export default function StudentRecordForm() {
               <Textarea
                 label="Permanent Address"
                 key={form.key('prAddress')}
-                size="xs"
                 {...form.getInputProps('prAddress')}
               />
             </Grid.Col>
@@ -417,7 +380,6 @@ export default function StudentRecordForm() {
               <TextInput
                 label="P.O"
                 key={form.key('prPo')}
-                size="xs"
                 {...form.getInputProps('prPo')}
               />
             </Grid.Col>
@@ -425,7 +387,6 @@ export default function StudentRecordForm() {
               <TextInput
                 label="P.S"
                 key={form.key('prPs')}
-                size="xs"
                 {...form.getInputProps('prPs')}
               />
             </Grid.Col>
@@ -433,7 +394,6 @@ export default function StudentRecordForm() {
               <NumberInput
                 label="Pin"
                 key={form.key('prPin')}
-                size="xs"
                 {...form.getInputProps('prPin')}
                 hideControls
               />
@@ -441,11 +401,11 @@ export default function StudentRecordForm() {
 
             <Grid.Col span={12}>
               <Text size="sm" fw={800} mb="sm">
-                Details of Previous School (IF any)
+                Details of Previous School (If any)
               </Text>
 
               <Table striped withTableBorder withColumnBorders>
-                <Table.Tbody>
+                <Table.Thead>
                   <Table.Tr>
                     <Table.Th>Name</Table.Th>
                     <Table.Th>Place</Table.Th>
@@ -454,113 +414,107 @@ export default function StudentRecordForm() {
                     <Table.Th>Period (YYYY to YYYY)</Table.Th>
                     <Table.Th></Table.Th>
                   </Table.Tr>
-                  <>
-                    {(form.getValues()?.previousSchoolDetails || []).map(
-                      (item, index) => (
-                        <Table.Tr>
-                          <Table.Td>
-                            <TextInput
-                              size="xs"
-                              key={form.key(
-                                `previousSchoolDetails.${index}.name`
-                              )}
-                              {...form.getInputProps(
-                                `previousSchoolDetails.${index}.name`
-                              )}
-                            />
-                          </Table.Td>
-                          <Table.Td>
-                            <TextInput
-                              size="xs"
-                              key={form.key(
-                                `previousSchoolDetails.${index}.place`
-                              )}
-                              {...form.getInputProps(
-                                `previousSchoolDetails.${index}.place`
-                              )}
-                            />
-                          </Table.Td>
-                          <Table.Td>
-                            <TextInput
-                              size="xs"
-                              key={form.key(
-                                `previousSchoolDetails.${index}.affilatedBoard`
-                              )}
-                              {...form.getInputProps(
-                                `previousSchoolDetails.${index}.affilatedBoard`
-                              )}
-                            />
-                          </Table.Td>
-                          <Table.Td>
-                            <TextInput
-                              size="xs"
-                              key={form.key(
-                                `previousSchoolDetails.${index}.standard`
-                              )}
-                              {...form.getInputProps(
-                                `previousSchoolDetails.${index}.standard`
-                              )}
-                            />
-                          </Table.Td>
-
-                          <Table.Td>
-                            <Group align="center" style={{ width: '100%' }}>
-                              <YearPickerInput
-                                dropdownType="modal"
-                                key={form.key(
-                                  `previousSchoolDetails.${index}.periodStart`
-                                )}
-                                {...form.getInputProps(
-                                  `previousSchoolDetails.${index}.periodStart`
-                                )}
-                                rightSection={<IconCalendarMonth />}
-                                style={{ flex: 1 }}
-                              />
-                              <Text>-</Text>
-                              <YearPickerInput
-                                dropdownType="modal"
-                                key={form.key(
-                                  `previousSchoolDetails.${index}.periodEnd`
-                                )}
-                                {...form.getInputProps(
-                                  `previousSchoolDetails.${index}.periodEnd`
-                                )}
-                                rightSection={<IconCalendarMonth />}
-                                style={{ flex: 1 }}
-                              />
-                            </Group>
-                          </Table.Td>
-                          <Table.Td>
-                            {(form.getValues().previousSchoolDetails || [])
-                              ?.length > 1 && (
-                              <Tooltip label="Delete Row">
-                                <ActionIcon
-                                  variant="outline"
-                                  color="red"
-                                  onClick={() =>
-                                    form.removeListItem(
-                                      'previousSchoolDetails',
-                                      index
-                                    )
-                                  }
-                                >
-                                  <IconTrash size={16} />
-                                </ActionIcon>
-                              </Tooltip>
+                </Table.Thead>
+                <Table.Tbody>
+                  {(form.getValues()?.previousSchoolDetails || []).map(
+                    (item, index) => (
+                      <Table.Tr>
+                        <Table.Td>
+                          <TextInput
+                            key={form.key(
+                              `previousSchoolDetails.${index}.name`
                             )}
-                          </Table.Td>
-                        </Table.Tr>
-                      )
-                    )}
-                  </>
+                            {...form.getInputProps(
+                              `previousSchoolDetails.${index}.name`
+                            )}
+                          />
+                        </Table.Td>
+                        <Table.Td>
+                          <TextInput
+                            key={form.key(
+                              `previousSchoolDetails.${index}.place`
+                            )}
+                            {...form.getInputProps(
+                              `previousSchoolDetails.${index}.place`
+                            )}
+                          />
+                        </Table.Td>
+                        <Table.Td>
+                          <TextInput
+                            key={form.key(
+                              `previousSchoolDetails.${index}.affilatedBoard`
+                            )}
+                            {...form.getInputProps(
+                              `previousSchoolDetails.${index}.affilatedBoard`
+                            )}
+                          />
+                        </Table.Td>
+                        <Table.Td>
+                          <TextInput
+                            key={form.key(
+                              `previousSchoolDetails.${index}.standard`
+                            )}
+                            {...form.getInputProps(
+                              `previousSchoolDetails.${index}.standard`
+                            )}
+                          />
+                        </Table.Td>
+
+                        <Table.Td>
+                          <Group align="center" style={{ width: '100%' }}>
+                            <YearPickerInput
+                              dropdownType="modal"
+                              key={form.key(
+                                `previousSchoolDetails.${index}.periodStart`
+                              )}
+                              {...form.getInputProps(
+                                `previousSchoolDetails.${index}.periodStart`
+                              )}
+                              leftSection={<IconCalendarMonth size={18} />}
+                              style={{ flex: 1 }}
+                            />
+                            <Text>-</Text>
+                            <YearPickerInput
+                              dropdownType="modal"
+                              key={form.key(
+                                `previousSchoolDetails.${index}.periodEnd`
+                              )}
+                              {...form.getInputProps(
+                                `previousSchoolDetails.${index}.periodEnd`
+                              )}
+                              leftSection={<IconCalendarMonth size={18} />}
+                              style={{ flex: 1 }}
+                            />
+                          </Group>
+                        </Table.Td>
+                        <Table.Td>
+                          {(form.getValues().previousSchoolDetails || [])
+                            ?.length > 1 && (
+                            <Tooltip label="Delete Row">
+                              <ActionIcon
+                                variant="outline"
+                                color="red"
+                                onClick={() =>
+                                  form.removeListItem(
+                                    'previousSchoolDetails',
+                                    index
+                                  )
+                                }
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                        </Table.Td>
+                      </Table.Tr>
+                    )
+                  )}
                 </Table.Tbody>
               </Table>
               <Group justify="right" mt="sm">
-                <Tooltip label="Add New Row">
-                  <Button onClick={addRecord} leftSection={<IconPlus />}>
-                    Add Row
-                  </Button>
-                </Tooltip>
+                <Button onClick={addRecord} leftSection={<IconPlus />}>
+                  Add
+                </Button>
               </Group>
             </Grid.Col>
             <Grid.Col span={2}>
@@ -568,7 +522,6 @@ export default function StudentRecordForm() {
                 name="medicalHistory"
                 label="Medical History"
                 withAsterisk
-                size="xs"
                 key={form.key('medicalHistory')}
                 {...form.getInputProps('medicalHistory')}
                 onChange={(e) => {
@@ -589,8 +542,7 @@ export default function StudentRecordForm() {
                     label="If yes, Write Details and Attach Medical Records"
                     key={form.key('medicalFile')}
                     {...form.getInputProps('medicalFile')}
-                    size="xs"
-                    rightSection={<IconFile />}
+                    leftSection={<IconUpload size={18} />}
                   />
                 </Grid.Col>
               )}
@@ -600,8 +552,7 @@ export default function StudentRecordForm() {
                 label="Vaccination Record (Attach Records along with Birth Certificate)"
                 key={form.key('vaccinationRecord')}
                 {...form.getInputProps('vaccinationRecord')}
-                size="xs"
-                rightSection={<IconFile />}
+                leftSection={<IconUpload size={18} />}
               />
             </Grid.Col>
 
@@ -625,7 +576,6 @@ export default function StudentRecordForm() {
                         <Table.Tr>
                           <Table.Td>
                             <TextInput
-                              size="xs"
                               key={form.key(`siblingDetails.${index}.name`)}
                               {...form.getInputProps(
                                 `siblingDetails.${index}.name`
@@ -634,17 +584,15 @@ export default function StudentRecordForm() {
                           </Table.Td>
                           <Table.Td>
                             <DateInput
-                              size="xs"
                               key={form.key(`siblingDetails.${index}.dob`)}
                               {...form.getInputProps(
                                 `siblingDetails.${index}.dob`
                               )}
-                              rightSection={<IconCalendar />}
+                              leftSection={<IconCalendar size={18} />}
                             />
                           </Table.Td>
                           <Table.Td>
                             <Select
-                              size="xs"
                               data={[]}
                               key={form.key(`siblingDetails.${index}.classId`)}
                               {...form.getInputProps(
@@ -654,7 +602,6 @@ export default function StudentRecordForm() {
                           </Table.Td>
                           <Table.Td>
                             <TextInput
-                              size="xs"
                               key={form.key(
                                 `siblingDetails.${index}.presentSchool`
                               )}
@@ -714,7 +661,6 @@ export default function StudentRecordForm() {
                   <TextInput
                     label="Qualification"
                     key={form.key(`${guardianArr[index].fields.qualification}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.qualification}`
                     )}
@@ -724,7 +670,6 @@ export default function StudentRecordForm() {
                   <TextInput
                     label="Profession"
                     key={form.key(`${guardianArr[index].fields.profession}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.profession}`
                     )}
@@ -734,7 +679,6 @@ export default function StudentRecordForm() {
                   <NumberInput
                     label="Annual Income"
                     key={form.key(`${guardianArr[index].fields.annualIncome}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.annualIncome}`
                     )}
@@ -745,7 +689,6 @@ export default function StudentRecordForm() {
                   <Textarea
                     label="Office Address"
                     key={form.key(`${guardianArr[index].fields.address}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.address}`
                     )}
@@ -755,7 +698,6 @@ export default function StudentRecordForm() {
                   <TextInput
                     label="Town/City"
                     key={form.key(`${guardianArr[index].fields.city}`)}
-                    size="xs"
                     {...form.getInputProps(`${guardianArr[index].fields.city}`)}
                   />
                 </Grid.Col>
@@ -763,7 +705,6 @@ export default function StudentRecordForm() {
                   <TextInput
                     label="Pin"
                     key={form.key(`${guardianArr[index].fields.pin}`)}
-                    size="xs"
                     {...form.getInputProps(`${guardianArr[index].fields.pin}`)}
                   />
                 </Grid.Col>
@@ -772,7 +713,6 @@ export default function StudentRecordForm() {
                     label="State"
                     data={[]}
                     key={form.key(`${guardianArr[index].fields.state}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.state}`
                     )}
@@ -783,7 +723,6 @@ export default function StudentRecordForm() {
                     label="Country"
                     data={[]}
                     key={form.key(`${guardianArr[index].fields.country}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.country}`
                     )}
@@ -793,7 +732,6 @@ export default function StudentRecordForm() {
                   <NumberInput
                     label="Mobile"
                     key={form.key(`${guardianArr[index].fields.mobile}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.mobile}`
                     )}
@@ -804,7 +742,6 @@ export default function StudentRecordForm() {
                   <TextInput
                     label="Email"
                     key={form.key(`${guardianArr[index].fields.email}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.email}`
                     )}
@@ -814,16 +751,14 @@ export default function StudentRecordForm() {
                   <FileInput
                     label="Signature"
                     key={form.key(`${guardianArr[index].fields.sign}`)}
-                    size="xs"
                     {...form.getInputProps(`${guardianArr[index].fields.sign}`)}
-                    rightSection={<IconFile />}
+                    leftSection={<IconUpload size={18} />}
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <TextInput
                     label="Place"
                     key={form.key(`${guardianArr[index].fields.place}`)}
-                    size="xs"
                     {...form.getInputProps(
                       `${guardianArr[index].fields.place}`
                     )}
@@ -846,7 +781,6 @@ export default function StudentRecordForm() {
           <Grid columns={12}>
             <Grid.Col span={12}>
               <Checkbox
-                size="xs"
                 key={form.key('consent')}
                 {...form.getInputProps('consent')}
                 label="I/we hereby confirm that all information provided on this form are complete and accurate to the best of my / our knowledge. I/ we understand that the admission is substantially based on the information provided by me / us. I / we also understand that at any stage if the information provided by me / us is found to be incorrect or that some information is suppressed or manipulated, it may result in immediate action to the extend to dismissal of my / our child with no fees being refunded."

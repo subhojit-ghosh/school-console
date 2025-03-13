@@ -29,7 +29,7 @@ function LoginPage() {
         </Text> */}
         <Image src={logo} height={60} alt="JDS Public School" fit="contain" />
 
-        <Paper withBorder shadow="md" p={30} mt={30} radius="sm">
+        <Paper withBorder shadow="md" p={30} mt={30} >
           <TextInput label="Username" required />
           <PasswordInput label="Password" required mt="md" />
           {/* <Group justify="space-between" mt="lg">

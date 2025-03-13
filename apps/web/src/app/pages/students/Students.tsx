@@ -11,13 +11,12 @@ import { useDebouncedState } from '@mantine/hooks';
 import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import StudentForm from './StudentForm';
-import { useNavigate } from 'react-router-dom';
 
 export default function StudentsPage() {
-  const navigate = useNavigate();
   const [isListLoading, setIsListLoading] = useState(true);
   const [listData, setListData] = useState({
     data: [],
@@ -79,19 +78,12 @@ export default function StudentsPage() {
   return (
     <>
       <Group justify="space-between" align="center" mb="md">
-        <Title size="lg">
-          Students
-        </Title>
+        <Title size="lg">Students</Title>
         <Button
           variant="filled"
-          radius="sm"
           leftSection={<IconPlus size={14} />}
-          onClick={() => {
-            navigate('/students/add');
-            // setFormMode('add');
-            // setFormData(null);
-            // setFormOpened(true);
-          }}
+          component={Link}
+          to="/students/add"
         >
           Add
         </Button>

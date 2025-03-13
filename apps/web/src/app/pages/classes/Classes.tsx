@@ -80,7 +80,7 @@ export default function ClassesPage() {
         </Title>
         <Button
           variant="filled"
-          radius="sm"
+          
           leftSection={<IconPlus size={14} />}
           onClick={() => {
             setFormMode('add');
