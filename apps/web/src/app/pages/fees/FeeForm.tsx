@@ -119,7 +119,7 @@ export default function FeeForm({
         })}
       >
         <Grid>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
             <Select
               label="Academic Year"
               placeholder="Select"
@@ -131,7 +131,7 @@ export default function FeeForm({
               {...form.getInputProps('academicYearId')}
             />
           </Grid.Col>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
             <Select
               label="Class"
               placeholder="Select"
@@ -155,6 +155,7 @@ export default function FeeForm({
               label="Amount"
               withAsterisk
               allowDecimal={false}
+              prefix='₹'
               {...form.getInputProps('amount')}
             />
           </Grid.Col>

@@ -13,11 +13,11 @@ import { useDebouncedState } from '@mantine/hooks';
 import { FeeCategory } from '@school-console/utils';
 import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import FeeForm from './FeeForm';
-import moment from 'moment';
 
 function FeesPage() {
   const [category, setCategory] = useState<string | null>(
@@ -139,11 +139,9 @@ function FeesPage() {
             setFilters({ ...filters, academicYearId: value || '' })
           }
           size="xs"
-          
         />
         <Button
           variant="filled"
-          
           leftSection={<IconPlus size={14} />}
           onClick={() => {
             setFormMode('add');
@@ -171,27 +169,6 @@ function FeesPage() {
         onSortStatusChange={setSortStatus}
         columns={[
           {
-            accessor: 'name',
-            title: 'Name',
-            sortable: true,
-            filter: (
-              <TextInput
-                label="Name"
-                leftSection={<IconSearch size={16} />}
-                defaultValue={filters.name}
-                onChange={(e) =>
-                  setFilters({ ...filters, name: e.currentTarget.value })
-                }
-              />
-            ),
-            filtering: !!filters.name,
-          },
-          {
-            accessor: 'amount',
-            title: 'Amount',
-            sortable: true,
-          },
-          {
             accessor: 'classId',
             title: 'Class',
             render: (row: any) =>
@@ -214,6 +191,28 @@ function FeesPage() {
               />
             ),
             filtering: !!filters.classId,
+          },
+          {
+            accessor: 'name',
+            title: 'Name',
+            sortable: true,
+            filter: (
+              <TextInput
+                label="Name"
+                leftSection={<IconSearch size={16} />}
+                defaultValue={filters.name}
+                onChange={(e) =>
+                  setFilters({ ...filters, name: e.currentTarget.value })
+                }
+              />
+            ),
+            filtering: !!filters.name,
+          },
+          {
+            accessor: 'amount',
+            title: 'Amount',
+            render: (row: any) => `₹${row.amount}`,
+            sortable: true,
           },
           ...(category !== FeeCategory.Enrollment
             ? [
