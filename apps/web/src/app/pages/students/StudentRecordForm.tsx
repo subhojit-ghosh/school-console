@@ -182,7 +182,7 @@ export default function StudentRecordForm() {
             variant="dashed"
             labelPosition="center"
             label={
-              <Text c="blue" size="md" fw={600}>
+              <Text c="indigo" size="md" fw={600}>
                 Student's Information
               </Text>
             }
@@ -704,7 +704,7 @@ export default function StudentRecordForm() {
                 variant="dashed"
                 labelPosition="center"
                 label={
-                  <Text c="dark.2" fw={600} size="sm">
+                  <Text c="indigo" fw={600} size="sm">
                     {item.head}
                   </Text>
                 }
@@ -836,7 +836,7 @@ export default function StudentRecordForm() {
           <Space h={40} />
 
           <Center>
-            <Paper py={2} px={6} bg="dark" mb="sm">
+            <Paper py={2} px={6} bg="indigo" mb="sm">
               <Text c="#fff" size="md" fw={700}>
                 Declaration
               </Text>
