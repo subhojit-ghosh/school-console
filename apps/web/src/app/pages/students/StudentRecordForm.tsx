@@ -189,7 +189,12 @@ export default function StudentRecordForm() {
               <TextInput
                 label="Reg No."
                 key={form.key('regNo')}
-                leftSection={'J-'}
+                leftSection={<span style={{ paddingLeft: 10 }}>JDS/</span>}
+                styles={{
+                  input: {
+                    paddingLeft: '45px',
+                  },
+                }}
                 {...form.getInputProps('regNo')}
               />
             </Grid.Col>
