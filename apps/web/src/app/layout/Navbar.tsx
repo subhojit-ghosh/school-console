@@ -1,14 +1,26 @@
 import {
+  Avatar,
+  Group,
+  Image,
+  Menu,
+  Text,
+  UnstyledButton,
+} from '@mantine/core';
+import {
   IconCalendar,
   IconCash,
   IconChalkboard,
+  IconChevronDown,
+  IconChevronRight,
   IconDashboard,
+  IconLogout,
   IconPasswordUser,
   IconSchool,
   IconTag,
   IconUsers,
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 import classes from './Navbar.module.scss';
 
 const data = [
@@ -46,7 +58,45 @@ export function Navbar() {
 
   return (
     <nav className={classes.navbar}>
-      <div className={classes.navbarMain}>{links}</div>
+      <div className={classes.navbarMain}>
+        <Group className={classes.header} justify="center" align="center">
+          <Image src={logo} height={35} />
+        </Group>
+        {links}
+      </div>
+      <div className={classes.footer}>
+        <Menu width={200} withArrow position="top-end">
+          <Menu.Target>
+            <UnstyledButton>
+              <Group>
+                <Avatar
+                  name="Subhojit Ghosh"
+                  color="indigo"
+                  size="md"
+                  bg="white"
+                />
+
+                <div style={{ flex: 1 }}>
+                  <Text fw={500} c="white">
+                    Subhojit Ghosh
+                  </Text>
+
+                  <Text c="white" size="sm">
+                    Admin
+                  </Text>
+                </div>
+
+                <IconChevronRight size={14} stroke={1.5} color="white" />
+              </Group>
+            </UnstyledButton>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Item color="red" leftSection={<IconLogout size={14} />}>
+              Logout
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </div>
     </nav>
   );
 }

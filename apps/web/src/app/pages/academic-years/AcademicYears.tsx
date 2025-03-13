@@ -89,15 +89,12 @@ export default function AcademicYearsPage() {
 
   return (
     <>
-      <Group justify="space-between">
-        <Title size="md" mb="lg">
-          Academic Years
-        </Title>
+      <Group justify="space-between" align="center" mb="md">
+        <Title size="lg">Academic Years</Title>
         <Button
           variant="filled"
-          size="xs"
           radius="sm"
-          leftSection={<IconPlus size={14} />}
+          leftSection={<IconPlus size={16} />}
           onClick={() => {
             setFormMode('add');
             setFormData(null);

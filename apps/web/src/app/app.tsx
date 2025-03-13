@@ -12,13 +12,14 @@ import ClassesPage from './pages/classes/Classes';
 import DashboardPage from './pages/dashboard/Dashboard';
 import FeesPage from './pages/fees/Fees';
 import LoginPage from './pages/Login';
+import { PageNotFound } from './pages/page-not-found/PageNotFound';
 import PaymentsPage from './pages/payments/Payments';
 import StudentsPage from './pages/students/Students';
 import UsersPage from './pages/users/Users';
 import StudentAddPage from '@pages/students/add';
 
 const theme = createTheme({
-  primaryColor: 'orange',
+  primaryColor: 'indigo',
 });
 
 export function App() {
@@ -39,7 +40,9 @@ export function App() {
           <Route path="/fees" element={<FeesPage />} />
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="*" element={<PageNotFound />} />
         </Route>
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </MantineProvider>
   );

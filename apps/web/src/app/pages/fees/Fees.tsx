@@ -117,10 +117,8 @@ function FeesPage() {
 
   return (
     <>
-      <Group justify="space-between">
-        <Title size="md" mb="lg">
-          Fees
-        </Title>
+      <Group justify="space-between" align="center" mb="md">
+        <Title size="lg">Fees</Title>
       </Group>
       <Tabs value={category} onChange={setCategory}>
         <Tabs.List>
@@ -145,7 +143,6 @@ function FeesPage() {
         />
         <Button
           variant="filled"
-          size="xs"
           radius="sm"
           leftSection={<IconPlus size={14} />}
           onClick={() => {

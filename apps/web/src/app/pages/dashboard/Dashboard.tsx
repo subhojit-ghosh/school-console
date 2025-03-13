@@ -1,4 +1,11 @@
-import { Group, Paper, SimpleGrid, Text, Title } from '@mantine/core';
+import {
+  Group,
+  Paper,
+  SimpleGrid,
+  Text,
+  Title,
+  useMantineTheme,
+} from '@mantine/core';
 
 const data = [
   { title: 'Students', value: '20' },
@@ -7,12 +14,14 @@ const data = [
 ];
 
 function DashboardPage() {
+  const theme = useMantineTheme();
+
   const stats = data.map((stat) => {
     return (
       <Paper withBorder p="md" radius="sm" key={stat.title}>
         <Group justify="apart">
           <div>
-            <Text tt="uppercase" fw={700} fz="xs" c="orange">
+            <Text tt="uppercase" fw={700} fz="sm" c={theme.colors.indigo[9]}>
               {stat.title}
             </Text>
             <Text fw={700} fz="xl">
@@ -26,10 +35,8 @@ function DashboardPage() {
 
   return (
     <>
-      <Group justify="space-between">
-        <Title size="md" mb="lg">
-          Dashboard
-        </Title>
+      <Group justify="space-between" align="center" mb="md">
+        <Title size="lg">Dashboard</Title>
       </Group>
       <div>
         <SimpleGrid cols={{ base: 1, sm: 3 }}>{stats}</SimpleGrid>

@@ -78,13 +78,12 @@ export default function StudentsPage() {
 
   return (
     <>
-      <Group justify="space-between">
-        <Title size="md" mb="lg">
+      <Group justify="space-between" align="center" mb="md">
+        <Title size="lg">
           Students
         </Title>
         <Button
           variant="filled"
-          size="xs"
           radius="sm"
           leftSection={<IconPlus size={14} />}
           onClick={() => {
