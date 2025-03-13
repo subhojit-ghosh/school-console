@@ -16,7 +16,9 @@
     "baseUrl": ".",
     "paths": {
       "@school-console/drizzle": ["libs/drizzle/src/index.ts"],
-      "@school-console/utils": ["libs/utils/src/index.ts"]
+      "@school-console/utils": ["libs/utils/src/index.ts"],
+      "@components/*": ["apps/web/src/app/components/*"],
+      "@pages/*": ["apps/web/src/app/pages/*"],
     }
   },
   "exclude": ["node_modules", "tmp"]

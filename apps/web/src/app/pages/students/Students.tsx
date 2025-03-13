@@ -14,8 +14,10 @@ import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import StudentForm from './StudentForm';
+import { useNavigate } from 'react-router-dom';
 
 export default function StudentsPage() {
+  const navigate = useNavigate();
   const [isListLoading, setIsListLoading] = useState(true);
   const [listData, setListData] = useState({
     data: [],
@@ -85,9 +87,10 @@ export default function StudentsPage() {
           radius="sm"
           leftSection={<IconPlus size={14} />}
           onClick={() => {
-            setFormMode('add');
-            setFormData(null);
-            setFormOpened(true);
+            navigate('/students/add');
+            // setFormMode('add');
+            // setFormData(null);
+            // setFormOpened(true);
           }}
         >
           Add
