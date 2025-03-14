@@ -1,0 +1,29 @@
+service: school-console-api
+
+useDotenv: true
+
+plugins:
+  - serverless-offline
+
+package:
+  individually: true
+  patterns:
+    - '!**'
+    - 'dist/apps/api/**'
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+
+functions:
+  main:
+    handler: main.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'

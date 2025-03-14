@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { drizzle, MySql2Database } from 'drizzle-orm/mysql2';
+import * as mysql from 'mysql2/promise';
 import * as schema from './schemas';
 
 export const DRIZZLE = Symbol('drizzle-connection');
@@ -15,7 +16,15 @@ export * from './schemas';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const databaseUrl = configService.get<string>('DATABASE_URL') as string;
-        return drizzle(databaseUrl, {
+
+        const pool = mysql.createPool({
+          uri: databaseUrl,
+          waitForConnections: true,
+          connectionLimit: 10,
+          queueLimit: 0,
+        });
+
+        return drizzle(pool, {
           casing: 'snake_case',
         });
       },

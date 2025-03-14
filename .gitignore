@@ -48,3 +48,5 @@ vitest.config.*.timestamp*
 
 package-lock.json
 yarn.lock
+
+.serverless
