@@ -13,10 +13,10 @@ import DashboardPage from './pages/dashboard/Dashboard';
 import FeesPage from './pages/fees/Fees';
 import LoginPage from './pages/Login';
 import { PageNotFound } from './pages/page-not-found/PageNotFound';
-import PaymentsPage from './pages/payments/Payments';
 import StudentsPage from './pages/students/Students';
 import UsersPage from './pages/users/Users';
-import StudentAddPage from '@pages/students/add';
+import StudentAddPage from './pages/students/add';
+import TransactionsPage from './pages/transactions/Transactions';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -38,7 +38,7 @@ export function App() {
           </Route>
           <Route path="/classes" element={<ClassesPage />} />
           <Route path="/fees" element={<FeesPage />} />
-          <Route path="/payments" element={<PaymentsPage />} />
+          <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
