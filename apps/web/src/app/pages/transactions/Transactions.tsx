@@ -3,35 +3,103 @@ import {
   Box,
   Button,
   Group,
-  Switch,
+  Select,
   Tabs,
   TextInput,
   Title,
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
-import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
+import {
+  IconPlus,
+  IconPrinter,
+  IconSearch,
+  IconUserCheck,
+  IconUserPlus,
+} from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
+import tabStyles from '../../styles/Tab.module.scss';
+
+const enrolledStudents = [
+  {
+    id: 'TXN-1',
+    studentId: 'J-1',
+    studentName: 'John Doe',
+    class: 'IV',
+    date: '2024-09-01',
+    payable: 400,
+    paid: 300,
+    due: 100,
+    mode: 'Cash',
+  },
+  {
+    id: 'TXN-2',
+    studentId: 'J-2',
+    studentName: 'Jane Doe',
+    class: 'IV',
+    date: '2024-09-01',
+    payable: 900,
+    paid: 900,
+    due: 0,
+    mode: 'UPI',
+  },
+  {
+    id: 'TXN-3',
+    studentId: 'J-3',
+    studentName: 'John Doe Jr.',
+    class: 'IV',
+    date: '2024-09-01',
+    payable: 700,
+    paid: 500,
+    due: 200,
+    mode: 'Cheque',
+  },
+];
+
+const newRegistrations = [
+  {
+    id: 'TXN-1',
+    regId: 'REG-1',
+    studentName: 'John Doe',
+    class: 'IV',
+    date: '2024-09-01',
+    payable: 900,
+    paid: 900,
+    due: 0,
+    mode: 'UPI',
+  },
+  {
+    id: 'TXN-2',
+    regId: 'REG-2',
+    studentName: 'Jane Doe',
+    class: 'IV',
+    date: '2024-09-01',
+    payable: 500,
+    paid: 400,
+    due: 100,
+    mode: 'Cheque',
+  },
+  {
+    id: 'TXN-3',
+    regId: 'REG-3',
+    studentName: 'John Doe Jr.',
+    class: 'IV',
+    date: '2024-09-01',
+    payable: 700,
+    paid: 500,
+    due: 200,
+    mode: 'Cash',
+  },
+];
 
 export default function TransactionsPage() {
-  const [type, setType] = useState<string | null>('student');
+  const [type, setType] = useState<string | null>('enrolled');
   const [isListLoading, setIsListLoading] = useState(true);
-  const [listData, setListData] = useState({
-    data: [
-      {
-        id: 1,
-        studentId: 'J-001',
-        studentName: 'Rahul Kumar',
-        type: 'Fee',
-        amount: 500,
-        date: '2021-09-01',
-        mode: 'Cash',
-      },
-    ],
+  const [listData, setListData] = useState<any>({
+    data: [],
     totalRecords: 0,
     totalPages: 0,
     size: 10,
@@ -40,6 +108,7 @@ export default function TransactionsPage() {
   const [filters, setFilters] = useDebouncedState(
     {
       name: '',
+      academicYearId: '',
     },
     200
   );
@@ -47,13 +116,48 @@ export default function TransactionsPage() {
     columnAccessor: 'name',
     direction: 'desc',
   });
-  const [formOpened, setFormOpened] = useState(false);
-  const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
-  const [formData, setFormData] = useState<any>(null);
+  const [academicYears, setAcademicYears] = useState<any[]>([]);
 
   useEffect(() => {
+    if (type === 'enrolled') {
+      setListData({
+        data: enrolledStudents,
+        totalRecords: enrolledStudents.length,
+        totalPages: 1,
+        size: 10,
+        page: 1,
+      });
+    }
+    if (type === 'registrations') {
+      setListData({
+        data: newRegistrations,
+        totalRecords: enrolledStudents.length,
+        totalPages: 1,
+        size: 10,
+        page: 1,
+      });
+    }
+  }, [type]);
+
+  useEffect(() => {
+    fetchAcademicYears();
     fetchList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, sortStatus]);
+
+  const fetchAcademicYears = async () => {
+    try {
+      const { data } = await httpClient.get(endpoints.academicYears.dropdown());
+      setAcademicYears(data.data);
+      const currentAcademicYear = data.data.find((item: any) => item.isActive);
+      setFilters({
+        ...filters,
+        academicYearId: String(currentAcademicYear.id),
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const fetchList = async (page: number | null = null) => {
     setIsListLoading(true);
@@ -101,24 +205,44 @@ export default function TransactionsPage() {
     <>
       <Group justify="space-between" align="center" mb="md">
         <Title size="lg">Transactions</Title>
-        <Button
-          variant="filled"
-          leftSection={<IconPlus size={16} />}
-          onClick={() => {
-            setFormMode('add');
-            setFormData(null);
-            setFormOpened(true);
-          }}
-        >
+      </Group>
+      <Tabs
+        value={type}
+        onChange={setType}
+        variant="unstyled"
+        classNames={{ tab: tabStyles.tab }}
+      >
+        <Tabs.List grow>
+          <Tabs.Tab
+            value="enrolled"
+            color="green"
+            leftSection={<IconUserCheck size={18} />}
+          >
+            Enrolled Students
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="registrations"
+            leftSection={<IconUserPlus size={18} />}
+          >
+            New Registrations
+          </Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+      <Group justify="space-between" my={10}>
+        <Select
+          data={academicYears.map((item: any) => ({
+            label: item.name,
+            value: String(item.id),
+          }))}
+          value={filters.academicYearId}
+          onChange={(value) =>
+            setFilters({ ...filters, academicYearId: value || '' })
+          }
+        />
+        <Button variant="filled" leftSection={<IconPlus size={14} />}>
           Add
         </Button>
       </Group>
-      <Tabs value={type} onChange={setType}>
-        <Tabs.List>
-          <Tabs.Tab value="student">Student Fees</Tabs.Tab>
-          <Tabs.Tab value="registration">Registration</Tabs.Tab>
-        </Tabs.List>
-      </Tabs>
       <DataTable
         my={10}
         withTableBorder
@@ -140,22 +264,39 @@ export default function TransactionsPage() {
             accessor: 'id',
             title: 'ID',
           },
-          {
-            accessor: 'studentId',
-            title: 'Student ID',
-            sortable: true,
-            filter: (
-              <TextInput
-                label="Student ID"
-                leftSection={<IconSearch size={16} />}
-                defaultValue={filters.name}
-                onChange={(e) =>
-                  setFilters({ ...filters, name: e.currentTarget.value })
-                }
-              />
-            ),
-            filtering: !!filters.name,
-          },
+          type === 'enrolled'
+            ? {
+                accessor: 'studentId',
+                title: 'Student ID',
+                sortable: true,
+                filter: (
+                  <TextInput
+                    label="Student ID"
+                    leftSection={<IconSearch size={16} />}
+                    defaultValue={filters.name}
+                    onChange={(e) =>
+                      setFilters({ ...filters, name: e.currentTarget.value })
+                    }
+                  />
+                ),
+                filtering: !!filters.name,
+              }
+            : {
+                accessor: 'regId',
+                title: 'Reg ID',
+                sortable: true,
+                filter: (
+                  <TextInput
+                    label="Reg ID"
+                    leftSection={<IconSearch size={16} />}
+                    defaultValue={filters.name}
+                    onChange={(e) =>
+                      setFilters({ ...filters, name: e.currentTarget.value })
+                    }
+                  />
+                ),
+                filtering: !!filters.name,
+              },
           {
             accessor: 'studentName',
             title: 'Student Name',
@@ -173,28 +314,31 @@ export default function TransactionsPage() {
             filtering: !!filters.name,
           },
           {
-            accessor: 'startDate',
-            title: 'Start Date',
-            render: (row: any) => moment(row.startDate).format('MMMM DD, YYYY'),
+            accessor: 'class',
+            title: 'Class',
           },
           {
-            accessor: 'endDate',
-            title: 'End Date',
-            render: (row: any) => moment(row.endDate).format('MMMM DD, YYYY'),
+            accessor: 'payable',
+            title: 'Payable',
+            render: (row: any) => `₹${row.payable}`,
           },
           {
-            accessor: 'isActive',
-            title: 'Status',
-            sortable: true,
-            render: (row: any) => (
-              <Switch
-                checked={row.isActive}
-                color="green"
-                size="xs"
-                style={{ cursor: 'pointer' }}
-                onChange={() => updateStatus(row.id, !row.isActive)}
-              />
-            ),
+            accessor: 'paid',
+            title: 'Paid',
+            render: (row: any) => `₹${row.paid}`,
+          },
+          {
+            accessor: 'due',
+            title: 'Due',
+            render: (row: any) => `₹${row.due}`,
+          },
+          {
+            accessor: 'mode',
+            title: 'Mode',
+          },
+          {
+            accessor: 'date',
+            title: 'Date',
           },
           {
             accessor: 'actions',
@@ -202,17 +346,9 @@ export default function TransactionsPage() {
             textAlign: 'center',
             render: (row: any) => (
               <Group gap={4} justify="center" wrap="nowrap">
-                <Tooltip label="Edit" withArrow>
-                  <ActionIcon
-                    size="sm"
-                    variant="subtle"
-                    onClick={() => {
-                      setFormMode('edit');
-                      setFormData(row);
-                      setFormOpened(true);
-                    }}
-                  >
-                    <IconEdit size={16} />
+                <Tooltip label="Print Receipt" withArrow>
+                  <ActionIcon size="sm" variant="subtle">
+                    <IconPrinter size={16} />
                   </ActionIcon>
                 </Tooltip>
               </Group>

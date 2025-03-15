@@ -3,27 +3,19 @@ import {
   Box,
   Button,
   Group,
-  Select,
-  Tabs,
   TextInput,
   Title,
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
-import { FeeCategory } from '@school-console/utils';
 import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import FeeForm from './FeeForm';
-import tabStyles from '../../styles/Tab.module.scss';
+import ClassForm from './ClassForm';
 
-function FeesPage() {
-  const [category, setCategory] = useState<string | null>(
-    FeeCategory.Enrollment
-  );
+export default function ClassesPage() {
   const [isListLoading, setIsListLoading] = useState(true);
   const [listData, setListData] = useState({
     data: [],
@@ -35,8 +27,6 @@ function FeesPage() {
   const [filters, setFilters] = useDebouncedState(
     {
       name: '',
-      academicYearId: '',
-      classId: '',
     },
     200
   );
@@ -47,52 +37,18 @@ function FeesPage() {
   const [formOpened, setFormOpened] = useState(false);
   const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
   const [formData, setFormData] = useState<any>(null);
-  const [academicYears, setAcademicYears] = useState<any[]>([]);
-  const [classes, setClasses] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!filters.academicYearId) {
-      return;
-    }
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, filters, sortStatus]);
-
-  useEffect(() => {
-    fetchAcademicYears();
-    fetchClasses();
-  }, []);
-
-  const fetchAcademicYears = async () => {
-    try {
-      const { data } = await httpClient.get(endpoints.academicYears.dropdown());
-      setAcademicYears(data.data);
-      const currentAcademicYear = data.data.find((item: any) => item.isActive);
-      setFilters({
-        ...filters,
-        academicYearId: String(currentAcademicYear.id),
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchClasses = async () => {
-    try {
-      const { data } = await httpClient.get(endpoints.classes.dropdown());
-      setClasses(data.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  }, [filters, sortStatus]);
 
   const fetchList = async (page: number | null = null) => {
     setIsListLoading(true);
 
     try {
-      const { data } = await httpClient.get(endpoints.fees.list(), {
+      const { data } = await httpClient.get(endpoints.classes.list(), {
         params: {
-          category,
           ...filters,
           size: listData.size,
           page: page || listData.page,
@@ -119,34 +75,12 @@ function FeesPage() {
   return (
     <>
       <Group justify="space-between" align="center" mb="md">
-        <Title size="lg">Fees</Title>
-      </Group>
-      <Tabs
-        value={category}
-        onChange={setCategory}
-        variant="unstyled"
-        classNames={{ tab: tabStyles.tab }}
-      >
-        <Tabs.List grow>
-          <Tabs.Tab value={FeeCategory.Enrollment}>Enrollment</Tabs.Tab>
-          <Tabs.Tab value={FeeCategory.Tuition}>Tuition</Tabs.Tab>
-          <Tabs.Tab value={FeeCategory.Material}>Material</Tabs.Tab>
-          <Tabs.Tab value={FeeCategory.Miscellaneous}>Miscellaneous</Tabs.Tab>
-        </Tabs.List>
-      </Tabs>
-      <Group justify="space-between" my={10}>
-        <Select
-          data={academicYears.map((item: any) => ({
-            label: item.name,
-            value: String(item.id),
-          }))}
-          value={filters.academicYearId}
-          onChange={(value) =>
-            setFilters({ ...filters, academicYearId: value || '' })
-          }
-        />
+        <Title size="lg">
+          Classes
+        </Title>
         <Button
           variant="filled"
+          
           leftSection={<IconPlus size={14} />}
           onClick={() => {
             setFormMode('add');
@@ -157,6 +91,7 @@ function FeesPage() {
           Add
         </Button>
       </Group>
+
       <DataTable
         withTableBorder
         withColumnBorders
@@ -174,30 +109,6 @@ function FeesPage() {
         onSortStatusChange={setSortStatus}
         columns={[
           {
-            accessor: 'classId',
-            title: 'Class',
-            render: (row: any) =>
-              classes.find((item) => item.id === row.classId)?.name,
-            sortable: true,
-            filter: (
-              <Select
-                data={classes.map((item) => ({
-                  label: item.name,
-                  value: String(item.id),
-                }))}
-                label="Class"
-                placeholder="Select"
-                clearable
-                comboboxProps={{ withinPortal: false }}
-                defaultValue={filters.classId}
-                onChange={(value) =>
-                  setFilters({ ...filters, classId: value || '' })
-                }
-              />
-            ),
-            filtering: !!filters.classId,
-          },
-          {
             accessor: 'name',
             title: 'Name',
             sortable: true,
@@ -214,24 +125,10 @@ function FeesPage() {
             filtering: !!filters.name,
           },
           {
-            accessor: 'amount',
-            title: 'Amount',
-            render: (row: any) => `₹${row.amount}`,
-            sortable: true,
+            accessor: 'sections',
+            title: 'Sections',
+            render: (row: any) => row.sections.join(', '),
           },
-          ...(category !== FeeCategory.Enrollment
-            ? [
-                {
-                  accessor: 'dueDate',
-                  title: 'Due Date',
-                  render: (row: any) =>
-                    row.dueDate
-                      ? moment(row.dueDate).format('MMMM DD, YYYY')
-                      : '',
-                  sortable: true,
-                },
-              ]
-            : []),
           {
             accessor: 'actions',
             title: <Box mr={6}>Actions</Box>,
@@ -257,18 +154,13 @@ function FeesPage() {
         ]}
       />
 
-      <FeeForm
+      <ClassForm
         opened={formOpened}
         close={() => setFormOpened(false)}
         mode={formMode}
         data={formData}
         fetchList={fetchList}
-        academicYears={academicYears}
-        classes={classes}
-        category={category}
       />
     </>
   );
 }
-
-export default FeesPage;

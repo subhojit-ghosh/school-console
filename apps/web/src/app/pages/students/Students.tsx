@@ -19,9 +19,7 @@ import {
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import endpoints from '../../api/endpoints';
-import httpClient from '../../api/http-client';
-import styles from './Students.module.scss';
+import tabStyles from '../../styles/Tab.module.scss';
 
 const enrolledStudents = [
   {
@@ -166,7 +164,7 @@ export default function StudentsPage() {
         onChange={setType}
         my={10}
         variant="unstyled"
-        classNames={{ tab: styles.tab }}
+        classNames={{ tab: tabStyles.tab }}
       >
         <Tabs.List grow>
           <Tabs.Tab

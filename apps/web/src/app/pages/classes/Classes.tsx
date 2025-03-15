@@ -1,15 +1,15 @@
 import {
   ActionIcon,
-  Box,
   Button,
+  Card,
+  Grid,
   Group,
-  TextInput,
+  Text,
   Title,
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
-import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
-import { DataTable, DataTableSortStatus } from 'mantine-datatable';
+import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
@@ -21,7 +21,7 @@ export default function ClassesPage() {
     data: [],
     totalRecords: 0,
     totalPages: 0,
-    size: 10,
+    size: 100,
     page: 1,
   });
   const [filters, setFilters] = useDebouncedState(
@@ -30,10 +30,6 @@ export default function ClassesPage() {
     },
     200
   );
-  const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-    columnAccessor: '',
-    direction: 'asc',
-  });
   const [formOpened, setFormOpened] = useState(false);
   const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
   const [formData, setFormData] = useState<any>(null);
@@ -41,7 +37,7 @@ export default function ClassesPage() {
   useEffect(() => {
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, sortStatus]);
+  }, [filters]);
 
   const fetchList = async (page: number | null = null) => {
     setIsListLoading(true);
@@ -52,12 +48,6 @@ export default function ClassesPage() {
           ...filters,
           size: listData.size,
           page: page || listData.page,
-          ...(sortStatus.columnAccessor
-            ? {
-                sortBy: sortStatus.columnAccessor,
-                sortOrder: sortStatus.direction,
-              }
-            : {}),
         },
       });
 
@@ -75,12 +65,9 @@ export default function ClassesPage() {
   return (
     <>
       <Group justify="space-between" align="center" mb="md">
-        <Title size="lg">
-          Classes
-        </Title>
+        <Title size="lg">Classes</Title>
         <Button
           variant="filled"
-          
           leftSection={<IconPlus size={14} />}
           onClick={() => {
             setFormMode('add');
@@ -92,67 +79,34 @@ export default function ClassesPage() {
         </Button>
       </Group>
 
-      <DataTable
-        withTableBorder
-        withColumnBorders
-        borderRadius="sm"
-        striped
-        highlightOnHover
-        minHeight={300}
-        fetching={isListLoading}
-        totalRecords={listData.totalRecords}
-        recordsPerPage={listData.size}
-        page={listData.page}
-        onPageChange={(p) => fetchList(p)}
-        records={listData.data}
-        sortStatus={sortStatus}
-        onSortStatusChange={setSortStatus}
-        columns={[
-          {
-            accessor: 'name',
-            title: 'Name',
-            sortable: true,
-            filter: (
-              <TextInput
-                label="Name"
-                leftSection={<IconSearch size={16} />}
-                defaultValue={filters.name}
-                onChange={(e) =>
-                  setFilters({ ...filters, name: e.currentTarget.value })
-                }
-              />
-            ),
-            filtering: !!filters.name,
-          },
-          {
-            accessor: 'sections',
-            title: 'Sections',
-            render: (row: any) => row.sections.join(', '),
-          },
-          {
-            accessor: 'actions',
-            title: <Box mr={6}>Actions</Box>,
-            textAlign: 'center',
-            render: (row: any) => (
-              <Group gap={4} justify="center" wrap="nowrap">
+      <Grid>
+        {listData.data.map((cls: any) => (
+          <Grid.Col key={cls.id} span={4}>
+            <Card withBorder>
+              <Group justify="space-between" align="center">
+                <Text fw="bold" c="indigo">
+                  {cls.name}
+                </Text>
                 <Tooltip label="Edit" withArrow>
                   <ActionIcon
-                    size="sm"
                     variant="subtle"
                     onClick={() => {
                       setFormMode('edit');
-                      setFormData(row);
+                      setFormData(cls);
                       setFormOpened(true);
                     }}
                   >
-                    <IconEdit size={16} />
+                    <IconEdit size={18} />
                   </ActionIcon>
                 </Tooltip>
               </Group>
-            ),
-          },
-        ]}
-      />
+              <Text size="sm" c="dimmed" mt="xs">
+                Sections: {cls.sections.join(', ')}
+              </Text>
+            </Card>
+          </Grid.Col>
+        ))}
+      </Grid>
 
       <ClassForm
         opened={formOpened}
