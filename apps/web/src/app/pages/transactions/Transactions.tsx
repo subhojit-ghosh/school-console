@@ -19,6 +19,7 @@ import {
 } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import tabStyles from '../../styles/Tab.module.scss';
@@ -221,7 +222,7 @@ export default function TransactionsPage() {
             Enrolled Students
           </Tabs.Tab>
           <Tabs.Tab
-            value="registrations"
+            value="registration"
             leftSection={<IconUserPlus size={18} />}
           >
             New Registrations
@@ -239,7 +240,12 @@ export default function TransactionsPage() {
             setFilters({ ...filters, academicYearId: value || '' })
           }
         />
-        <Button variant="filled" leftSection={<IconPlus size={14} />}>
+        <Button
+          variant="filled"
+          leftSection={<IconPlus size={14} />}
+          component={Link}
+          to={`/transactions/add/${type}`}
+        >
           Add
         </Button>
       </Group>

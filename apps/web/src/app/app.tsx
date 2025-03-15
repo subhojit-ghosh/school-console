@@ -15,6 +15,7 @@ import LoginPage from './pages/Login';
 import { PageNotFound } from './pages/page-not-found/PageNotFound';
 import StudentForm from './pages/students/StudentForm';
 import StudentsPage from './pages/students/Students';
+import TransactionForm from './pages/transactions/TransactionForm';
 import TransactionsPage from './pages/transactions/Transactions';
 import UsersPage from './pages/users/Users';
 
@@ -39,7 +40,10 @@ export function App() {
           </Route>
           <Route path="/classes" element={<ClassesPage />} />
           <Route path="/fees" element={<FeesPage />} />
-          <Route path="/transactions" element={<TransactionsPage />} />
+          <Route path="/transactions">
+            <Route index element={<TransactionsPage />} />
+            <Route path="add/:type" element={<TransactionForm />} />
+          </Route>
           <Route path="/users" element={<UsersPage />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>

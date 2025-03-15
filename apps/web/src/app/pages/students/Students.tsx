@@ -175,7 +175,7 @@ export default function StudentsPage() {
             Enrolled Students
           </Tabs.Tab>
           <Tabs.Tab
-            value="registrations"
+            value="registration"
             leftSection={<IconUserPlus size={18} />}
           >
             New Registrations
