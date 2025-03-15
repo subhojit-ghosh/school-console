@@ -26,11 +26,10 @@ import classes from './Navbar.module.scss';
 const data = [
   { link: '/dashboard', label: 'Dashboard', icon: IconDashboard },
   { link: '/academic-years', label: 'Academic Years', icon: IconCalendar },
-  { link: '/registrations', label: 'Registrations', icon: IconAddressBook },
   { link: '/students', label: 'Students', icon: IconUsers },
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
-  { link: '/fees', label: 'Fees', icon: IconTag },
-  { link: '/enrollments', label: 'Enrollments', icon: IconSchool },
+  { link: '/fees', label: 'Fee Structure', icon: IconTag },
+  // { link: '/enrollments', label: 'Enrollments', icon: IconSchool },
   { link: '/transactions', label: 'Transactions', icon: IconCash },
   { link: '/users', label: 'Users', icon: IconPasswordUser },
 ];
