@@ -9,72 +9,18 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
-import {
-  IconEdit,
-  IconPlus,
-  IconSearch,
-  IconUserCheck,
-  IconUserPlus,
-} from '@tabler/icons-react';
+import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import styles from './Students.module.scss';
-
-const enrolledStudents = [
-  {
-    id: 'J-1',
-    name: 'John Doe',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-  {
-    id: 'J-2',
-    name: 'Jane Doe',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-  {
-    id: 'J-3',
-    name: 'John Doe Jr.',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-];
-
-const newRegistrations = [
-  {
-    id: 'REG-4',
-    name: 'Jane Doe Jr.',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-  {
-    id: 'REG-5',
-    name: 'John Doe III',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-  {
-    id: 'REG-6',
-    name: 'Jane Doe III',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-];
+import StudentForm from './StudentForm';
 
 export default function StudentsPage() {
   const [type, setType] = useState<string | null>('enrolled');
   const [isListLoading, setIsListLoading] = useState(true);
-  const [listData, setListData] = useState<any>({
+  const [listData, setListData] = useState({
     data: [],
     totalRecords: 0,
     totalPages: 0,
@@ -93,57 +39,40 @@ export default function StudentsPage() {
     columnAccessor: '',
     direction: 'asc',
   });
-
-  useEffect(() => {
-    if (type === 'enrolled') {
-      setListData({
-        data: enrolledStudents,
-        totalRecords: enrolledStudents.length,
-        totalPages: 1,
-        size: 10,
-        page: 1,
-      });
-    }
-    if (type === 'registrations') {
-      setListData({
-        data: newRegistrations,
-        totalRecords: enrolledStudents.length,
-        totalPages: 1,
-        size: 10,
-        page: 1,
-      });
-    }
-  }, [type]);
+  const [formOpened, setFormOpened] = useState(false);
+  const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
+  const [formData, setFormData] = useState<any>(null);
 
   useEffect(() => {
     fetchList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, sortStatus]);
 
   const fetchList = async (page: number | null = null) => {
     setIsListLoading(true);
 
-    // try {
-    //   const { data } = await httpClient.get(endpoints.students.list(), {
-    //     params: {
-    //       ...filters,
-    //       size: listData.size,
-    //       page: page || listData.page,
-    //       ...(sortStatus.columnAccessor
-    //         ? {
-    //             sortBy: sortStatus.columnAccessor,
-    //             sortOrder: sortStatus.direction,
-    //           }
-    //         : {}),
-    //     },
-    //   });
+    try {
+      const { data } = await httpClient.get(endpoints.students.list(), {
+        params: {
+          ...filters,
+          size: listData.size,
+          page: page || listData.page,
+          ...(sortStatus.columnAccessor
+            ? {
+                sortBy: sortStatus.columnAccessor,
+                sortOrder: sortStatus.direction,
+              }
+            : {}),
+        },
+      });
 
-    //   setListData({
-    //     ...listData,
-    //     ...data,
-    //   });
-    // } catch (error) {
-    //   console.error(error);
-    // }
+      setListData({
+        ...listData,
+        ...data,
+      });
+    } catch (error) {
+      console.error(error);
+    }
 
     setIsListLoading(false);
   };
@@ -161,27 +90,10 @@ export default function StudentsPage() {
           Add
         </Button>
       </Group>
-      <Tabs
-        value={type}
-        onChange={setType}
-        my={10}
-        variant="unstyled"
-        classNames={{ tab: styles.tab }}
-      >
-        <Tabs.List grow>
-          <Tabs.Tab
-            value="enrolled"
-            color="green"
-            leftSection={<IconUserCheck size={18} />}
-          >
-            Enrolled Students
-          </Tabs.Tab>
-          <Tabs.Tab
-            value="registrations"
-            leftSection={<IconUserPlus size={18} />}
-          >
-            New Registrations
-          </Tabs.Tab>
+      <Tabs value={type} onChange={setType} my={10}>
+        <Tabs.List>
+          <Tabs.Tab value="enrolled" color='green'>Enrolled</Tabs.Tab>
+          <Tabs.Tab value="registration">New Registrations</Tabs.Tab>
         </Tabs.List>
       </Tabs>
       <DataTable
@@ -235,14 +147,18 @@ export default function StudentsPage() {
           {
             accessor: 'fatherName',
             title: "Father's Name",
-          },
-          {
-            accessor: 'motherName',
-            title: "Mother's Name",
-          },
-          {
-            accessor: 'class',
-            title: 'Class',
+            sortable: true,
+            filter: (
+              <TextInput
+                label="Father's Name"
+                leftSection={<IconSearch size={16} />}
+                defaultValue={filters.fatherName}
+                onChange={(e) =>
+                  setFilters({ ...filters, fatherName: e.currentTarget.value })
+                }
+              />
+            ),
+            filtering: !!filters.fatherName,
           },
           {
             accessor: 'actions',
@@ -254,8 +170,11 @@ export default function StudentsPage() {
                   <ActionIcon
                     size="sm"
                     variant="subtle"
-                    component={Link}
-                    to={`/students/${row.id}/edit`}
+                    onClick={() => {
+                      setFormMode('edit');
+                      setFormData(row);
+                      setFormOpened(true);
+                    }}
                   >
                     <IconEdit size={16} />
                   </ActionIcon>
@@ -264,6 +183,14 @@ export default function StudentsPage() {
             ),
           },
         ]}
+      />
+
+      <StudentForm
+        opened={formOpened}
+        close={() => setFormOpened(false)}
+        mode={formMode}
+        data={formData}
+        fetchList={fetchList}
       />
     </>
   );
