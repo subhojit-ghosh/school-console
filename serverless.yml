@@ -4,9 +4,11 @@ useDotenv: true
 
 plugins:
   - serverless-offline
+  - serverless-plugin-optimize
 
 package:
   individually: true
+  excludeDevDependencies: true
   patterns:
     - '!**'
     - 'dist/apps/api/**'
@@ -14,12 +16,13 @@ package:
 provider:
   name: aws
   runtime: nodejs22.x
+  region: ap-south-1
   environment:
     DATABASE_URL: ${env:DATABASE_URL}
 
 functions:
   main:
-    handler: main.handler
+    handler: dist/apps/api/main.handler
     events:
       - http:
           method: ANY
