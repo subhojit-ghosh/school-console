@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Group,
+  Tabs,
   TextInput,
   Title,
   Tooltip,
@@ -17,6 +18,7 @@ import httpClient from '../../api/http-client';
 import StudentForm from './StudentForm';
 
 export default function StudentsPage() {
+  const [type, setType] = useState<string | null>('enrolled');
   const [isListLoading, setIsListLoading] = useState(true);
   const [listData, setListData] = useState({
     data: [],
@@ -88,7 +90,12 @@ export default function StudentsPage() {
           Add
         </Button>
       </Group>
-
+      <Tabs value={type} onChange={setType} my={10}>
+        <Tabs.List>
+          <Tabs.Tab value="enrolled" color='green'>Enrolled</Tabs.Tab>
+          <Tabs.Tab value="registration">New Registrations</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
       <DataTable
         withTableBorder
         withColumnBorders
