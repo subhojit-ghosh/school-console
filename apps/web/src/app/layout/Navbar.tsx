@@ -7,7 +7,6 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import {
-  IconAddressBook,
   IconCalendar,
   IconCash,
   IconChalkboard,
@@ -15,7 +14,6 @@ import {
   IconDashboard,
   IconLogout,
   IconPasswordUser,
-  IconSchool,
   IconTag,
   IconUsers,
 } from '@tabler/icons-react';
