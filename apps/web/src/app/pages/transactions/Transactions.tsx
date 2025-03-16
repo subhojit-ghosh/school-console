@@ -246,7 +246,7 @@ export default function TransactionsPage() {
           component={Link}
           to={`/transactions/add/${type}`}
         >
-          Add
+          Take Fee
         </Button>
       </Group>
       <DataTable

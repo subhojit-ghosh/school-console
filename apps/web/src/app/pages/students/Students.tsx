@@ -10,6 +10,7 @@ import {
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import {
+  IconCheck,
   IconEdit,
   IconPlus,
   IconSearch,
@@ -102,7 +103,7 @@ export default function StudentsPage() {
         page: 1,
       });
     }
-    if (type === 'registrations') {
+    if (type === 'registration') {
       setListData({
         data: newRegistrations,
         totalRecords: enrolledStudents.length,
@@ -258,6 +259,13 @@ export default function StudentsPage() {
                     <IconEdit size={16} />
                   </ActionIcon>
                 </Tooltip>
+                {type == 'registration' && (
+                  <Tooltip label="Enroll" withArrow>
+                    <ActionIcon size="sm" variant="subtle">
+                      <IconCheck size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
               </Group>
             ),
           },
