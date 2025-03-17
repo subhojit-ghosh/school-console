@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { DrizzleModule } from '@school-console/drizzle';
 import * as Joi from 'joi';
+import { join } from 'path';
 import { AcademicYearsController } from './academic-years/academic-years.controller';
 import { AcademicYearsService } from './academic-years/academic-years.service';
 import { AppController } from './app.controller';
@@ -44,6 +46,9 @@ import { UsersService } from './users/users.service';
         secret: configService.get<string>('JWT_SECRET'),
       }),
       inject: [ConfigService],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '../../../', 'storage'),
     }),
     DrizzleModule,
   ],
