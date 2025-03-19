@@ -17,10 +17,10 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import FeeForm from './FeeForm';
 import tabStyles from '../../styles/Tab.module.scss';
+import AcademicFeeForm from './AcademicFeeForm';
 
-function FeesPage() {
+export default function AcademicFeesPage() {
   const [category, setCategory] = useState<string | null>(
     FeeCategory.Enrollment
   );
@@ -90,7 +90,7 @@ function FeesPage() {
     setIsListLoading(true);
 
     try {
-      const { data } = await httpClient.get(endpoints.fees.list(), {
+      const { data } = await httpClient.get(endpoints.academicFees.list(), {
         params: {
           category,
           ...filters,
@@ -119,7 +119,7 @@ function FeesPage() {
   return (
     <>
       <Group justify="space-between" align="center" mb="md">
-        <Title size="lg">Fees</Title>
+        <Title size="lg">Academic Fees</Title>
       </Group>
       <Tabs
         value={category}
@@ -257,7 +257,7 @@ function FeesPage() {
         ]}
       />
 
-      <FeeForm
+      <AcademicFeeForm
         opened={formOpened}
         close={() => setFormOpened(false)}
         mode={formMode}
@@ -270,5 +270,3 @@ function FeesPage() {
     </>
   );
 }
-
-export default FeesPage;

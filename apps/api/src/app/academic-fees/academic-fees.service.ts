@@ -1,10 +1,14 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { DRIZZLE, DrizzleDB, feeTable } from '@school-console/drizzle';
+import { DRIZZLE, DrizzleDB, academicFeeTable } from '@school-console/drizzle';
 import { and, asc, count, desc, eq, like, ne } from 'drizzle-orm';
-import { CreateFeeDto, FeeQueryDto, UpdateFeeDto } from './fees.dto';
+import {
+  CreateAcademicFeeDto,
+  FeeQueryDto,
+  UpdateAcademicFeeDto,
+} from './academic-fees.dto';
 
 @Injectable()
-export class FeeService {
+export class AcademicFeeService {
   constructor(@Inject(DRIZZLE) private db: DrizzleDB) {}
 
   async findAll(query: FeeQueryDto) {
@@ -22,39 +26,41 @@ export class FeeService {
 
     const whereConditions: any = [];
     if (name) {
-      whereConditions.push(like(feeTable.name, `%${name}%`));
+      whereConditions.push(like(academicFeeTable.name, `%${name}%`));
     }
     if (category) {
-      whereConditions.push(eq(feeTable.category, category));
+      whereConditions.push(eq(academicFeeTable.category, category));
     }
     if (academicYearId) {
-      whereConditions.push(eq(feeTable.academicYearId, academicYearId));
+      whereConditions.push(eq(academicFeeTable.academicYearId, academicYearId));
     }
     if (classId) {
-      whereConditions.push(eq(feeTable.classId, classId));
+      whereConditions.push(eq(academicFeeTable.classId, classId));
     }
 
     const [fee, totalRecords] = await Promise.all([
       this.db
         .select({
-          id: feeTable.id,
-          academicYearId: feeTable.academicYearId,
-          classId: feeTable.classId,
-          name: feeTable.name,
-          category: feeTable.category,
-          amount: feeTable.amount,
-          dueDate: feeTable.dueDate,
+          id: academicFeeTable.id,
+          academicYearId: academicFeeTable.academicYearId,
+          classId: academicFeeTable.classId,
+          name: academicFeeTable.name,
+          category: academicFeeTable.category,
+          amount: academicFeeTable.amount,
+          dueDate: academicFeeTable.dueDate,
         })
-        .from(feeTable)
+        .from(academicFeeTable)
         .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
         .orderBy(
-          sortOrder === 'asc' ? asc(feeTable[sortBy]) : desc(feeTable[sortBy])
+          sortOrder === 'asc'
+            ? asc(academicFeeTable[sortBy])
+            : desc(academicFeeTable[sortBy])
         )
         .limit(size)
         .offset(offset),
       this.db
         .select({ count: count() })
-        .from(feeTable)
+        .from(academicFeeTable)
         .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
         .then((res) => res[0].count),
     ]);
@@ -70,15 +76,15 @@ export class FeeService {
     };
   }
 
-  async create(fee: CreateFeeDto) {
+  async create(fee: CreateAcademicFeeDto) {
     const isFeeNameExists = await this.db
       .select({ count: count() })
-      .from(feeTable)
+      .from(academicFeeTable)
       .where(
         and(
-          eq(feeTable.name, fee.name),
-          eq(feeTable.category, fee.category),
-          eq(feeTable.academicYearId, fee.academicYearId)
+          eq(academicFeeTable.name, fee.name),
+          eq(academicFeeTable.category, fee.category),
+          eq(academicFeeTable.academicYearId, fee.academicYearId)
         )
       )
       .then((res) => res[0].count > 0);
@@ -89,19 +95,19 @@ export class FeeService {
       );
     }
 
-    return await this.db.insert(feeTable).values(fee);
+    return await this.db.insert(academicFeeTable).values(fee);
   }
 
-  async update(id: number, fee: UpdateFeeDto) {
+  async update(id: number, fee: UpdateAcademicFeeDto) {
     const isFeeNameExists = await this.db
       .select({ count: count() })
-      .from(feeTable)
+      .from(academicFeeTable)
       .where(
         and(
-          eq(feeTable.name, fee.name),
-          eq(feeTable.category, fee.category),
-          eq(feeTable.academicYearId, fee.academicYearId),
-          ne(feeTable.id, id)
+          eq(academicFeeTable.name, fee.name),
+          eq(academicFeeTable.category, fee.category),
+          eq(academicFeeTable.academicYearId, fee.academicYearId),
+          ne(academicFeeTable.id, id)
         )
       )
       .then((res) => res[0].count > 0);
@@ -112,6 +118,9 @@ export class FeeService {
       );
     }
 
-    return await this.db.update(feeTable).set(fee).where(eq(feeTable.id, id));
+    return await this.db
+      .update(academicFeeTable)
+      .set(fee)
+      .where(eq(academicFeeTable.id, id));
   }
 }

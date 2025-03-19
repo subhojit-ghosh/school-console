@@ -18,7 +18,7 @@ import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import { showSuccessNotification } from '../../utils/notification';
 
-export default function FeeForm({
+export default function AcademicFeeForm({
   opened,
   close,
   mode,
@@ -87,13 +87,13 @@ export default function FeeForm({
 
     try {
       if (mode === 'add') {
-        await httpClient.post(endpoints.fees.create(), values);
-        showSuccessNotification('Fee added successfully');
+        await httpClient.post(endpoints.academicFees.create(), values);
+        showSuccessNotification('Academic Fee added successfully');
       }
 
       if (mode === 'edit') {
-        await httpClient.put(endpoints.fees.update(data.id), values);
-        showSuccessNotification('Fee updated successfully');
+        await httpClient.put(endpoints.academicFees.update(data.id), values);
+        showSuccessNotification('Academic Fee updated successfully');
       }
 
       fetchList();
@@ -111,7 +111,7 @@ export default function FeeForm({
       centered
       opened={opened}
       onClose={close}
-      title={mode === 'add' ? 'Add Fee' : 'Edit Fee'}
+      title={mode === 'add' ? 'Add Academic Fee' : 'Edit Academic Fee'}
     >
       <form
         onSubmit={form.onSubmit(handleSubmit, () => {
@@ -155,7 +155,7 @@ export default function FeeForm({
               label="Amount"
               withAsterisk
               allowDecimal={false}
-              prefix='₹'
+              prefix="₹"
               {...form.getInputProps('amount')}
             />
           </Grid.Col>

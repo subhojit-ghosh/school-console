@@ -13,7 +13,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 
-export class CreateFeeDto {
+export class CreateAcademicFeeDto {
   @IsInt()
   @IsPositive()
   academicYearId: number;
@@ -42,7 +42,7 @@ export class CreateFeeDto {
   dueDate: Date;
 }
 
-export class UpdateFeeDto extends CreateFeeDto {}
+export class UpdateAcademicFeeDto extends CreateAcademicFeeDto {}
 
 export class FeeQueryDto {
   @IsOptional()

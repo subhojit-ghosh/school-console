@@ -10,10 +10,10 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import endpoints from './api/endpoints';
 import httpClient from './api/http-client';
 import Layout from './layout/Layout';
+import AcademicFeesPage from './pages/academic-fees/AcademicFees';
 import AcademicYearsPage from './pages/academic-years/AcademicYears';
 import ClassesPage from './pages/classes/Classes';
 import DashboardPage from './pages/dashboard/Dashboard';
-import FeesPage from './pages/fees/Fees';
 import LoginPage from './pages/Login';
 import { PageNotFound } from './pages/page-not-found/PageNotFound';
 import StudentForm from './pages/students/StudentForm';
@@ -80,7 +80,7 @@ export function App() {
                 />
               </Route>
               <Route path="/classes" element={<ClassesPage />} />
-              <Route path="/fees" element={<FeesPage />} />
+              <Route path="/academic-fees" element={<AcademicFeesPage />} />
               <Route path="/transactions">
                 <Route index element={<TransactionsPage />} />
                 <Route path="add/:type" element={<TransactionForm />} />

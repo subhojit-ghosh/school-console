@@ -7,6 +7,7 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import {
+  IconBus,
   IconCalendar,
   IconCash,
   IconChalkboard,
@@ -14,7 +15,7 @@ import {
   IconDashboard,
   IconLogout,
   IconPasswordUser,
-  IconTag,
+  IconReceipt,
   IconUsers,
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -30,7 +31,8 @@ const data = [
   { link: '/academic-years', label: 'Academic Years', icon: IconCalendar },
   { link: '/students', label: 'Students', icon: IconUsers },
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
-  { link: '/fees', label: 'Fee Structure', icon: IconTag },
+  { link: '/academic-fees', label: 'Academic Fees', icon: IconReceipt },
+  { link: '/transport-fees', label: 'Transport Fees', icon: IconBus },
   // { link: '/enrollments', label: 'Enrollments', icon: IconSchool },
   { link: '/transactions', label: 'Transactions', icon: IconCash },
   { link: '/users', label: 'Users', icon: IconPasswordUser },

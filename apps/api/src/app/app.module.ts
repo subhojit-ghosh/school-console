@@ -5,6 +5,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { DrizzleModule } from '@school-console/drizzle';
 import * as Joi from 'joi';
 import { join } from 'path';
+import { AcademicFeeController } from './academic-fees/academic-fees.controller';
+import { AcademicFeeService } from './academic-fees/academic-fees.service';
 import { AcademicYearsController } from './academic-years/academic-years.controller';
 import { AcademicYearsService } from './academic-years/academic-years.service';
 import { AppController } from './app.controller';
@@ -15,8 +17,6 @@ import { ClassesController } from './classes/classes.controller';
 import { ClassesService } from './classes/classes.service';
 import { DashboardController } from './dashboard/dashboard.controller';
 import { DashboardService } from './dashboard/dashboard.service';
-import { FeeController } from './fees/fees.controller';
-import { FeeService } from './fees/fees.service';
 import { PaymentsController } from './payments/payments.controller';
 import { PaymentsService } from './payments/payments.service';
 import { StudentsController } from './students/students.controller';
@@ -61,7 +61,7 @@ import { UsersService } from './users/users.service';
     PaymentsController,
     UsersController,
     AcademicYearsController,
-    FeeController,
+    AcademicFeeController,
   ],
   providers: [
     AppService,
@@ -72,7 +72,7 @@ import { UsersService } from './users/users.service';
     ClassesService,
     AuthService,
     AcademicYearsService,
-    FeeService,
+    AcademicFeeService,
   ],
 })
 export class AppModule {}

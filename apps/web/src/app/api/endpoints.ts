@@ -32,10 +32,10 @@ const endpoints = {
     create: () => api('classes'),
     update: (id: string) => api(`classes/${id}`),
   },
-  fees: {
-    list: () => api('fees'),
-    create: () => api('fees'),
-    update: (id: string) => api(`fees/${id}`),
+  academicFees: {
+    list: () => api('academic-fees'),
+    create: () => api('academic-fees'),
+    update: (id: string) => api(`academic-fees/${id}`),
   },
 };
 

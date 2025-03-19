@@ -19,8 +19,8 @@ export enum FeeCategory {
   Miscellaneous = 'miscellaneous',
 }
 
-export const feeTable = mysqlTable(
-  'fees',
+export const academicFeeTable = mysqlTable(
+  'academic_fees',
   {
     id: serial().primaryKey(),
     academicYearId: bigint({ mode: 'number', unsigned: true })

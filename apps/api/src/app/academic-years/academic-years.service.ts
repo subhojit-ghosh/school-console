@@ -105,7 +105,8 @@ export class AcademicYearsService {
         name: academicYearsTable.name,
         isActive: academicYearsTable.isActive,
       })
-      .from(academicYearsTable);
+      .from(academicYearsTable)
+      .orderBy(desc(academicYearsTable.name));
 
     return {
       data: academicYears,
