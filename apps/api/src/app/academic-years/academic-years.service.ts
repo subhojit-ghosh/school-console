@@ -38,6 +38,7 @@ export class AcademicYearsService {
           startDate: academicYearsTable.startDate,
           endDate: academicYearsTable.endDate,
           isActive: academicYearsTable.isActive,
+          studentIdPrefix: academicYearsTable.studentIdPrefix,
           createdAt: academicYearsTable.createdAt,
           updatedAt: academicYearsTable.updatedAt,
         })
@@ -116,6 +117,23 @@ export class AcademicYearsService {
       );
     }
 
+    const isStudentPrefixExists = await this.db
+      .select({
+        name: academicYearsTable.name,
+        count: count(),
+      })
+      .from(academicYearsTable)
+      .where(
+        eq(academicYearsTable.studentIdPrefix, academicYear.studentIdPrefix)
+      )
+      .then((res) => (res[0].count > 0 ? { name: res[0].name } : {}));
+
+    if (isStudentPrefixExists && isStudentPrefixExists.name) {
+      throw new BadRequestException(
+        `Student Prefix already exists for academic year ${isStudentPrefixExists.name}.`
+      );
+    }
+
     return await this.db.insert(academicYearsTable).values(academicYear);
   }
 
@@ -158,6 +176,26 @@ export class AcademicYearsService {
     if (isDateOverlapping) {
       throw new BadRequestException(
         'Date range overlaps with an existing academic year'
+      );
+    }
+
+    const isStudentPrefixExists = await this.db
+      .select({
+        name: academicYearsTable.name,
+        count: count(),
+      })
+      .from(academicYearsTable)
+      .where(
+        and(
+          eq(academicYearsTable.studentIdPrefix, academicYear.studentIdPrefix),
+          ne(academicYearsTable.id, id)
+        )
+      )
+      .then((res) => (res[0].count > 0 ? { name: res[0].name } : {}));
+
+    if (isStudentPrefixExists && isStudentPrefixExists.name) {
+      throw new BadRequestException(
+        `Student Prefix already exists for academic year ${isStudentPrefixExists.name}.`
       );
     }
 

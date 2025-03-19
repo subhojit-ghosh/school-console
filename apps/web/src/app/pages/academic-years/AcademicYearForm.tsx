@@ -1,4 +1,4 @@
-import { Button, Grid, Group, Modal } from '@mantine/core';
+import { Button, Grid, Group, Modal, TextInput } from '@mantine/core';
 import { DateInput, YearPickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { IconCalendar } from '@tabler/icons-react';
@@ -26,10 +26,15 @@ export default function AcademicYearForm({
       name: '',
       startDate: '',
       endDate: '',
+      studentIdPrefix: '',
     },
     validate: yupResolver(
       yup.object().shape({
         startYear: yup.string().trim().required('Start Year is required'),
+        studentIdPrefix: yup
+          .string()
+          .trim()
+          .required('Student ID Prefix is required'),
       })
     ),
   });
@@ -46,6 +51,7 @@ export default function AcademicYearForm({
         name: data.name,
         startDate: new Date(data.startDate) as any,
         endDate: new Date(data.endDate) as any,
+        studentIdPrefix: data.studentIdPrefix,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,6 +136,18 @@ export default function AcademicYearForm({
               label="End Date"
               readOnly
               {...form.getInputProps('endDate')}
+            />
+          </Grid.Col>
+          <Grid.Col span={12}>
+            <TextInput
+              label="Student ID Prefix"
+              {...form.getInputProps('studentIdPrefix')}
+              onChange={(e) =>
+                form.setFieldValue(
+                  'studentIdPrefix',
+                  e.target.value.toUpperCase() as any
+                )
+              }
             />
           </Grid.Col>
           <Grid.Col span={12}>

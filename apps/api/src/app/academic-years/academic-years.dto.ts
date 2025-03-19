@@ -9,6 +9,7 @@ import {
   IsPositive,
   IsString,
 } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateAcademicYearDto {
   @IsString()
@@ -22,21 +23,12 @@ export class CreateAcademicYearDto {
   @IsDateString()
   @IsNotEmpty()
   endDate: Date;
+
+  @IsOptional()
+  studentIdPrefix: string;
 }
 
-export class UpdateAcademicYearDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsDateString()
-  @IsNotEmpty()
-  startDate: Date;
-
-  @IsDateString()
-  @IsNotEmpty()
-  endDate: Date;
-}
+export class UpdateAcademicYearDto extends CreateAcademicYearDto {}
 
 export class UpdateAcademicYearStatusDto {
   @IsBoolean()
@@ -68,4 +60,8 @@ export class AcademicYearQueryDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  @IsOptional()
+  @IsString()
+  studentIdPrefix?: string;
 }

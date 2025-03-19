@@ -93,7 +93,6 @@ export default function AcademicYearsPage() {
         <Title size="lg">Academic Years</Title>
         <Button
           variant="filled"
-          
           leftSection={<IconPlus size={16} />}
           onClick={() => {
             setFormMode('add');
@@ -160,6 +159,10 @@ export default function AcademicYearsPage() {
                 onChange={() => updateStatus(row.id, !row.isActive)}
               />
             ),
+          },
+          {
+            accessor: 'studentIdPrefix',
+            title: 'Student Id Prefix',
           },
           {
             accessor: 'actions',

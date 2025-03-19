@@ -13,6 +13,7 @@ export const academicYearsTable = mysqlTable('academic_years', {
   startDate: date().notNull(),
   endDate: date().notNull(),
   isActive: boolean().notNull().default(false).notNull(),
+  studentIdPrefix: varchar({ length: 100 }).unique().notNull(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().onUpdateNow(),
 });
