@@ -32,7 +32,7 @@ const data = [
   { link: '/students', label: 'Students', icon: IconUsers },
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
   { link: '/academic-fees', label: 'Academic Fees', icon: IconReceipt },
-  { link: '/transport-fares', label: 'Transport Fares', icon: IconBus },
+  { link: '/transport', label: 'Transport', icon: IconBus },
   { link: '/transactions', label: 'Transactions', icon: IconCash },
   { link: '/users', label: 'Users', icon: IconPasswordUser },
 ];
