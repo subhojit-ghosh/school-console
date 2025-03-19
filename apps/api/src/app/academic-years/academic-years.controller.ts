@@ -16,6 +16,11 @@ export class AcademicYearsController {
     return this.academicYearsService.findAll(query);
   }
 
+  @Get('next-student-id-prefix')
+  async nextStudentIdPrefix() {
+    return this.academicYearsService.nextStudentIdPrefix();
+  }
+
   @Get('dropdown')
   async findAllForDropdown() {
     return this.academicYearsService.findAllForDropdown();

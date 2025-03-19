@@ -147,6 +147,10 @@ export default function AcademicYearsPage() {
             render: (row: any) => moment(row.endDate).format('MMMM DD, YYYY'),
           },
           {
+            accessor: 'studentIdPrefix',
+            title: 'Student ID Prefix',
+          },
+          {
             accessor: 'isActive',
             title: 'Status',
             sortable: true,
@@ -159,10 +163,6 @@ export default function AcademicYearsPage() {
                 onChange={() => updateStatus(row.id, !row.isActive)}
               />
             ),
-          },
-          {
-            accessor: 'studentIdPrefix',
-            title: 'Student Id Prefix',
           },
           {
             accessor: 'actions',

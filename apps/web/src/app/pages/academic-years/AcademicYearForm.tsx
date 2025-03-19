@@ -4,7 +4,7 @@ import { useForm } from '@mantine/form';
 import { IconCalendar } from '@tabler/icons-react';
 import { yupResolver } from 'mantine-form-yup-resolver';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
@@ -42,6 +42,7 @@ export default function AcademicYearForm({
   useEffect(() => {
     if (mode === 'add') {
       form.reset();
+      loadNextStudentIdPrefix();
     }
 
     if (mode === 'edit') {
@@ -55,7 +56,7 @@ export default function AcademicYearForm({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, mode]);
+  }, [data, mode, opened]);
 
   useEffect(() => {
     if (form.values.startYear) {
@@ -69,6 +70,17 @@ export default function AcademicYearForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.values.startYear]);
+
+  const loadNextStudentIdPrefix = async () => {
+    try {
+      const { data } = await httpClient.get(
+        endpoints.academicYears.nextStudentIdPrefix()
+      );
+      form.setFieldValue('studentIdPrefix', data.prefix);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -119,7 +131,6 @@ export default function AcademicYearForm({
           <Grid.Col span={6}>
             <YearPickerInput
               label="End Year"
-              readOnly
               leftSection={<IconCalendar size={18} />}
               {...form.getInputProps('endYear')}
             />
@@ -127,27 +138,20 @@ export default function AcademicYearForm({
           <Grid.Col span={6}>
             <DateInput
               label="Start Date"
-              readOnly
               {...form.getInputProps('startDate')}
             />
           </Grid.Col>
           <Grid.Col span={6}>
-            <DateInput
-              label="End Date"
-              readOnly
-              {...form.getInputProps('endDate')}
-            />
+            <DateInput label="End Date" {...form.getInputProps('endDate')} />
           </Grid.Col>
           <Grid.Col span={12}>
             <TextInput
               label="Student ID Prefix"
               {...form.getInputProps('studentIdPrefix')}
-              onChange={(e) =>
-                form.setFieldValue(
-                  'studentIdPrefix',
-                  e.target.value.toUpperCase() as any
-                )
-              }
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                const upperCasedValue = e.target.value.toUpperCase();
+                form.setFieldValue('studentIdPrefix', upperCasedValue);
+              }}
             />
           </Grid.Col>
           <Grid.Col span={12}>

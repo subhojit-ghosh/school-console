@@ -4,6 +4,7 @@ import {
   DrizzleDB,
   academicYearsTable,
 } from '@school-console/drizzle';
+import { extractNumber } from '@school-console/utils';
 import { and, asc, count, desc, eq, gte, like, lte, ne, or } from 'drizzle-orm';
 import {
   AcademicYearQueryDto,
@@ -66,6 +67,34 @@ export class AcademicYearsService {
       totalPages,
       totalRecords,
       data: academicYears,
+    };
+  }
+
+  async nextStudentIdPrefix() {
+    const academicYear = await this.db
+      .select({
+        studentIdPrefix: academicYearsTable.studentIdPrefix,
+      })
+      .from(academicYearsTable)
+      .where(eq(academicYearsTable.isActive, true))
+      .orderBy(desc(academicYearsTable.studentIdPrefix))
+      .limit(1);
+
+    if (academicYear.length === 0) {
+      return {
+        prefix: 'J-11',
+      };
+    }
+
+    const lastNumber = extractNumber(academicYear[0].studentIdPrefix);
+
+    if (!lastNumber) {
+      return 'J-11';
+    }
+
+    return {
+      nextNumber: lastNumber + 1,
+      prefix: `J-${lastNumber + 1}`,
     };
   }
 

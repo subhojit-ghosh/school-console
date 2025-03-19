@@ -15,6 +15,7 @@ const endpoints = {
   },
   academicYears: {
     list: () => api('academic-years'),
+    nextStudentIdPrefix: () => api('academic-years/next-student-id-prefix'),
     dropdown: () => api('academic-years/dropdown'),
     create: () => api('academic-years'),
     update: (id: string) => api(`academic-years/${id}`),
