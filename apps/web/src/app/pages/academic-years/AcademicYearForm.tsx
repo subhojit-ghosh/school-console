@@ -1,4 +1,4 @@
-import { Button, Grid, Group, Modal, TextInput } from '@mantine/core';
+import { Button, Grid, Group, Loader, Modal, TextInput } from '@mantine/core';
 import { DateInput, YearPickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { IconCalendar } from '@tabler/icons-react';
@@ -18,6 +18,8 @@ export default function AcademicYearForm({
   fetchList,
 }: any) {
   const [loading, setLoading] = useState(false);
+  const [nextStudentIdPrefixLoading, setNextStudentIdPrefixLoading] =
+    useState(false);
   const form = useForm({
     validateInputOnChange: true,
     initialValues: {
@@ -72,6 +74,7 @@ export default function AcademicYearForm({
   }, [form.values.startYear]);
 
   const loadNextStudentIdPrefix = async () => {
+    setNextStudentIdPrefixLoading(true);
     try {
       const { data } = await httpClient.get(
         endpoints.academicYears.nextStudentIdPrefix()
@@ -80,6 +83,7 @@ export default function AcademicYearForm({
     } catch (error) {
       console.error(error);
     }
+    setNextStudentIdPrefixLoading(false);
   };
 
   const handleSubmit = async () => {
@@ -147,6 +151,7 @@ export default function AcademicYearForm({
           <Grid.Col span={12}>
             <TextInput
               label="Student ID Prefix"
+              rightSection={nextStudentIdPrefixLoading && <Loader size={16} />}
               {...form.getInputProps('studentIdPrefix')}
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 const upperCasedValue = e.target.value.toUpperCase();
