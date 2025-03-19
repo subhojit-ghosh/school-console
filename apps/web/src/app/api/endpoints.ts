@@ -4,6 +4,7 @@ const api = (endpoint: string) =>
 const endpoints = {
   auth: {
     login: () => api('auth/login'),
+    logout: () => api('auth/logout'),
     profile: () => api('auth/profile'),
   },
   users: {

@@ -1,11 +1,14 @@
-import { createTheme, MantineProvider } from '@mantine/core';
+import { createTheme, LoadingOverlay, MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import '@mantine/core/styles.layer.css';
 import '@mantine/dates/styles.css';
 import { Notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
 import 'mantine-datatable/styles.layer.css';
+import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import endpoints from './api/endpoints';
+import httpClient from './api/http-client';
 import Layout from './layout/Layout';
 import AcademicYearsPage from './pages/academic-years/AcademicYears';
 import ClassesPage from './pages/classes/Classes';
@@ -18,37 +21,77 @@ import StudentsPage from './pages/students/Students';
 import TransactionForm from './pages/transactions/TransactionForm';
 import TransactionsPage from './pages/transactions/Transactions';
 import UsersPage from './pages/users/Users';
+import AuthenticatedRoutes from './route-guards/authenticated';
+import RedirectIfAuthenticatedRoutes from './route-guards/redirect-if-authenticated';
+import { useAuthStore } from './stores/authStore';
 
 const theme = createTheme({
   primaryColor: 'indigo',
 });
 
 export function App() {
+  const authStore = useAuthStore();
+  const [loading, setLoading] = useState(true);
+
+  const initApp = async () => {
+    try {
+      const response = await httpClient.get(endpoints.auth.profile());
+      authStore.setUser(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    initApp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading) {
+    return (
+      <MantineProvider theme={theme} defaultColorScheme="light">
+        <LoadingOverlay visible />
+      </MantineProvider>
+    );
+  }
+
   return (
     <MantineProvider theme={theme} defaultColorScheme="light">
       <Notifications position="top-center" />
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<Layout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/academic-years" element={<AcademicYearsPage />} />
-          <Route path="/students">
-            <Route index element={<StudentsPage />} />
-            <Route path="add" element={<StudentForm action="add" />} />
-            <Route path=":id/edit" element={<StudentForm action="edit" />} />
+      {loading ? (
+        <LoadingOverlay visible />
+      ) : (
+        <Routes>
+          <Route element={<RedirectIfAuthenticatedRoutes />}>
+            <Route path="/login" element={<LoginPage />} />
           </Route>
-          <Route path="/classes" element={<ClassesPage />} />
-          <Route path="/fees" element={<FeesPage />} />
-          <Route path="/transactions">
-            <Route index element={<TransactionsPage />} />
-            <Route path="add/:type" element={<TransactionForm />} />
+          <Route element={<AuthenticatedRoutes />}>
+            <Route path="/" element={<Layout />}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/academic-years" element={<AcademicYearsPage />} />
+              <Route path="/students">
+                <Route index element={<StudentsPage />} />
+                <Route path="add" element={<StudentForm action="add" />} />
+                <Route
+                  path=":id/edit"
+                  element={<StudentForm action="edit" />}
+                />
+              </Route>
+              <Route path="/classes" element={<ClassesPage />} />
+              <Route path="/fees" element={<FeesPage />} />
+              <Route path="/transactions">
+                <Route index element={<TransactionsPage />} />
+                <Route path="add/:type" element={<TransactionForm />} />
+              </Route>
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="*" element={<PageNotFound />} />
+            </Route>
           </Route>
-          <Route path="/users" element={<UsersPage />} />
           <Route path="*" element={<PageNotFound />} />
-        </Route>
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
+        </Routes>
+      )}
     </MantineProvider>
   );
 }

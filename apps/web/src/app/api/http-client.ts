@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { showErrorNotification } from '../utils/notification';
 
-const httpClient = axios.create();
+const httpClient = axios.create({
+  withCredentials: true,
+});
 
 httpClient.interceptors.request.use((config) => {
   const access_token = localStorage.getItem('access_token');
@@ -21,13 +23,15 @@ httpClient.interceptors.response.use(
   (error) => {
     if (error.response) {
       const { status, data } = error.response;
-      if (status == 401 || status == 498) {
+      if (status === 401) {
         if (window.location.pathname != '/auth/login') {
-          localStorage.removeItem('access_token');
-          window.location.reload();
+          // window.location.reload();
         }
       }
-      showErrorNotification(data?.message);
+
+      if (status !== 401) {
+        showErrorNotification(data?.message);
+      }
     }
 
     return Promise.reject(error);

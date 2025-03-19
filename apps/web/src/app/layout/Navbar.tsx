@@ -19,6 +19,10 @@ import {
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import endpoints from '../api/endpoints';
+import httpClient from '../api/http-client';
+import { useAuthStore } from '../stores/authStore';
+import { titleCase } from '../utils/text-formating';
 import classes from './Navbar.module.scss';
 
 const data = [
@@ -34,6 +38,16 @@ const data = [
 
 export function Navbar() {
   const location = useLocation();
+  const authStore = useAuthStore();
+
+  const logout = async () => {
+    try {
+      await httpClient.get(endpoints.auth.logout());
+      authStore.setUser(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const links = data.map((item) => (
     <Link
@@ -63,37 +77,43 @@ export function Navbar() {
         {links}
       </div>
       <div className={classes.footer}>
-        <Menu width={200} withArrow position="top-end">
-          <Menu.Target>
-            <UnstyledButton>
-              <Group>
-                <Avatar
-                  name="Subhojit Ghosh"
-                  color="indigo"
-                  size="md"
-                  bg="white"
-                />
+        {authStore.user && (
+          <Menu width={200} withArrow position="top-end">
+            <Menu.Target>
+              <UnstyledButton w="100%">
+                <Group>
+                  <Avatar
+                    name={authStore.user.name}
+                    color="indigo"
+                    size="md"
+                    bg="white"
+                  />
 
-                <div style={{ flex: 1 }}>
-                  <Text fw={500} c="white">
-                    Subhojit Ghosh
-                  </Text>
+                  <div style={{ flex: 1 }}>
+                    <Text fw={500} c="white">
+                      {authStore.user.name}
+                    </Text>
 
-                  <Text c="white" size="sm">
-                    Admin
-                  </Text>
-                </div>
+                    <Text c="white" size="sm">
+                      {titleCase(authStore.user.role)}
+                    </Text>
+                  </div>
 
-                <IconChevronRight size={14} stroke={1.5} color="white" />
-              </Group>
-            </UnstyledButton>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item color="red" leftSection={<IconLogout size={14} />}>
-              Logout
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+                  <IconChevronRight size={14} stroke={1.5} color="white" />
+                </Group>
+              </UnstyledButton>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                color="red"
+                leftSection={<IconLogout size={14} />}
+                onClick={logout}
+              >
+                Logout
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        )}
       </div>
     </nav>
   );
