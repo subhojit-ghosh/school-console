@@ -38,6 +38,9 @@ import { Fragment, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { StudentPersonalType } from '../../types/student';
 import { titleCase } from '../../utils/text-formating';
+import { useGetClasses } from '../../services/utils/apiQuery';
+import { useAddStudent } from '../../services/students/apiQuery';
+import { showErrorNotification } from '../../utils/notification';
 
 type StudentFormProps = {
   action: 'add' | 'edit';
@@ -56,16 +59,16 @@ export default function StudentForm({ action }: StudentFormProps) {
   const form = useForm<Partial<StudentPersonalType>>({
     mode: 'uncontrolled',
     initialValues: {
-      regNo: '',
-      admissionDate: null,
+      // regNo: '',
+      // admissionDate: null,
       classId: null,
 
-      studentPhoto: null,
-      fatherPhoto: null,
-      motherPhoto: null,
+      // studentPhoto: null,
+      // fatherPhoto: null,
+      // motherPhoto: null,
 
-      medicalHistory: 'N',
-      medicalFile: null,
+      // medicalHistory: 'N',
+      // medicalFile: null,
 
       previousSchoolDetails: [
         {
@@ -87,11 +90,16 @@ export default function StudentForm({ action }: StudentFormProps) {
           presentSchool: '',
         },
       ],
-      consent: false,
+      // consent: false,
     },
     onValuesChange: ({ consent }, ...rest) => {
       setIsFormValid(consent as boolean);
     },
+    transformValues: (values) => ({
+      ...values,
+      dob: moment(values.dob).format('YYYY-MM-DD'),
+      classId: Number(values.classId),
+    }),
   });
 
   function addRecord() {
@@ -120,52 +128,52 @@ export default function StudentForm({ action }: StudentFormProps) {
     {
       head: 'Father / First Guardian',
       fields: {
-        qualification: 'qualificationF',
-        profession: 'professionF',
-        annualIncome: 'annualIncomeF',
-        address: 'addressF',
-        city: 'cityF',
-        pin: 'pinF',
-        state: 'stateF',
-        country: 'countryF',
-        mobile: 'mobileF',
-        email: 'emailF',
-        sign: 'signF',
-        place: 'placeF',
+        qualification: 'fatherQualification',
+        profession: 'fatherProfession',
+        annualIncome: 'fatherAnnualIncome',
+        address: 'fatherAddress',
+        city: 'fatherCity',
+        pin: 'fatherPin',
+        state: 'fatherState',
+        country: 'fatherCountry',
+        mobile: 'fatherMobile',
+        email: 'fatherEmail',
+        sign: 'fatherSign',
+        place: 'fatherPlace',
       },
     },
     {
       head: 'Mother / Second Guardian',
       fields: {
-        qualification: 'qualificationM',
-        profession: 'professionM',
-        annualIncome: 'annualIncomeM',
-        address: 'addressM',
-        city: 'cityM',
-        pin: 'pinM',
-        state: 'stateM',
-        country: 'countryM',
-        mobile: 'mobileM',
-        email: 'emailM',
-        sign: 'signM',
-        place: 'placeM',
+        qualification: 'motherQualification',
+        profession: 'motherProfession',
+        annualIncome: 'motherAnnualIncome',
+        address: 'motherAddress',
+        city: 'motherCity',
+        pin: 'motherPin',
+        state: 'motherState',
+        country: 'motherCountry',
+        mobile: 'motherMobile',
+        email: 'motherEmail',
+        sign: 'motherSign',
+        place: 'motherPlace',
       },
     },
     {
       head: 'Local Guardian (If Any)',
       fields: {
-        qualification: 'qualificationO',
-        profession: 'professionO',
-        annualIncome: 'annualIncomeO',
-        address: 'addressO',
-        city: 'cityO',
-        pin: 'pinO',
-        state: 'stateO',
-        country: 'countryO',
-        mobile: 'mobileO',
-        email: 'emailO',
-        sign: 'signO',
-        place: 'placeO',
+        qualification: 'guardianQualification',
+        profession: 'guardianProfession',
+        annualIncome: 'guardianAnnualIncome',
+        address: 'guardianAddress',
+        city: 'guardianCity',
+        pin: 'guardianPin',
+        state: 'guardianState',
+        country: 'guardianCountry',
+        mobile: 'guardianMobile',
+        email: 'guardianEmail',
+        sign: 'guardianSign',
+        place: 'guardianPlace',
       },
     },
   ];
@@ -173,6 +181,27 @@ export default function StudentForm({ action }: StudentFormProps) {
   useEffect(() => {
     console.log('debug-isFormValid', isFormValid);
   }, [isFormValid]);
+
+  const { data: classLists = [] } = useGetClasses();
+  const saveStudent = useAddStudent();
+
+  function onFormSubmit(v: Partial<StudentPersonalType>) {
+    if (!v.previousSchoolDetails?.length) {
+      showErrorNotification('One school details is required.');
+      return;
+    }
+    if (!v.siblingDetails?.length) {
+      showErrorNotification('One sibling details is required.');
+      return;
+    }
+
+    saveStudent.mutate({
+      ...(v as any),
+      name: 'AAA',
+      previousSchoolDetails: JSON.stringify(v.previousSchoolDetails),
+      siblingDetails: JSON.stringify(v.siblingDetails),
+    });
+  }
 
   return (
     <>
@@ -190,7 +219,7 @@ export default function StudentForm({ action }: StudentFormProps) {
         </Button>
       </Group>
       <Paper withBorder shadow="md" p="md">
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <form onSubmit={form.onSubmit(onFormSubmit)}>
           <Stepper active={activeStep} onStepClick={setActiveStep}>
             <Stepper.Step label="Student's Information">
               <Space h={20} />
@@ -199,13 +228,16 @@ export default function StudentForm({ action }: StudentFormProps) {
                   <TextInput
                     label="Name"
                     withAsterisk
-                    {...form.getInputProps('studentName')}
+                    key={form.key('name')}
+                    {...form.getInputProps('name')}
                   />
                 </Grid.Col>
                 <Grid.Col span={3}>
                   <Select
                     label="Class"
                     withAsterisk
+                    data={classLists}
+                    key={form.key('classId')}
                     {...form.getInputProps('classId')}
                   />
                 </Grid.Col>
@@ -219,6 +251,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     defaultLevel="decade"
                     leftSection={<IconCalendar size={18} />}
                     withAsterisk
+                    key={form.key('dob')}
                     {...form.getInputProps('dob')}
                   />
                 </Grid.Col>
@@ -227,6 +260,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     name="gender"
                     label="Gender"
                     withAsterisk
+                    key={form.key('gender')}
                     {...form.getInputProps('gender')}
                   >
                     <Group mt="xs">
@@ -240,6 +274,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     label="Religion"
                     data={['Hindu', 'Muslim', 'Christian', 'Sikh']}
                     withAsterisk
+                    key={form.key('religion')}
                     {...form.getInputProps('religion')}
                   />
                 </Grid.Col>
@@ -248,6 +283,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     label="Nationality"
                     data={['Indian']}
                     withAsterisk
+                    key={form.key('nationality')}
                     {...form.getInputProps('nationality')}
                   />
                 </Grid.Col>
@@ -256,6 +292,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     label="Native Language"
                     data={['Bengali', 'Hindi', 'English']}
                     withAsterisk
+                    key={form.key('nativeLanguage')}
                     {...form.getInputProps('nativeLanguage')}
                   />
                 </Grid.Col>
@@ -264,6 +301,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     label="Caste"
                     data={['General', 'OBC', 'SC', 'ST']}
                     withAsterisk
+                    key={form.key('caste')}
                     {...form.getInputProps('caste')}
                   />
                 </Grid.Col>
@@ -271,7 +309,8 @@ export default function StudentForm({ action }: StudentFormProps) {
                   <TextInput
                     label="Father's Name"
                     withAsterisk
-                    {...form.getInputProps('fatherName')}
+                    key={form.key('fathersName')}
+                    {...form.getInputProps('fathersName')}
                   />
                 </Grid.Col>
                 <Grid.Col span={3}>
@@ -280,7 +319,8 @@ export default function StudentForm({ action }: StudentFormProps) {
                     minLength={10}
                     maxLength={10}
                     withAsterisk
-                    {...form.getInputProps('fatherNo')}
+                    key={form.key('fathersPhone')}
+                    {...form.getInputProps('fathersPhone')}
                     leftSection={<Text size="sm">+91</Text>}
                   />
                 </Grid.Col>
@@ -288,7 +328,8 @@ export default function StudentForm({ action }: StudentFormProps) {
                   <TextInput
                     label="Mother's Name"
                     withAsterisk
-                    {...form.getInputProps('motherName')}
+                    key={form.key('mothersName')}
+                    {...form.getInputProps('mothersName')}
                   />
                 </Grid.Col>
                 <Grid.Col span={3}>
@@ -297,36 +338,42 @@ export default function StudentForm({ action }: StudentFormProps) {
                     minLength={10}
                     maxLength={10}
                     withAsterisk
-                    {...form.getInputProps('motherNo')}
+                    key={form.key('mothersPhone')}
+                    {...form.getInputProps('mothersPhone')}
                     leftSection={<Text size="sm">+91</Text>}
                   />
                 </Grid.Col>
+
                 <Grid.Col span={12}>
                   <Textarea
                     label="Present Address"
                     withAsterisk
-                    {...form.getInputProps('pAddress')}
+                    key={form.key('presentAddess')}
+                    {...form.getInputProps('presentAddess')}
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <TextInput
                     label="P.O"
                     withAsterisk
-                    {...form.getInputProps('pPo')}
+                    key={form.key('presentPo')}
+                    {...form.getInputProps('presentPo')}
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <TextInput
                     label="P.S"
                     withAsterisk
-                    {...form.getInputProps('pPs')}
+                    key={form.key('presentPs')}
+                    {...form.getInputProps('presentPs')}
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <NumberInput
                     label="Pin"
                     withAsterisk
-                    {...form.getInputProps('pPin')}
+                    key={form.key('presentPin')}
+                    {...form.getInputProps('presentPin')}
                     hideControls
                   />
                 </Grid.Col>
@@ -343,28 +390,32 @@ export default function StudentForm({ action }: StudentFormProps) {
                   <Textarea
                     label="Permanent Address"
                     withAsterisk
-                    {...form.getInputProps('prAddress')}
+                    key={form.key('permanentAddess')}
+                    {...form.getInputProps('permanentAddess')}
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <TextInput
                     label="P.O"
                     withAsterisk
-                    {...form.getInputProps('prPo')}
+                    key={form.key('permanentPo')}
+                    {...form.getInputProps('permanentPo')}
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <TextInput
                     label="P.S"
                     withAsterisk
-                    {...form.getInputProps('prPs')}
+                    key={form.key('permanentPs')}
+                    {...form.getInputProps('permanentPs')}
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <NumberInput
                     label="Pin"
                     withAsterisk
-                    {...form.getInputProps('prPin')}
+                    key={form.key('permanentPin')}
+                    {...form.getInputProps('permanentPin')}
                     hideControls
                   />
                 </Grid.Col>
@@ -529,7 +580,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                               </Table.Td>
                               <Table.Td>
                                 <Select
-                                  data={[]}
+                                  data={classLists}
                                   key={form.key(
                                     `siblingDetails.${index}.classId`
                                   )}
@@ -588,6 +639,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                 </Grid.Col>
               </Grid>
             </Stepper.Step>
+
             <Stepper.Step label="Parents / Guardian's Information">
               {guardianArr.map((item, index) => (
                 <Fragment key={index}>
@@ -667,7 +719,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     <Grid.Col span={4}>
                       <Select
                         label="State"
-                        data={[]}
+                        data={['West Bengal']}
                         key={form.key(`${guardianArr[index].fields.state}`)}
                         {...form.getInputProps(
                           `${guardianArr[index].fields.state}`
@@ -677,7 +729,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     <Grid.Col span={4}>
                       <Select
                         label="Country"
-                        data={[]}
+                        data={['India']}
                         key={form.key(`${guardianArr[index].fields.country}`)}
                         {...form.getInputProps(
                           `${guardianArr[index].fields.country}`
@@ -726,84 +778,10 @@ export default function StudentForm({ action }: StudentFormProps) {
                 </Fragment>
               ))}
             </Stepper.Step>
-            <Stepper.Step label="Photos / Documents">
-              <Space h={20} />
-              <Grid>
-                <Grid.Col span={4}>
-                  <FileInput
-                    label="Student's Photo"
-                    leftSection={<IconUpload size={18} />}
-                    withAsterisk
-                    {...form.getInputProps('studentPhoto')}
-                  />
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <FileInput
-                    label="Father's Photo"
-                    leftSection={<IconUpload size={18} />}
-                    withAsterisk
-                    {...form.getInputProps('fatherPhoto')}
-                  />
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <FileInput
-                    label="Mother's Photo"
-                    leftSection={<IconUpload size={18} />}
-                    withAsterisk
-                    {...form.getInputProps('motherPhoto')}
-                  />
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <FileInput
-                    label="Student's Birth Certificate"
-                    leftSection={<IconUpload size={18} />}
-                    withAsterisk
-                  />
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <FileInput
-                    label="Student's Vaccination Record"
-                    leftSection={<IconUpload size={18} />}
-                    withAsterisk
-                    {...form.getInputProps('vaccinationRecord')}
-                  />
-                </Grid.Col>
-                <Grid.Col span={4}>
-                  <Radio.Group
-                    name="medicalHistory"
-                    label="Medical History"
-                    withAsterisk
-                    {...form.getInputProps('medicalHistory')}
-                    onChange={(e) => {
-                      form.setFieldValue('medicalHistory', e);
-                      form.setFieldValue('medicalFile', null);
-                    }}
-                  >
-                    <Group mt="xs">
-                      <Radio value="Y" label="Yes" />
-                      <Radio value="N" label="No" />
-                    </Group>
-                  </Radio.Group>
-                </Grid.Col>
-                {form.getValues().medicalHistory === 'Y' && (
-                  <>
-                    <Grid.Col span={8}>
-                      <Textarea label="Medical History Details" withAsterisk />
-                    </Grid.Col>
-                    <Grid.Col span={4}>
-                      <FileInput
-                        label="Medical Records"
-                        leftSection={<IconUpload size={18} />}
-                        withAsterisk
-                        {...form.getInputProps('medicalFile')}
-                      />
-                    </Grid.Col>
-                  </>
-                )}
-              </Grid>
-            </Stepper.Step>
           </Stepper>
           <Group justify="space-between" mt="xl">
+            <Button type="submit">SAVE</Button>
+
             <Button
               variant="default"
               onClick={prevStep}

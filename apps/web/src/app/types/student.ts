@@ -1,13 +1,13 @@
 export type StudentPersonalType = {
   regNo: string;
   admissionDate: string | null;
-  classId: string | null;
+  classId: number | null;
 
   studentPhoto: any;
   fatherPhoto: any;
   motherPhoto: any;
 
-  studentName: string;
+  name: string;
   dob: string;
   gender: 'M' | 'F' | 'O';
 
@@ -16,22 +16,22 @@ export type StudentPersonalType = {
   nativeLanguage: string;
   caste: string;
 
-  fatherName: string;
-  fatherNo: number;
-  motherName: number;
-  motherNo: string;
+  fathersName: string;
+  fathersPhone: number;
+  mothersName: number;
+  mothersPhone: string;
 
-  pAddress: string;
-  pPo: string;
-  pPs: string;
-  pPin: number;
+  presentAddess: string;
+  presentPo: string;
+  presentPs: string;
+  presentPin: number;
 
   isBothAddressSame: boolean;
 
-  prAddress: string;
-  prPo: string;
-  prPs: string;
-  prPin: number;
+  permanentAddess: string;
+  permanentPo: string;
+  permanentPs: string;
+  permanentPin: number;
 
   previousSchoolDetails: {
     name: string;
@@ -55,18 +55,18 @@ export type StudentPersonalType = {
     presentSchool: string;
   }[];
 
-  qualificationF: string | null;
-  professionF: string | null;
-  annualIncomeF: number | null;
-  addressF: string | null;
-  cityF: string | null;
-  pinF: number | null;
-  stateF: string | null;
-  countryF: string | null;
-  mobileF: string | null;
-  emailF: string | null;
-  signF: any;
-  placeF: string;
+  fatherQualification: string | null;
+  fatherProfession: string | null;
+  fatherAnnualIncome: number | null;
+  fatherAddress: string | null;
+  fatherCity: string | null;
+  fatherPin: number | null;
+  fatherState: string | null;
+  fatherCountry: string | null;
+  fatherMobile: string | null;
+  fatherEmail: string | null;
+  fatherSign: any;
+  fatherPlace: string;
 
   qualificationM: string | null;
   professionM: string | null;

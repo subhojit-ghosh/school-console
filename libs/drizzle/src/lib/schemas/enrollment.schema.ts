@@ -16,7 +16,10 @@ export const enrollmentsTable = mysqlTable('enrollments', {
   academicYearId: bigint({ mode: 'number', unsigned: true })
     .notNull()
     .references(() => academicYearsTable.id),
-  studentId: varchar({ length: 100 })
+  studentId: bigint({
+    mode: 'number',
+    unsigned: true,
+  })
     .notNull()
     .references(() => studentsTable.id),
   classId: bigint({ mode: 'number', unsigned: true })
