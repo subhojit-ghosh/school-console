@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import {
   CreateStudentDto,
+  CreateStudentPersonalInfoDto,
   StudentQueryDto,
   UpdateStudentDto,
 } from './students.dto';
@@ -13,6 +14,11 @@ export class StudentsController {
   @Get()
   async findAll(@Query() query: StudentQueryDto) {
     return this.studentsService.findAll(query);
+  }
+
+  @Post('personal')
+  async studentInfo(@Body() body: CreateStudentPersonalInfoDto) {
+    return this.studentsService.createStudentPersonalInfo(body);
   }
 
   @Post()

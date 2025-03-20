@@ -21,6 +21,7 @@ import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import tabStyles from '../../styles/Tab.module.scss';
+import { useGetStudents } from '../../services/students/apiQuery';
 
 const enrolledStudents = [
   {
@@ -93,6 +94,12 @@ export default function StudentsPage() {
     direction: 'asc',
   });
 
+  const {
+    data: studentLists = [],
+    isFetching: isStudentFetching,
+    isFetched: isStudentFetched,
+  } = useGetStudents();
+
   useEffect(() => {
     if (type === 'enrolled') {
       setListData({
@@ -103,16 +110,16 @@ export default function StudentsPage() {
         page: 1,
       });
     }
-    if (type === 'registration') {
+    if (type === 'registration' && isStudentFetched) {
       setListData({
-        data: newRegistrations,
-        totalRecords: enrolledStudents.length,
+        data: studentLists.data || [],
+        totalRecords: (studentLists.data || []).length,
         totalPages: 1,
         size: 10,
         page: 1,
       });
     }
-  }, [type]);
+  }, [type, isStudentFetched]);
 
   useEffect(() => {
     fetchList();
@@ -200,7 +207,7 @@ export default function StudentsPage() {
         onSortStatusChange={setSortStatus}
         columns={[
           {
-            accessor: 'id',
+            accessor: 'regId',
             title: 'ID',
             sortable: true,
             filter: (

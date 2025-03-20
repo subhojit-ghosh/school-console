@@ -1,14 +1,14 @@
 export type StudentPersonalType = {
   regNo: string;
   admissionDate: string | null;
-  classId: number | null;
+  classId: number | string | null;
 
   studentPhoto: any;
   fatherPhoto: any;
   motherPhoto: any;
 
   name: string;
-  dob: string;
+  dob: any;
   gender: 'M' | 'F' | 'O';
 
   religion: string;
@@ -17,8 +17,8 @@ export type StudentPersonalType = {
   caste: string;
 
   fathersName: string;
-  fathersPhone: number;
-  mothersName: number;
+  fathersPhone: string;
+  mothersName: string;
   mothersPhone: string;
 
   presentAddess: string;
@@ -39,8 +39,8 @@ export type StudentPersonalType = {
     key: string;
     affilatedBoard: string;
     standard: string;
-    periodStart: string | null;
-    periodEnd: string | null;
+    periodStart: any | null;
+    periodEnd: any | null;
   }[];
 
   medicalHistory: string;
@@ -50,7 +50,7 @@ export type StudentPersonalType = {
   siblingDetails: {
     key: string;
     name: string;
-    dob: string | null;
+    dob: any | null;
     classId: string;
     presentSchool: string;
   }[];
