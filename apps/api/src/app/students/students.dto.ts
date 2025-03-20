@@ -11,6 +11,7 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateStudentDto {
@@ -240,6 +241,257 @@ export class CreateStudentDto {
   @IsString()
   @IsOptional()
   guardianPlace;
+}
+
+export class CreateStudentPersonalInfoDto {
+  @IsInt()
+  @IsOptional()
+  id: number;
+
+  @IsInt()
+  @IsPositive()
+  @IsNotEmpty()
+  classId: number;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  dob: Date;
+
+  @IsString()
+  @IsNotEmpty()
+  gender: string;
+
+  @IsString()
+  @IsNotEmpty()
+  religion: string;
+
+  @IsString()
+  @IsNotEmpty()
+  nationality: string;
+
+  @IsString()
+  @IsNotEmpty()
+  nativeLanguage: string;
+
+  @IsString()
+  @IsNotEmpty()
+  caste: string;
+
+  @IsString()
+  @IsNotEmpty()
+  fathersName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  fathersPhone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  mothersName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  mothersPhone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  presentAddess: string;
+
+  @IsString()
+  @IsNotEmpty()
+  presentPo: string;
+
+  @IsString()
+  @IsNotEmpty()
+  presentPs: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  presentPin: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  isBothAddressSame: boolean;
+
+  @IsString()
+  @IsNotEmpty()
+  permanentAddess: string;
+
+  @IsString()
+  @IsNotEmpty()
+  permanentPo: string;
+
+  @IsString()
+  @IsNotEmpty()
+  permanentPs: string;
+
+  @IsNumber()
+  @IsNotEmpty()
+  permanentPin: string;
+
+  @IsJSON()
+  @IsNotEmpty()
+  previousSchoolDetails: JSON;
+
+  @IsJSON()
+  @IsNotEmpty()
+  siblingDetails: JSON;
+}
+
+export class UpdateStudentGuardianInfoDto {
+  @IsInt()
+  @IsNotEmpty()
+  id: number;
+
+  @IsString()
+  @IsOptional()
+  fatherQualification;
+
+  @IsString()
+  @IsOptional()
+  fatherProfession;
+
+  @IsNumber()
+  @IsOptional()
+  fatherAnnualIncome;
+
+  @IsString()
+  @IsOptional()
+  fatherAddress;
+
+  @IsString()
+  @IsOptional()
+  fatherCity;
+
+  @IsString()
+  @IsOptional()
+  fatherPin;
+
+  @IsString()
+  @IsOptional()
+  fatherState;
+
+  @IsString()
+  @IsOptional()
+  fatherCountry;
+
+  @IsNumber()
+  @IsOptional()
+  fatherMobile;
+
+  @ValidateIf(
+    (o, value) => value !== null && value !== undefined && value !== ''
+  )
+  @IsEmail()
+  fatherEmail;
+
+  @IsString()
+  @IsOptional()
+  fatherPlace;
+
+  // mother
+  @IsString()
+  @IsOptional()
+  motherQualification;
+
+  @IsString()
+  @IsOptional()
+  motherProfession;
+
+  @IsNumber()
+  @IsOptional()
+  motherAnnualIncome;
+
+  @IsString()
+  @IsOptional()
+  motherAddress;
+
+  @IsString()
+  @IsOptional()
+  motherCity;
+
+  @IsString()
+  @IsOptional()
+  motherPin;
+
+  @IsString()
+  @IsOptional()
+  motherState;
+
+  @IsString()
+  @IsOptional()
+  motherCountry;
+
+  @IsNumber()
+  @IsOptional()
+  motherMobile;
+
+  @ValidateIf(
+    (o, value) => value !== null && value !== undefined && value !== ''
+  )
+  @IsEmail()
+  motherEmail;
+
+  @IsString()
+  @IsOptional()
+  motherPlace;
+
+  // guardian
+  @IsString()
+  @IsOptional()
+  guardianQualification;
+
+  @IsString()
+  @IsOptional()
+  guardianProfession;
+
+  @IsNumber()
+  @IsOptional()
+  guardianAnnualIncome;
+
+  @IsString()
+  @IsOptional()
+  guardianAddress;
+
+  @IsString()
+  @IsOptional()
+  guardianCity;
+
+  @IsString()
+  @IsOptional()
+  guardianPin;
+
+  @IsString()
+  @IsOptional()
+  guardianState;
+
+  @IsString()
+  @IsOptional()
+  guardianCountry;
+
+  @IsNumber()
+  @IsOptional()
+  guardianMobile;
+
+  @ValidateIf(
+    (o, value) => value !== null && value !== undefined && value !== ''
+  )
+  @IsEmail()
+  guardianEmail;
+
+  @IsString()
+  @IsOptional()
+  guardianPlace;
+}
+
+export class EnrolledStudentDto {
+  @IsInt()
+  @IsNotEmpty()
+  id: number;
 }
 
 export class UpdateStudentDto extends CreateStudentDto {}

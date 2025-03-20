@@ -1,14 +1,15 @@
 export type StudentPersonalType = {
+  id?: number;
   regNo: string;
   admissionDate: string | null;
-  classId: number | null;
+  classId: number | string | null;
 
   studentPhoto: any;
   fatherPhoto: any;
   motherPhoto: any;
 
   name: string;
-  dob: string;
+  dob: any;
   gender: 'M' | 'F' | 'O';
 
   religion: string;
@@ -17,8 +18,8 @@ export type StudentPersonalType = {
   caste: string;
 
   fathersName: string;
-  fathersPhone: number;
-  mothersName: number;
+  fathersPhone: string;
+  mothersName: string;
   mothersPhone: string;
 
   presentAddess: string;
@@ -39,8 +40,8 @@ export type StudentPersonalType = {
     key: string;
     affilatedBoard: string;
     standard: string;
-    periodStart: string | null;
-    periodEnd: string | null;
+    periodStart: any | null;
+    periodEnd: any | null;
   }[];
 
   medicalHistory: string;
@@ -50,7 +51,7 @@ export type StudentPersonalType = {
   siblingDetails: {
     key: string;
     name: string;
-    dob: string | null;
+    dob: any | null;
     classId: string;
     presentSchool: string;
   }[];
@@ -60,39 +61,39 @@ export type StudentPersonalType = {
   fatherAnnualIncome: number | null;
   fatherAddress: string | null;
   fatherCity: string | null;
-  fatherPin: number | null;
+  fatherPin: string | number | null;
   fatherState: string | null;
   fatherCountry: string | null;
-  fatherMobile: string | null;
+  fatherMobile: string | number | null;
   fatherEmail: string | null;
   fatherSign: any;
   fatherPlace: string;
 
-  qualificationM: string | null;
-  professionM: string | null;
-  annualIncomeM: number | null;
-  addressM: string | null;
-  cityM: string | null;
-  pinM: number | null;
-  stateM: string | null;
-  countryM: string | null;
-  mobileM: string | null;
-  emailM: string | null;
-  signM: any;
-  placeM: string;
+  motherQualification: string | null;
+  motherProfession: string | null;
+  motherAnnualIncome: number | null;
+  motherAddress: string | null;
+  motherCity: string | null;
+  motherPin: string | number | null;
+  motherState: string | null;
+  motherCountry: string | null;
+  motherMobile: string | number | null;
+  motherEmail: string | null;
+  motherSign: any;
+  motherPlace: string;
 
-  qualificationO: string | null;
-  professionO: string | null;
-  annualIncomeO: number | null;
-  addressO: string | null;
-  cityO: string | null;
-  pinO: number | null;
-  stateO: string | null;
-  countryO: string | null;
-  mobileO: string | null;
-  emailO: string | null;
-  signO: any;
-  placeO: string;
+  guardianQualification: string | null;
+  guardianProfession: string | null;
+  guardianAnnualIncome: number | null;
+  guardianAddress: string | null;
+  guardianCity: string | null;
+  guardianPin: string | number | null;
+  guardianState: string | null;
+  guardianCountry: string | null;
+  guardianMobile: string | number | null;
+  guardianEmail: string | null;
+  guardianSign: any;
+  guardianPlace: string;
 
   consent: boolean;
 };

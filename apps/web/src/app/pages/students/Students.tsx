@@ -21,6 +21,12 @@ import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import tabStyles from '../../styles/Tab.module.scss';
+import {
+  useEnrolledStudent,
+  useGetEnrolledStudents,
+  useGetStudents,
+} from '../../services/students/apiQuery';
+import { showSuccessNotification } from '../../utils/notification';
 
 const enrolledStudents = [
   {
@@ -93,26 +99,46 @@ export default function StudentsPage() {
     direction: 'asc',
   });
 
+  const {
+    data: enrolledStudentLists = [],
+    isFetching: isEnrolledStudentFetching,
+    isFetched: isEnrolledStudentFetched,
+    refetch: refetchEnrolledStudent,
+  } = useGetEnrolledStudents();
+
+  const {
+    data: studentLists = [],
+    isFetching: isStudentFetching,
+    isFetched: isStudentFetched,
+    refetch: refetchStudent,
+  } = useGetStudents();
+
   useEffect(() => {
-    if (type === 'enrolled') {
+    if (type === 'enrolled' && isEnrolledStudentFetched) {
       setListData({
-        data: enrolledStudents,
-        totalRecords: enrolledStudents.length,
+        data: enrolledStudentLists.data || [],
+        totalRecords: (enrolledStudentLists.data || []).length,
         totalPages: 1,
         size: 10,
         page: 1,
       });
     }
-    if (type === 'registration') {
+    if (type === 'registration' && isStudentFetched) {
       setListData({
-        data: newRegistrations,
-        totalRecords: enrolledStudents.length,
+        data: studentLists.data || [],
+        totalRecords: (studentLists.data || []).length,
         totalPages: 1,
         size: 10,
         page: 1,
       });
     }
-  }, [type]);
+  }, [
+    type,
+    isEnrolledStudentFetched,
+    isStudentFetched,
+    studentLists,
+    enrolledStudentLists,
+  ]);
 
   useEffect(() => {
     fetchList();
@@ -146,6 +172,23 @@ export default function StudentsPage() {
 
     setIsListLoading(false);
   };
+
+  const enrolled = useEnrolledStudent();
+
+  function enrolledStudent({ id }: any) {
+    enrolled.mutate(
+      {
+        id,
+      },
+      {
+        onSuccess: () => {
+          showSuccessNotification('Student enrolled successfully.');
+          refetchStudent();
+          refetchEnrolledStudent();
+        },
+      }
+    );
+  }
 
   return (
     <>
@@ -200,7 +243,7 @@ export default function StudentsPage() {
         onSortStatusChange={setSortStatus}
         columns={[
           {
-            accessor: 'id',
+            accessor: 'recordNo',
             title: 'ID',
             sortable: true,
             filter: (
@@ -232,11 +275,11 @@ export default function StudentsPage() {
             filtering: !!filters.name,
           },
           {
-            accessor: 'fatherName',
+            accessor: 'fathersName',
             title: "Father's Name",
           },
           {
-            accessor: 'motherName',
+            accessor: 'mothersName',
             title: "Mother's Name",
           },
           {
@@ -261,7 +304,11 @@ export default function StudentsPage() {
                 </Tooltip>
                 {type == 'registration' && (
                   <Tooltip label="Enroll" withArrow>
-                    <ActionIcon size="sm" variant="subtle">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      onClick={() => enrolledStudent(row)}
+                    >
                       <IconCheck size={16} />
                     </ActionIcon>
                   </Tooltip>
