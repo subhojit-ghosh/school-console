@@ -1,10 +1,35 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { getAllStudents, saveStudent, saveStudentPersonalInfo } from '.';
+import {
+  enrolledStudent,
+  getEnrolledStudents,
+  getRegStudents,
+  getStudentById,
+  saveStudent,
+  saveStudentPersonalInfo,
+  updateStudentGuardianInfo,
+} from '.';
+
+export function useGetEnrolledStudents() {
+  return useQuery({
+    queryKey: ['enrolled-students'],
+    queryFn: getEnrolledStudents,
+    retry: 0,
+  });
+}
 
 export function useGetStudents() {
   return useQuery({
-    queryKey: ['all-students'],
-    queryFn: getAllStudents,
+    queryKey: ['reg-students'],
+    queryFn: getRegStudents,
+    retry: 0,
+  });
+}
+
+export function useGetStudentById(id: string) {
+  return useQuery({
+    queryKey: ['get-student-by-id', id],
+    queryFn: () => getStudentById(id),
+    enabled: !!id,
     retry: 0,
   });
 }
@@ -18,5 +43,17 @@ export function useAddStudent() {
 export function useAddStudentPersonal() {
   return useMutation({
     mutationFn: saveStudentPersonalInfo,
+  });
+}
+
+export function useUpdateStudentGuardianInfo() {
+  return useMutation({
+    mutationFn: updateStudentGuardianInfo,
+  });
+}
+
+export function useEnrolledStudent() {
+  return useMutation({
+    mutationFn: enrolledStudent,
   });
 }

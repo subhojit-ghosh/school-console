@@ -4,6 +4,7 @@ import {
   CreateStudentPersonalInfoDto,
   StudentQueryDto,
   UpdateStudentDto,
+  UpdateStudentGuardianInfoDto,
 } from './students.dto';
 import { StudentsService } from './students.service';
 
@@ -16,9 +17,27 @@ export class StudentsController {
     return this.studentsService.findAll(query);
   }
 
+  @Get('enrolled')
+  async findAllEnrolled(@Query() query: StudentQueryDto) {
+    return this.studentsService.findAllEnrolled(query);
+  }
+
+  @Get(':id')
+  async getStudentById(@Param('id') id: string) {
+    return this.studentsService.findById(id);
+  }
+
   @Post('personal')
   async studentInfo(@Body() body: CreateStudentPersonalInfoDto) {
     return this.studentsService.createStudentPersonalInfo(body);
+  }
+
+  @Put('guardian-info/:id')
+  async updateGuardianInfo(
+    @Body() body: UpdateStudentGuardianInfoDto,
+    @Param('id') id: string
+  ) {
+    return this.studentsService.updateStudentGuardianInfo(id, body);
   }
 
   @Post()
@@ -29,5 +48,10 @@ export class StudentsController {
   @Put(':id')
   async update(@Body() body: UpdateStudentDto, @Param('id') id: string) {
     return this.studentsService.update(id, body);
+  }
+
+  @Put('enrolled/:id')
+  async enrolledStudent(@Param('id') id: string) {
+    return this.studentsService.enrolledStudent(id);
   }
 }

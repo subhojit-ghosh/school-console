@@ -97,6 +97,10 @@ export const studentsTable = mysqlTable(
     guardianEmail: text(),
     guardianPlace: text(),
 
+    isEnrolled: boolean().default(false),
+    enrolledId: varchar({ length: 10 }),
+    enrolledNo: varchar({ length: 10 }),
+
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp().onUpdateNow(),
   },

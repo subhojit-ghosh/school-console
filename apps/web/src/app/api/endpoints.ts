@@ -22,10 +22,14 @@ const endpoints = {
     updateStatus: (id: string) => api(`academic-years/${id}/status`),
   },
   students: {
+    listEnrolled: (query: string = '') => api(`students/enrolled?${query}`),
     list: (query: string = '') => api(`students?${query}`),
+    findById: (id: string) => api(`students/${id}`),
     create: () => api('students'),
-    createPerosnalInfo: () => api('students/personal'),
+    createPersonalInfo: () => api('students/personal'),
+    updatePersonalInfo: (id: string) => api(`students/guardian-info/${id}`),
     update: (id: string) => api(`students/${id}`),
+    enrolled: (id: string) => api(`students/enrolled/${id}`),
   },
   classes: {
     list: () => api('classes'),

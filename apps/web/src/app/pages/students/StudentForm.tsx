@@ -42,6 +42,8 @@ import { useGetClasses } from '../../services/utils/apiQuery';
 import {
   useAddStudent,
   useAddStudentPersonal,
+  useGetStudentById,
+  useUpdateStudentGuardianInfo,
 } from '../../services/students/apiQuery';
 import {
   showErrorNotification,
@@ -81,164 +83,22 @@ const StepperNavigation = ({
 
 export default function StudentForm({ action }: StudentFormProps) {
   const { id } = useParams();
+  const [studentId, setStudentId] = useState<string | null>(id || null);
   const [activeStep, setActiveStep] = useState(0);
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
+  const [isBothAddressSame, setIsBothAddressSame] = useState<boolean>(false);
+
+  const { data: classLists = [] } = useGetClasses();
+  const saveStudentPersonal = useAddStudentPersonal();
+  const saveStudentGuardian = useUpdateStudentGuardianInfo();
+  const {
+    data: studentDetailsById = {},
+    isFetched: studentDetailIsFetched,
+    refetch: studentDetailRefetch,
+  } = useGetStudentById(studentId || '');
 
   const prevStep = () =>
     setActiveStep((current) => (current > 0 ? current - 1 : current));
-  const [isFormValid, setIsFormValid] = useState<boolean>(false);
-
-  const studentPersonalForm = useForm<Partial<StudentPersonalType>>({
-    mode: 'uncontrolled',
-    initialValues: {
-      // regNo: '',
-      // admissionDate: null,
-      classId: '1',
-      name: 'Aniruddha Roy',
-      dob: new Date('2020-12-06'),
-      gender: 'M',
-      religion: 'Hindu',
-      nationality: 'Indian',
-      nativeLanguage: 'Bengali',
-      caste: 'General',
-
-      fathersName: 'AAA',
-      fathersPhone: '1232323323',
-      mothersName: 'AAA',
-      mothersPhone: '1232323323',
-
-      presentAddess: 'Test',
-      presentPo: 'ER',
-      presentPs: 'WEE',
-      presentPin: 123456,
-
-      isBothAddressSame: true,
-
-      permanentAddess: 'Test',
-      permanentPo: 'ER',
-      permanentPs: 'WEE',
-      permanentPin: 123456,
-
-      // studentPhoto: null,
-      // fatherPhoto: null,
-      // motherPhoto: null,
-
-      // medicalHistory: 'N',
-      // medicalFile: null,
-
-      previousSchoolDetails: [
-        {
-          key: randomId(),
-          name: 'A',
-          place: 'E',
-          affilatedBoard: 'W',
-          standard: 'W',
-          periodStart: new Date('2021-01-01'),
-          periodEnd: new Date('2021-01-01'),
-        },
-      ],
-      siblingDetails: [
-        {
-          key: randomId(),
-          name: 'E',
-          dob: new Date('2024-01-01'),
-          classId: '2',
-          presentSchool: 'Test',
-        },
-      ],
-      // consent: false,
-    },
-    onValuesChange: ({ consent }, ...rest) => {
-      setIsFormValid(consent as boolean);
-    },
-    transformValues: (values) => ({
-      ...values,
-      dob: moment(values.dob).format('YYYY-MM-DD'),
-      classId: Number(values.classId),
-      fathersPhone: String(values.fathersPhone),
-      mothersPhone: String(values.mothersPhone),
-      previousSchoolDetails: (values.previousSchoolDetails || []).map(
-        (rec) => ({
-          ...rec,
-          periodStart: moment(rec.periodStart).format('YYYY-MM-DD'),
-          periodEnd: moment(rec.periodEnd).format('YYYY-MM-DD'),
-        })
-      ),
-      siblingDetails: (values.siblingDetails || []).map((rec) => ({
-        ...rec,
-        dob: moment(rec.dob).format('YYYY-MM-DD'),
-      })),
-    }),
-  });
-
-  const form = useForm<Partial<StudentPersonalType>>({
-    mode: 'uncontrolled',
-    initialValues: {
-      // regNo: '',
-      // admissionDate: null,
-      classId: '1',
-      name: 'Aniruddha Roy',
-      dob: new Date('2020-12-06'),
-      gender: 'M',
-      religion: 'Hindu',
-      nationality: 'Indian',
-      nativeLanguage: 'Bengali',
-      caste: 'General',
-
-      fathersName: 'AAA',
-      fathersPhone: 1232323323,
-      mothersName: 'AAA',
-      mothersPhone: 1232323323,
-
-      presentAddess: 'Test',
-      presentPo: 'ER',
-      presentPs: 'WEE',
-      presentPin: 123456,
-
-      isBothAddressSame: true,
-
-      permanentAddess: 'Test',
-      permanentPo: 'ER',
-      permanentPs: 'WEE',
-      permanentPin: 123456,
-
-      // studentPhoto: null,
-      // fatherPhoto: null,
-      // motherPhoto: null,
-
-      // medicalHistory: 'N',
-      // medicalFile: null,
-
-      previousSchoolDetails: [
-        {
-          key: randomId(),
-          name: 'A',
-          place: 'E',
-          affilatedBoard: 'W',
-          standard: 'W',
-          periodStart: new Date('2021-01-01'),
-          periodEnd: new Date('2021-01-01'),
-        },
-      ],
-      siblingDetails: [
-        {
-          key: randomId(),
-          name: 'E',
-          dob: new Date('2024-01-01'),
-          classId: '1',
-          presentSchool: 'Test',
-        },
-      ],
-      // consent: false,
-    },
-    onValuesChange: ({ consent }, ...rest) => {
-      setIsFormValid(consent as boolean);
-    },
-    transformValues: (values) => ({
-      ...values,
-      dob: moment(values.dob).format('YYYY-MM-DD'),
-      classId: Number(values.classId),
-    }),
-  });
 
   function addRecord() {
     studentPersonalForm.insertListItem('previousSchoolDetails', {
@@ -320,39 +180,309 @@ export default function StudentForm({ action }: StudentFormProps) {
     console.log('debug-isFormValid', isFormValid);
   }, [isFormValid]);
 
-  const { data: classLists = [] } = useGetClasses();
-  const saveStudentPersonal = useAddStudentPersonal();
+  const reqFieldError = '* Field is reuqied.';
+  const varcharDigitFieldError = '* Field length should be 255 char(s).';
+  const tenDigitFieldError = '* Field length should be 10 char(s).';
+  const sixDigitFieldError = '* Field length should be 6 char(s).';
+  const emailFieldError = '* Field should contain valid email.';
+  const emailRegEx = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/;
 
-  function onFormSubmit(v: Partial<StudentPersonalType>) {
-    if (!v.previousSchoolDetails?.length) {
-      showErrorNotification('One school details is required.');
-      return;
-    }
-    if (!v.siblingDetails?.length) {
-      showErrorNotification('One sibling details is required.');
-      return;
-    }
+  const studentPersonalForm = useForm<Partial<StudentPersonalType>>({
+    mode: 'uncontrolled',
+    initialValues: {
+      // regNo: '',
+      // admissionDate: null,
+      // classId: '1',
+      // name: 'Aniruddha Roy',
+      // dob: new Date('2020-12-06'),
+      // gender: 'M',
+      // religion: 'Hindu',
+      // nationality: 'Indian',
+      // nativeLanguage: 'Bengali',
+      // caste: 'General',
+      // fathersName: 'AAA',
+      // fathersPhone: '1232323323',
+      // mothersName: 'AAA',
+      // mothersPhone: '1232323323',
+      // presentAddess: 'Test',
+      // presentPo: 'ER',
+      // presentPs: 'WEE',
+      // presentPin: 123456,
+      // isBothAddressSame: true,
+      // permanentAddess: 'Test',
+      // permanentPo: 'ER',
+      // permanentPs: 'WEE',
+      // permanentPin: 123456,
+      // studentPhoto: null,
+      // fatherPhoto: null,
+      // motherPhoto: null,
+      // medicalHistory: 'N',
+      // medicalFile: null,
+      // previousSchoolDetails: [
+      //   {
+      //     key: randomId(),
+      //     name: 'A',
+      //     place: 'E',
+      //     affilatedBoard: 'W',
+      //     standard: 'W',
+      //     periodStart: new Date('2021-01-01'),
+      //     periodEnd: new Date('2021-01-01'),
+      //   },
+      // ],
+      // siblingDetails: [
+      //   {
+      //     key: randomId(),
+      //     name: 'E',
+      //     dob: new Date('2024-01-01'),
+      //     classId: '2',
+      //     presentSchool: 'Test',
+      //   },
+      // ],
+      previousSchoolDetails: [],
+      siblingDetails: [],
+      // consent: false,
+    },
+    validate: {
+      name: (v) => (!v ? reqFieldError : null),
+      classId: (v) => (!v ? reqFieldError : null),
+      dob: (v) => (!v ? reqFieldError : null),
+      gender: (v) => (!v ? reqFieldError : null),
+      religion: (v) => (!v ? reqFieldError : null),
+      nationality: (v) => (!v ? reqFieldError : null),
+      nativeLanguage: (v) => (!v ? reqFieldError : null),
+      caste: (v) => (!v ? reqFieldError : null),
+      fathersName: (v) => (!v ? reqFieldError : null),
+      fathersPhone: (v) =>
+        !v
+          ? reqFieldError
+          : String(v).length !== 10
+          ? tenDigitFieldError
+          : null,
+      mothersName: (v) => (!v ? reqFieldError : null),
+      presentAddess: (v) => (!v ? reqFieldError : null),
+      presentPo: (v) => (!v ? reqFieldError : null),
+      presentPs: (v) => (!v ? reqFieldError : null),
+      presentPin: (v) =>
+        !v ? reqFieldError : String(v).length !== 6 ? sixDigitFieldError : null,
 
-    saveStudentPersonal.mutate({
-      ...(v as any),
-      name: 'AAA',
-      previousSchoolDetails: JSON.stringify(v.previousSchoolDetails),
-      siblingDetails: JSON.stringify(v.siblingDetails),
-    });
-  }
+      permanentAddess: (v) => (!v ? reqFieldError : null),
+      permanentPo: (v) => (!v ? reqFieldError : null),
+      permanentPs: (v) => (!v ? reqFieldError : null),
+      permanentPin: (v) =>
+        !v ? reqFieldError : String(v).length !== 6 ? sixDigitFieldError : null,
+
+      previousSchoolDetails: {
+        name: (v) => (!v ? reqFieldError : null),
+        place: (v) => (!v ? reqFieldError : null),
+        affilatedBoard: (v) => (!v ? reqFieldError : null),
+        periodStart: (v) => (!v ? reqFieldError : null),
+        periodEnd: (v) => (!v ? reqFieldError : null),
+      },
+      siblingDetails: {
+        name: (v) => (!v ? reqFieldError : null),
+        dob: (v) => (!v ? reqFieldError : null),
+        classId: (v) => (!v ? reqFieldError : null),
+        presentSchool: (v) => (!v ? reqFieldError : null),
+      },
+    },
+    onValuesChange: (
+      {
+        consent,
+        isBothAddressSame,
+        presentAddess,
+        presentPo,
+        presentPs,
+        presentPin,
+      },
+      ...rest
+    ) => {
+      setIsFormValid(consent as boolean);
+      setIsBothAddressSame(isBothAddressSame as boolean);
+    },
+    transformValues: (values) => ({
+      ...values,
+      dob: moment(values.dob).format('YYYY-MM-DD'),
+      classId: Number(values.classId),
+      fathersPhone: String(values.fathersPhone),
+      mothersPhone: String(values.mothersPhone),
+      presentPin: Number(values.presentPin),
+      permanentPin: Number(values.permanentPin),
+      previousSchoolDetails: (values.previousSchoolDetails || []).map(
+        (rec) => ({
+          ...rec,
+          periodStart: moment(rec.periodStart).format('YYYY-MM-DD'),
+          periodEnd: moment(rec.periodEnd).format('YYYY-MM-DD'),
+        })
+      ),
+      siblingDetails: (values.siblingDetails || []).map((rec) => ({
+        ...rec,
+        dob: moment(rec.dob).format('YYYY-MM-DD'),
+      })),
+    }),
+  });
+  useEffect(
+    () => console.log(`debug-eff-erros`, studentPersonalForm.errors),
+    [studentPersonalForm.errors]
+  );
+
+  useEffect(() => {
+    if (isBothAddressSame) {
+      studentPersonalForm.setValues({
+        isBothAddressSame: true,
+        permanentAddess: studentPersonalForm.getValues().presentAddess,
+        permanentPo: studentPersonalForm.getValues().presentPo,
+        permanentPs: studentPersonalForm.getValues().presentPs,
+        permanentPin: studentPersonalForm.getValues().presentPin,
+      });
+    }
+  }, [isBothAddressSame]);
+
+  const studentGuardianForm = useForm<Partial<StudentPersonalType>>({
+    initialValues: {},
+    validate: {
+      fatherQualification: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      fatherAnnualIncome: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      fatherProfession: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      fatherCity: (v) =>
+        v && String(v).length > 10 ? tenDigitFieldError : null,
+
+      motherQualification: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      motherAnnualIncome: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      motherProfession: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      motherCity: (v) =>
+        v && String(v).length > 10 ? tenDigitFieldError : null,
+
+      guardianQualification: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      guardianAnnualIncome: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      guardianProfession: (v) =>
+        v && String(v).length > 255 ? varcharDigitFieldError : null,
+      guardianCity: (v) =>
+        v && String(v).length > 10 ? tenDigitFieldError : null,
+
+      fatherPin: (v) =>
+        v && String(v).length !== 6 ? sixDigitFieldError : null,
+      motherPin: (v) =>
+        v && String(v).length !== 6 ? sixDigitFieldError : null,
+      guardianPin: (v) =>
+        v && String(v).length !== 6 ? sixDigitFieldError : null,
+
+      fatherMobile: (v) =>
+        v && String(v).length !== 10 ? tenDigitFieldError : null,
+      motherMobile: (v) =>
+        v && String(v).length !== 10 ? tenDigitFieldError : null,
+      guardianMobile: (v) =>
+        v && String(v).length !== 10 ? tenDigitFieldError : null,
+
+      fatherEmail: (v) => (v && !emailRegEx.test(v) ? emailFieldError : null),
+      motherEmail: (v) => (v && !emailRegEx.test(v) ? emailFieldError : null),
+      guardianEmail: (v) => (v && !emailRegEx.test(v) ? emailFieldError : null),
+    },
+    onValuesChange: ({ consent }, ...rest) => {
+      setIsFormValid(consent as boolean);
+    },
+    transformValues: (values: Partial<StudentPersonalType>) => ({
+      ...values,
+      id: Number(values.id),
+      fatherPin: values.fatherPin ? String(values.fatherPin) : null,
+      fatherMobile: values.fatherMobile ? Number(values.fatherMobile) : null,
+      motherPin: values.motherPin ? String(values.motherPin) : null,
+      motherMobile: values.motherMobile ? Number(values.motherMobile) : null,
+      guardianPin: values.guardianPin ? String(values.guardianPin) : null,
+      guardianMobile: values.guardianMobile
+        ? Number(values.guardianMobile)
+        : null,
+    }),
+  });
+
+  useEffect(() => {
+    if (studentDetailIsFetched) {
+      studentGuardianForm.setValues({
+        ...studentDetailsById,
+      });
+      studentPersonalForm.setValues({
+        ...studentDetailsById,
+        classId: String(studentDetailsById.classId),
+        dob: studentDetailsById.dob
+          ? new Date(studentDetailsById.dob)
+          : undefined,
+        isBothAddressSame: !!studentDetailsById.isBothAddressSame,
+        previousSchoolDetails: JSON.parse(
+          studentDetailsById.previousSchoolDetails
+        ).map((rec: any) => ({
+          ...rec,
+          periodStart: rec.periodStart ? new Date(rec.periodStart) : undefined,
+          periodEnd: rec.periodEnd ? new Date(rec.periodEnd) : undefined,
+        })),
+        siblingDetails: JSON.parse(studentDetailsById.siblingDetails).map(
+          (rec: any) => ({
+            ...rec,
+            dob: rec.dob ? new Date(rec.dob) : undefined,
+            classId: String(rec.classId),
+          })
+        ),
+      });
+    }
+  }, [studentDetailsById, studentDetailIsFetched]);
 
   function onSavePersonalRecords(v: Partial<StudentPersonalType>) {
     saveStudentPersonal.mutate(
       {
         ...v,
-        previousSchoolDetails: JSON.stringify(v.previousSchoolDetails),
-        siblingDetails: JSON.stringify(v.siblingDetails),
+        previousSchoolDetails: JSON.stringify(
+          v.previousSchoolDetails && v.previousSchoolDetails?.length > 0
+            ? v.previousSchoolDetails
+            : []
+        ),
+        siblingDetails: JSON.stringify(
+          v.siblingDetails && v.siblingDetails.length > 0
+            ? v.siblingDetails
+            : []
+        ),
+      },
+      {
+        onSuccess: (dt) => {
+          if (dt[0].insertId) setStudentId(dt[0].insertId);
+          showSuccessNotification(
+            `Student Personal Record ${
+              studentId ? 'Edited' : 'Created'
+            } successfully.`
+          );
+          studentDetailRefetch();
+          nextStep();
+        },
+      }
+    );
+  }
+
+  function onSaveGuardianRecords(v: Partial<StudentPersonalType>) {
+    saveStudentGuardian.mutate(
+      {
+        ...v,
+        id: Number(studentId),
+        fatherAnnualIncome: v.fatherAnnualIncome
+          ? Number(v.fatherAnnualIncome)
+          : null,
+        motherAnnualIncome: v.motherAnnualIncome
+          ? Number(v.motherAnnualIncome)
+          : null,
+        guardianAnnualIncome: v.guardianAnnualIncome
+          ? Number(v.guardianAnnualIncome)
+          : null,
       },
       {
         onSuccess: (dt) => {
           showSuccessNotification(
-            'Student Personal Record created successfully.'
+            'Student Guardian info updated successfully.'
           );
+          studentDetailRefetch();
           nextStep();
         },
       }
@@ -360,11 +490,11 @@ export default function StudentForm({ action }: StudentFormProps) {
   }
 
   const nextStep = () => {
-    console.log(
-      'debug-activeStep',
-      activeStep,
-      studentPersonalForm.getValues()
-    );
+    // console.log(
+    //   'debug-activeStep',
+    //   activeStep,
+    //   studentPersonalForm.getValues()
+    // );
     setActiveStep((current) => (current < stepsCount ? current + 1 : current));
   };
 
@@ -482,7 +612,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     />
                   </Grid.Col>
                   <Grid.Col span={3}>
-                    <TextInput
+                    <NumberInput
                       label="Father's Ph No."
                       minLength={10}
                       maxLength={10}
@@ -490,6 +620,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                       key={studentPersonalForm.key('fathersPhone')}
                       {...studentPersonalForm.getInputProps('fathersPhone')}
                       leftSection={<Text size="sm">+91</Text>}
+                      hideControls={true}
                     />
                   </Grid.Col>
                   <Grid.Col span={3}>
@@ -501,7 +632,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     />
                   </Grid.Col>
                   <Grid.Col span={3}>
-                    <TextInput
+                    <NumberInput
                       label="Mother's Ph No."
                       minLength={10}
                       maxLength={10}
@@ -509,6 +640,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                       key={studentPersonalForm.key('mothersPhone')}
                       {...studentPersonalForm.getInputProps('mothersPhone')}
                       leftSection={<Text size="sm">+91</Text>}
+                      hideControls={true}
                     />
                   </Grid.Col>
 
@@ -543,12 +675,17 @@ export default function StudentForm({ action }: StudentFormProps) {
                       key={studentPersonalForm.key('presentPin')}
                       {...studentPersonalForm.getInputProps('presentPin')}
                       hideControls
+                      minLength={6}
+                      maxLength={6}
                     />
                   </Grid.Col>
 
                   <Grid.Col span={12}>
                     <Checkbox
                       label="Is Both Address are same?"
+                      checked={
+                        studentPersonalForm.getValues().isBothAddressSame
+                      }
                       key={studentPersonalForm.key('isBothAddressSame')}
                       {...studentPersonalForm.getInputProps(
                         'isBothAddressSame'
@@ -562,6 +699,9 @@ export default function StudentForm({ action }: StudentFormProps) {
                       withAsterisk
                       key={studentPersonalForm.key('permanentAddess')}
                       {...studentPersonalForm.getInputProps('permanentAddess')}
+                      disabled={
+                        studentPersonalForm.getValues().isBothAddressSame
+                      }
                     />
                   </Grid.Col>
                   <Grid.Col span={4}>
@@ -570,6 +710,9 @@ export default function StudentForm({ action }: StudentFormProps) {
                       withAsterisk
                       key={studentPersonalForm.key('permanentPo')}
                       {...studentPersonalForm.getInputProps('permanentPo')}
+                      disabled={
+                        studentPersonalForm.getValues().isBothAddressSame
+                      }
                     />
                   </Grid.Col>
                   <Grid.Col span={4}>
@@ -578,6 +721,9 @@ export default function StudentForm({ action }: StudentFormProps) {
                       withAsterisk
                       key={studentPersonalForm.key('permanentPs')}
                       {...studentPersonalForm.getInputProps('permanentPs')}
+                      disabled={
+                        studentPersonalForm.getValues().isBothAddressSame
+                      }
                     />
                   </Grid.Col>
                   <Grid.Col span={4}>
@@ -586,6 +732,11 @@ export default function StudentForm({ action }: StudentFormProps) {
                       withAsterisk
                       key={studentPersonalForm.key('permanentPin')}
                       {...studentPersonalForm.getInputProps('permanentPin')}
+                      disabled={
+                        studentPersonalForm.getValues().isBothAddressSame
+                      }
+                      minLength={6}
+                      maxLength={6}
                       hideControls
                     />
                   </Grid.Col>
@@ -681,25 +832,20 @@ export default function StudentForm({ action }: StudentFormProps) {
                               </Group>
                             </Table.Td>
                             <Table.Td>
-                              {(
-                                studentPersonalForm.getValues()
-                                  .previousSchoolDetails || []
-                              )?.length > 1 && (
-                                <Tooltip label="Delete Row">
-                                  <ActionIcon
-                                    variant="outline"
-                                    color="red"
-                                    onClick={() =>
-                                      studentPersonalForm.removeListItem(
-                                        'previousSchoolDetails',
-                                        index
-                                      )
-                                    }
-                                  >
-                                    <IconTrash size={16} />
-                                  </ActionIcon>
-                                </Tooltip>
-                              )}
+                              <Tooltip label="Delete Row">
+                                <ActionIcon
+                                  variant="outline"
+                                  color="red"
+                                  onClick={() =>
+                                    studentPersonalForm.removeListItem(
+                                      'previousSchoolDetails',
+                                      index
+                                    )
+                                  }
+                                >
+                                  <IconTrash size={16} />
+                                </ActionIcon>
+                              </Tooltip>
                             </Table.Td>
                           </Table.Tr>
                         ))}
@@ -780,25 +926,20 @@ export default function StudentForm({ action }: StudentFormProps) {
                               </Table.Td>
 
                               <Table.Td>
-                                {(
-                                  studentPersonalForm.getValues()
-                                    .siblingDetails || []
-                                )?.length > 1 && (
-                                  <Tooltip label="Delete Row">
-                                    <ActionIcon
-                                      variant="outline"
-                                      color="red"
-                                      onClick={() =>
-                                        studentPersonalForm.removeListItem(
-                                          'siblingDetails',
-                                          index
-                                        )
-                                      }
-                                    >
-                                      <IconTrash size={16} />
-                                    </ActionIcon>
-                                  </Tooltip>
-                                )}
+                                <Tooltip label="Delete Row">
+                                  <ActionIcon
+                                    variant="outline"
+                                    color="red"
+                                    onClick={() =>
+                                      studentPersonalForm.removeListItem(
+                                        'siblingDetails',
+                                        index
+                                      )
+                                    }
+                                  >
+                                    <IconTrash size={16} />
+                                  </ActionIcon>
+                                </Tooltip>
                               </Table.Td>
                             </Table.Tr>
                           ))}
@@ -828,119 +969,143 @@ export default function StudentForm({ action }: StudentFormProps) {
           )}
 
           <Stepper.Step label="Parents / Guardian's Information">
-            {guardianArr.map((item, index) => (
-              <Fragment key={index}>
-                <Space h={20} />
-                <Divider
-                  my="xs"
-                  variant="dashed"
-                  labelPosition="center"
-                  label={
-                    <Text c="indigo" fw={600} size="sm">
-                      {item.head}
-                    </Text>
-                  }
-                />
-                <Grid columns={12}>
-                  <Grid.Col span={4}>
-                    <TextInput
-                      label="Qualification"
-                      key={form.key(
-                        `${guardianArr[index].fields.qualification}`
-                      )}
-                      {...studentPersonalForm.getInputProps(
-                        `${guardianArr[index].fields.qualification}`
-                      )}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <TextInput
-                      label="Profession"
-                      key={form.key(`${guardianArr[index].fields.profession}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.profession}`
-                      )}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <NumberInput
-                      label="Annual Income"
-                      key={form.key(
-                        `${guardianArr[index].fields.annualIncome}`
-                      )}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.annualIncome}`
-                      )}
-                      hideControls
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={12}>
-                    <Textarea
-                      label="Office Address"
-                      key={form.key(`${guardianArr[index].fields.address}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.address}`
-                      )}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <TextInput
-                      label="Town/City"
-                      key={form.key(`${guardianArr[index].fields.city}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.city}`
-                      )}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <TextInput
-                      label="Pin"
-                      key={form.key(`${guardianArr[index].fields.pin}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.pin}`
-                      )}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <Select
-                      label="State"
-                      data={['West Bengal']}
-                      key={form.key(`${guardianArr[index].fields.state}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.state}`
-                      )}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <Select
-                      label="Country"
-                      data={['India']}
-                      key={form.key(`${guardianArr[index].fields.country}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.country}`
-                      )}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <NumberInput
-                      label="Mobile"
-                      key={form.key(`${guardianArr[index].fields.mobile}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.mobile}`
-                      )}
-                      hideControls
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <TextInput
-                      label="Email"
-                      key={form.key(`${guardianArr[index].fields.email}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.email}`
-                      )}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
+            <form
+              onSubmit={studentGuardianForm.onSubmit(onSaveGuardianRecords)}
+            >
+              {guardianArr.map((item, index) => (
+                <Fragment key={index}>
+                  <Space h={20} />
+                  <Divider
+                    my="xs"
+                    variant="dashed"
+                    labelPosition="center"
+                    label={
+                      <Text c="indigo" fw={600} size="sm">
+                        {item.head}
+                      </Text>
+                    }
+                  />
+                  <Grid columns={12}>
+                    <Grid.Col span={4}>
+                      <TextInput
+                        label="Qualification"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.qualification}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.qualification}`
+                        )}
+                        maxLength={255}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <TextInput
+                        label="Profession"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.profession}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.profession}`
+                        )}
+                        maxLength={255}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <NumberInput
+                        label="Annual Income"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.annualIncome}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.annualIncome}`
+                        )}
+                        hideControls
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={12}>
+                      <Textarea
+                        label="Office Address"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.address}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.address}`
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <TextInput
+                        label="Town/City"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.city}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.city}`
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <NumberInput
+                        label="Pin"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.pin}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.pin}`
+                        )}
+                        hideControls={true}
+                        minLength={6}
+                        maxLength={6}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <Select
+                        label="State"
+                        data={['West Bengal']}
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.state}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.state}`
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <Select
+                        label="Country"
+                        data={['India']}
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.country}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.country}`
+                        )}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <NumberInput
+                        label="Mobile"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.mobile}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.mobile}`
+                        )}
+                        hideControls
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <TextInput
+                        label="Email"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.email}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.email}`
+                        )}
+                      />
+                    </Grid.Col>
+                    {/* <Grid.Col span={4}>
                     <FileInput
                       label="Signature"
                       key={form.key(`${guardianArr[index].fields.sign}`)}
@@ -949,19 +1114,101 @@ export default function StudentForm({ action }: StudentFormProps) {
                       )}
                       leftSection={<IconUpload size={18} />}
                     />
-                  </Grid.Col>
-                  <Grid.Col span={4}>
-                    <TextInput
-                      label="Place"
-                      key={form.key(`${guardianArr[index].fields.place}`)}
-                      {...form.getInputProps(
-                        `${guardianArr[index].fields.place}`
-                      )}
-                    />
-                  </Grid.Col>
-                </Grid>
-              </Fragment>
-            ))}
+                  </Grid.Col> */}
+                    <Grid.Col span={4}>
+                      <TextInput
+                        label="Place"
+                        key={studentGuardianForm.key(
+                          `${guardianArr[index].fields.place}`
+                        )}
+                        {...studentGuardianForm.getInputProps(
+                          `${guardianArr[index].fields.place}`
+                        )}
+                      />
+                    </Grid.Col>
+                  </Grid>
+                </Fragment>
+              ))}
+
+              <StepperNavigation prevStep={prevStep} activeStep={activeStep} />
+            </form>
+          </Stepper.Step>
+
+          <Stepper.Step label="Photos / Documents">
+            <Space h={20} />
+            <Grid>
+              <Grid.Col span={4}>
+                <FileInput
+                  label="Student's Photo"
+                  leftSection={<IconUpload size={18} />}
+                  withAsterisk
+                  // {...form.getInputProps('studentPhoto')}
+                />
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <FileInput
+                  label="Father's Photo"
+                  leftSection={<IconUpload size={18} />}
+                  withAsterisk
+                  // {...form.getInputProps('fatherPhoto')}
+                />
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <FileInput
+                  label="Mother's Photo"
+                  leftSection={<IconUpload size={18} />}
+                  withAsterisk
+                  // {...form.getInputProps('motherPhoto')}
+                />
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <FileInput
+                  label="Student's Birth Certificate"
+                  leftSection={<IconUpload size={18} />}
+                  withAsterisk
+                />
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <FileInput
+                  label="Student's Vaccination Record"
+                  leftSection={<IconUpload size={18} />}
+                  withAsterisk
+                  // {...form.getInputProps('vaccinationRecord')}
+                />
+              </Grid.Col>
+              <Grid.Col span={4}>
+                <Radio.Group
+                  name="medicalHistory"
+                  label="Medical History"
+                  withAsterisk
+                  // {...form.getInputProps('medicalHistory')}
+                  // onChange={(e) => {
+                  //   form.setFieldValue('medicalHistory', e);
+                  //   form.setFieldValue('medicalFile', null);
+                  // }}
+                >
+                  <Group mt="xs">
+                    <Radio value="Y" label="Yes" />
+                    <Radio value="N" label="No" />
+                  </Group>
+                </Radio.Group>
+              </Grid.Col>
+              {/* {form.getValues().medicalHistory === 'Y' && ( */}
+              <>
+                <Grid.Col span={8}>
+                  <Textarea label="Medical History Details" withAsterisk />
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <FileInput
+                    label="Medical Records"
+                    leftSection={<IconUpload size={18} />}
+                    withAsterisk
+                    // {...form.getInputProps('medicalFile')}
+                  />
+                </Grid.Col>
+              </>
+              {/* )} */}
+            </Grid>
           </Stepper.Step>
         </Stepper>
       </Paper>

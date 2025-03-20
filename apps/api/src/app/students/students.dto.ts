@@ -11,6 +11,7 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateStudentDto {
@@ -244,6 +245,10 @@ export class CreateStudentDto {
 
 export class CreateStudentPersonalInfoDto {
   @IsInt()
+  @IsOptional()
+  id: number;
+
+  @IsInt()
   @IsPositive()
   @IsNotEmpty()
   classId: number;
@@ -342,46 +347,45 @@ export class UpdateStudentGuardianInfoDto {
   @IsNotEmpty()
   id: number;
 
-  @IsOptional()
-  regId: string;
-
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   fatherQualification;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   fatherProfession;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   fatherAnnualIncome;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   fatherAddress;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   fatherCity;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   fatherPin;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   fatherState;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   fatherCountry;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   fatherMobile;
 
-  @IsOptional()
+  @ValidateIf(
+    (o, value) => value !== null && value !== undefined && value !== ''
+  )
   @IsEmail()
   fatherEmail;
 
@@ -391,42 +395,44 @@ export class UpdateStudentGuardianInfoDto {
 
   // mother
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   motherQualification;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   motherProfession;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   motherAnnualIncome;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   motherAddress;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   motherCity;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   motherPin;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   motherState;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   motherCountry;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   motherMobile;
 
-  @IsOptional()
+  @ValidateIf(
+    (o, value) => value !== null && value !== undefined && value !== ''
+  )
   @IsEmail()
   motherEmail;
 
@@ -436,48 +442,56 @@ export class UpdateStudentGuardianInfoDto {
 
   // guardian
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   guardianQualification;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   guardianProfession;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   guardianAnnualIncome;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   guardianAddress;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   guardianCity;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   guardianPin;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   guardianState;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   guardianCountry;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   guardianMobile;
 
-  @IsOptional()
+  @ValidateIf(
+    (o, value) => value !== null && value !== undefined && value !== ''
+  )
   @IsEmail()
   guardianEmail;
 
   @IsString()
   @IsOptional()
   guardianPlace;
+}
+
+export class EnrolledStudentDto {
+  @IsInt()
+  @IsNotEmpty()
+  id: number;
 }
 
 export class UpdateStudentDto extends CreateStudentDto {}
