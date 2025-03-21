@@ -48,9 +48,13 @@ function DashboardPage() {
             <Text tt="uppercase" fw={700} fz="sm" c={theme.colors.indigo[9]}>
               {stat.title}
             </Text>
-            <Text fw={700} fz="xl">
-              {loading ? <Skeleton height={20} mt={10} /> : statsData[stat.key]}
-            </Text>
+            {loading ? (
+              <Skeleton height={20} mt={10} />
+            ) : (
+              <Text fw={700} fz="xl">
+                {statsData[stat.key]}
+              </Text>
+            )}
           </div>
         </Group>
       </Paper>
