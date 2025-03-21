@@ -25,6 +25,8 @@ export * from './schemas';
         });
 
         return drizzle(pool, {
+          schema: schema as any,
+          mode: 'default',
           casing: 'snake_case',
         });
       },
