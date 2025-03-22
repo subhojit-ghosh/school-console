@@ -23,6 +23,9 @@ import { StudentsController } from './students/students.controller';
 import { StudentsService } from './students/students.service';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { v4 as uuid } from 'uuid';
 
 @Module({
   imports: [
@@ -49,6 +52,20 @@ import { UsersService } from './users/users.service';
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../../../', 'storage'),
+    }),
+    MulterModule.register({
+      storage: diskStorage({
+        destination: join(
+          __dirname,
+          '../../../apps/web/src/assets/',
+          'uploads'
+        ),
+        filename: (req, file, cb) => {
+          const filename = `${uuid()}.${file.originalname.split('.').pop()}`;
+          console.log('debug-filename', filename);
+          cb(null, filename);
+        },
+      }),
     }),
     DrizzleModule,
   ],
