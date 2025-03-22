@@ -103,6 +103,10 @@ export class StudentsController {
         maxCount: 1,
       },
       {
+        name: 'studentMedicalRecord',
+        maxCount: 1,
+      },
+      {
         name: 'fatherSignature',
         maxCount: 1,
       },

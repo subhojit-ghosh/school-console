@@ -28,6 +28,7 @@ const endpoints = {
     create: () => api('students'),
     createPersonalInfo: () => api('students/personal'),
     updatePersonalInfo: (id: string) => api(`students/guardian-info/${id}`),
+    updateDocuments: (id: string) => api(`students/uploads/${id}`),
     update: (id: string) => api(`students/${id}`),
     enrolled: (id: string) => api(`students/enrolled/${id}`),
   },

@@ -268,6 +268,7 @@ export class StudentsService {
         motherPhoto: studentsTable.motherPhoto,
         studentBirthCertificate: studentsTable.studentBirthCertificate,
         studentVacinationRecord: studentsTable.studentVacinationRecord,
+        studentMedicalRecord: studentsTable.studentMedicalRecord,
 
         fatherSignature: studentsTable.fatherSignature,
         motherSignature: studentsTable.motherSignature,
@@ -289,6 +290,7 @@ export class StudentsService {
       motherPhoto,
       studentBirthCertificate,
       studentVacinationRecord,
+      studentMedicalRecord,
 
       fatherSignature,
       motherSignature,
@@ -305,6 +307,8 @@ export class StudentsService {
       studentVacinationRecord:
         (studentVacinationRecord && studentVacinationRecord[0].filename) ||
         null,
+      studentMedicalRecord:
+        (studentMedicalRecord && studentMedicalRecord[0].filename) || null,
       fatherSignature: (fatherSignature && fatherSignature[0].filename) || null,
       motherSignature: (motherSignature && motherSignature[0].filename) || null,
       guardainSignature:

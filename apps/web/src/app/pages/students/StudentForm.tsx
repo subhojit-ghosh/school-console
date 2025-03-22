@@ -43,6 +43,7 @@ import {
   useAddStudent,
   useAddStudentPersonal,
   useGetStudentById,
+  useUpdateStudentDocuments,
   useUpdateStudentGuardianInfo,
 } from '../../services/students/apiQuery';
 import {
@@ -76,7 +77,7 @@ const StepperNavigation = ({
         Next
       </Button>
     ) : (
-      <Button>Save</Button>
+      <Button type="submit">Save</Button>
     )}
   </Group>
 );
@@ -91,6 +92,7 @@ export default function StudentForm({ action }: StudentFormProps) {
   const { data: classLists = [] } = useGetClasses();
   const saveStudentPersonal = useAddStudentPersonal();
   const saveStudentGuardian = useUpdateStudentGuardianInfo();
+  const saveStudentDocuments = useUpdateStudentDocuments();
   const {
     data: studentDetailsById = {},
     isFetched: studentDetailIsFetched,
@@ -432,6 +434,14 @@ export default function StudentForm({ action }: StudentFormProps) {
     }
   }, [studentDetailsById, studentDetailIsFetched]);
 
+  const studentDocumentForm = useForm<Partial<StudentPersonalType>>({
+    mode: 'controlled',
+    initialValues: {
+      medicalHistory: 'N',
+    },
+    validate: {},
+  });
+
   function onSavePersonalRecords(v: Partial<StudentPersonalType>) {
     saveStudentPersonal.mutate(
       {
@@ -484,6 +494,41 @@ export default function StudentForm({ action }: StudentFormProps) {
           );
           studentDetailRefetch();
           nextStep();
+        },
+      }
+    );
+  }
+
+  function onSaveStudentDocument(v: Partial<StudentPersonalType>) {
+    const medicalHistoryTiny = v.medicalHistory === 'Y' ? 1 : 0;
+    const formData = new FormData();
+    for (const key in v) {
+      if (v.hasOwnProperty(key) && v[key]) {
+        // @ts-ignore
+        formData.append(
+          key,
+          key === 'medicalHistory' ? medicalHistoryTiny : v[key]
+        );
+      }
+    }
+
+    // Display the key/value pairs
+    // @ts-ignore
+    for (var pair of formData.entries()) {
+      console.log(pair[0] + ', ' + pair[1]);
+    }
+
+    saveStudentDocuments.mutate(
+      {
+        id: Number(studentId),
+        formData: formData,
+      },
+      {
+        onSuccess: (dt) => {
+          showSuccessNotification(
+            'Student Document info updated successfully.'
+          );
+          studentDetailRefetch();
         },
       }
     );
@@ -1136,79 +1181,118 @@ export default function StudentForm({ action }: StudentFormProps) {
 
           <Stepper.Step label="Photos / Documents">
             <Space h={20} />
-            <Grid>
-              <Grid.Col span={4}>
-                <FileInput
-                  label="Student's Photo"
-                  leftSection={<IconUpload size={18} />}
-                  withAsterisk
-                  // {...form.getInputProps('studentPhoto')}
-                />
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <FileInput
-                  label="Father's Photo"
-                  leftSection={<IconUpload size={18} />}
-                  withAsterisk
-                  // {...form.getInputProps('fatherPhoto')}
-                />
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <FileInput
-                  label="Mother's Photo"
-                  leftSection={<IconUpload size={18} />}
-                  withAsterisk
-                  // {...form.getInputProps('motherPhoto')}
-                />
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <FileInput
-                  label="Student's Birth Certificate"
-                  leftSection={<IconUpload size={18} />}
-                  withAsterisk
-                />
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <FileInput
-                  label="Student's Vaccination Record"
-                  leftSection={<IconUpload size={18} />}
-                  withAsterisk
-                  // {...form.getInputProps('vaccinationRecord')}
-                />
-              </Grid.Col>
-              <Grid.Col span={4}>
-                <Radio.Group
-                  name="medicalHistory"
-                  label="Medical History"
-                  withAsterisk
-                  // {...form.getInputProps('medicalHistory')}
-                  // onChange={(e) => {
-                  //   form.setFieldValue('medicalHistory', e);
-                  //   form.setFieldValue('medicalFile', null);
-                  // }}
-                >
-                  <Group mt="xs">
-                    <Radio value="Y" label="Yes" />
-                    <Radio value="N" label="No" />
-                  </Group>
-                </Radio.Group>
-              </Grid.Col>
-              {/* {form.getValues().medicalHistory === 'Y' && ( */}
-              <>
-                <Grid.Col span={8}>
-                  <Textarea label="Medical History Details" withAsterisk />
+            <form
+              onSubmit={studentDocumentForm.onSubmit(onSaveStudentDocument)}
+            >
+              <Grid>
+                <Grid.Col span={4}>
+                  <FileInput
+                    label="Student's Photo"
+                    leftSection={<IconUpload size={18} />}
+                    withAsterisk
+                    {...studentDocumentForm.getInputProps('studentPhoto')}
+                  />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <FileInput
-                    label="Medical Records"
+                    label="Father's Photo"
                     leftSection={<IconUpload size={18} />}
                     withAsterisk
-                    // {...form.getInputProps('medicalFile')}
+                    {...studentDocumentForm.getInputProps('fatherPhoto')}
                   />
                 </Grid.Col>
-              </>
-              {/* )} */}
-            </Grid>
+                <Grid.Col span={4}>
+                  <FileInput
+                    label="Mother's Photo"
+                    leftSection={<IconUpload size={18} />}
+                    withAsterisk
+                    {...studentDocumentForm.getInputProps('motherPhoto')}
+                  />
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <FileInput
+                    label="Student's Birth Certificate"
+                    leftSection={<IconUpload size={18} />}
+                    withAsterisk
+                    {...studentDocumentForm.getInputProps(
+                      'studentBirthCertificate'
+                    )}
+                  />
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <FileInput
+                    label="Student's Vaccination Record"
+                    leftSection={<IconUpload size={18} />}
+                    withAsterisk
+                    {...studentDocumentForm.getInputProps(
+                      'studentVacinationRecord'
+                    )}
+                  />
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <Radio.Group
+                    name="medicalHistory"
+                    label="Medical History"
+                    withAsterisk
+                    {...studentDocumentForm.getInputProps('medicalHistory')}
+                    onChange={(e) => {
+                      studentDocumentForm.setFieldValue('medicalHistory', e);
+                      studentDocumentForm.setFieldValue(
+                        'studentMedicalRecord',
+                        null
+                      );
+                    }}
+                  >
+                    <Group mt="xs">
+                      <Radio value="Y" label="Yes" />
+                      <Radio value="N" label="No" />
+                    </Group>
+                  </Radio.Group>
+                </Grid.Col>
+                {studentDocumentForm.values.medicalHistory === 'Y' && (
+                  <>
+                    <Grid.Col span={8}>
+                      <Textarea label="Medical History Details" withAsterisk />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <FileInput
+                        label="Medical Records"
+                        leftSection={<IconUpload size={18} />}
+                        withAsterisk
+                        {...studentDocumentForm.getInputProps(
+                          'studentMedicalRecord'
+                        )}
+                      />
+                    </Grid.Col>
+                  </>
+                )}
+                <Grid.Col span={4}>
+                  <FileInput
+                    label="Father's Signature"
+                    leftSection={<IconUpload size={18} />}
+                    withAsterisk
+                    {...studentDocumentForm.getInputProps('fatherSignature')}
+                  />
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <FileInput
+                    label="Mother's Signature"
+                    leftSection={<IconUpload size={18} />}
+                    withAsterisk
+                    {...studentDocumentForm.getInputProps('motherSignature')}
+                  />
+                </Grid.Col>
+                <Grid.Col span={4}>
+                  <FileInput
+                    label="Guardian's Signature"
+                    leftSection={<IconUpload size={18} />}
+                    withAsterisk
+                    {...studentDocumentForm.getInputProps('guardainSignature')}
+                  />
+                </Grid.Col>
+              </Grid>
+              <StepperNavigation prevStep={prevStep} activeStep={activeStep} />
+            </form>
           </Stepper.Step>
         </Stepper>
       </Paper>

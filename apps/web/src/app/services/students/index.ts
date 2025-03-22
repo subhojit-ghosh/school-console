@@ -54,3 +54,11 @@ export async function enrolledStudent(payload: any) {
   );
   return data;
 }
+
+export async function updateStudentDocuments(payload: any) {
+  const { data } = await httpClient.post(
+    endpoints.students.updateDocuments(payload.id),
+    payload.formData
+  );
+  return data;
+}

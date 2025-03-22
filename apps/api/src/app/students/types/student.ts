@@ -4,6 +4,7 @@ export type StudentPhotoDocumentType = {
   motherPhoto: Express.Multer.File;
   studentBirthCertificate: Express.Multer.File;
   studentVacinationRecord: Express.Multer.File;
+  studentMedicalRecord: Express.Multer.File;
 
   fatherSignature: Express.Multer.File;
   motherSignature: Express.Multer.File;

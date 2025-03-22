@@ -4,10 +4,6 @@ export type StudentPersonalType = {
   admissionDate: string | null;
   classId: number | string | null;
 
-  studentPhoto: any;
-  fatherPhoto: any;
-  motherPhoto: any;
-
   name: string;
   dob: any;
   gender: 'M' | 'F' | 'O';
@@ -44,7 +40,6 @@ export type StudentPersonalType = {
     periodEnd: any | null;
   }[];
 
-  medicalHistory: string;
   medicalFile: any;
   vaccinationRecord: any;
 
@@ -66,7 +61,6 @@ export type StudentPersonalType = {
   fatherCountry: string | null;
   fatherMobile: string | number | null;
   fatherEmail: string | null;
-  fatherSign: any;
   fatherPlace: string;
 
   motherQualification: string | null;
@@ -79,7 +73,6 @@ export type StudentPersonalType = {
   motherCountry: string | null;
   motherMobile: string | number | null;
   motherEmail: string | null;
-  motherSign: any;
   motherPlace: string;
 
   guardianQualification: string | null;
@@ -92,8 +85,19 @@ export type StudentPersonalType = {
   guardianCountry: string | null;
   guardianMobile: string | number | null;
   guardianEmail: string | null;
-  guardianSign: any;
   guardianPlace: string;
+
+  studentPhoto: any;
+  fatherPhoto: any;
+  motherPhoto: any;
+  studentBirthCertificate: any;
+  studentVacinationRecord: any;
+  medicalHistory: string;
+  medicalHistoryDetails: string;
+  studentMedicalRecord: any;
+  fatherSignature: any;
+  motherSignature: any;
+  guardianSignature: any;
 
   consent: boolean;
 };
