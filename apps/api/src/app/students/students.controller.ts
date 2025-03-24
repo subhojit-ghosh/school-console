@@ -136,9 +136,4 @@ export class StudentsController {
   removeDocument(@Param('id') id: string, @Body() body: RemoveDocumentByIdDto) {
     return this.studentsService.removeDocumentById(id, body);
   }
-
-  @Post('fileUploadDir')
-  fileUploadDir() {
-    return this.studentsService.checkFile();
-  }
 }
