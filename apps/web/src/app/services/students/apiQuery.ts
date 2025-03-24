@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
+  deleteStudentDocumentById,
   enrolledStudent,
   getEnrolledStudents,
   getRegStudents,
@@ -62,5 +63,11 @@ export function useEnrolledStudent() {
 export function useUpdateStudentDocuments() {
   return useMutation({
     mutationFn: updateStudentDocuments,
+  });
+}
+
+export function useDeleteDocumentById() {
+  return useMutation({
+    mutationFn: deleteStudentDocumentById,
   });
 }

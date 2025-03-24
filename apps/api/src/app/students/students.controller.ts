@@ -8,11 +8,13 @@ import {
   Query,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
   CreateStudentDto,
   CreateStudentPersonalInfoDto,
+  RemoveDocumentByIdDto,
   StudentDocumentDto,
   StudentQueryDto,
   UpdateStudentDto,
@@ -24,6 +26,8 @@ import {
   FileInterceptor,
 } from '@nestjs/platform-express';
 import { StudentPhotoDocumentType } from './types/student';
+import { AuthUser, IAuthUser } from '../auth/auth-user.decorator';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('students')
 export class StudentsController {
@@ -126,5 +130,10 @@ export class StudentsController {
     @UploadedFiles() files: StudentPhotoDocumentType
   ) {
     return this.studentsService.uploadDocuments(id, body, files);
+  }
+
+  @Post('delete/document/:id')
+  removeDocument(@Param('id') id: string, @Body() body: RemoveDocumentByIdDto) {
+    return this.studentsService.removeDocumentById(id, body);
   }
 }

@@ -99,6 +99,16 @@ export type StudentPersonalType = {
   motherSignature: any;
   guardianSignature: any;
 
+  studentPhotoR?: any;
+  fatherPhotoR?: any;
+  motherPhotoR?: any;
+  studentBirthCertificateR?: any;
+  studentVacinationRecordR?: any;
+  studentMedicalRecordR?: any;
+  fatherSignatureR?: any;
+  motherSignatureR?: any;
+  guardianSignatureR?: any;
+
   consent: boolean;
 };
 

@@ -547,7 +547,7 @@ export class StudentDocumentDto {
   studentVacinationRecord: string;
 
   @IsOptional()
-  medicalHistory: boolean;
+  medicalHistory: 'Y' | 'N';
 
   @IsOptional()
   medicalHistoryDetails: string;
@@ -563,4 +563,11 @@ export class StudentDocumentDto {
 
   @IsOptional()
   guardainSignature: string;
+}
+
+export class RemoveDocumentByIdDto {
+  @IsNotEmpty()
+  fileKey: string;
+  @IsNotEmpty()
+  fileName: string;
 }

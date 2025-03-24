@@ -1,5 +1,7 @@
 import {
   ActionIcon,
+  Anchor,
+  Box,
   Button,
   Checkbox,
   Divider,
@@ -32,6 +34,7 @@ import {
   IconPlus,
   IconTrash,
   IconUpload,
+  IconX,
 } from '@tabler/icons-react';
 import moment from 'moment';
 import { Fragment, useEffect, useState } from 'react';
@@ -42,6 +45,7 @@ import { useGetClasses } from '../../services/utils/apiQuery';
 import {
   useAddStudent,
   useAddStudentPersonal,
+  useDeleteDocumentById,
   useGetStudentById,
   useUpdateStudentDocuments,
   useUpdateStudentGuardianInfo,
@@ -93,6 +97,7 @@ export default function StudentForm({ action }: StudentFormProps) {
   const saveStudentPersonal = useAddStudentPersonal();
   const saveStudentGuardian = useUpdateStudentGuardianInfo();
   const saveStudentDocuments = useUpdateStudentDocuments();
+  const deleteDocumentById = useDeleteDocumentById();
   const {
     data: studentDetailsById = {},
     isFetched: studentDetailIsFetched,
@@ -431,6 +436,19 @@ export default function StudentForm({ action }: StudentFormProps) {
           })
         ),
       });
+      studentDocumentForm.setValues({
+        medicalHistory: Boolean(studentDetailsById.medicalHistory) ? 'Y' : 'N',
+        medicalHistoryDetails: studentDetailsById.medicalHistoryDetails,
+        studentPhotoR: studentDetailsById.studentPhoto,
+        fatherPhotoR: studentDetailsById.fatherPhoto,
+        motherPhotoR: studentDetailsById.motherPhoto,
+        studentBirthCertificateR: studentDetailsById.studentBirthCertificate,
+        studentVacinationRecordR: studentDetailsById.studentVacinationRecord,
+        studentMedicalRecordR: studentDetailsById.studentMedicalRecord,
+        fatherSignatureR: studentDetailsById.fatherSignature,
+        motherSignatureR: studentDetailsById.motherSignature,
+        guardianSignatureR: studentDetailsById.guardianSignature,
+      });
     }
   }, [studentDetailsById, studentDetailIsFetched]);
 
@@ -439,7 +457,14 @@ export default function StudentForm({ action }: StudentFormProps) {
     initialValues: {
       medicalHistory: 'N',
     },
-    validate: {},
+    validate: {
+      medicalHistoryDetails: (v, vs) =>
+        vs.medicalHistory === 'Y' && !v ? reqFieldError : null,
+      studentMedicalRecord: (v, vs) =>
+        vs.medicalHistory === 'Y' && !v && !vs.studentMedicalRecordR
+          ? reqFieldError
+          : null,
+    },
   });
 
   function onSavePersonalRecords(v: Partial<StudentPersonalType>) {
@@ -500,22 +525,13 @@ export default function StudentForm({ action }: StudentFormProps) {
   }
 
   function onSaveStudentDocument(v: Partial<StudentPersonalType>) {
-    const medicalHistoryTiny = v.medicalHistory === 'Y' ? 1 : 0;
+    // const medicalHistoryTiny = v.medicalHistory;
     const formData = new FormData();
     for (const key in v) {
       if (v.hasOwnProperty(key) && v[key]) {
         // @ts-ignore
-        formData.append(
-          key,
-          key === 'medicalHistory' ? medicalHistoryTiny : v[key]
-        );
+        formData.append(key, v[key]);
       }
-    }
-
-    // Display the key/value pairs
-    // @ts-ignore
-    for (var pair of formData.entries()) {
-      console.log(pair[0] + ', ' + pair[1]);
     }
 
     saveStudentDocuments.mutate(
@@ -525,6 +541,18 @@ export default function StudentForm({ action }: StudentFormProps) {
       },
       {
         onSuccess: (dt) => {
+          studentDocumentForm.setValues({
+            studentPhoto: null,
+            fatherPhoto: null,
+            motherPhoto: null,
+            studentBirthCertificate: null,
+            studentVacinationRecord: null,
+            studentMedicalRecord: null,
+            fatherSignature: null,
+            motherSignature: null,
+            guardianSignature: null,
+            medicalHistoryDetails: '',
+          });
           showSuccessNotification(
             'Student Document info updated successfully.'
           );
@@ -542,6 +570,48 @@ export default function StudentForm({ action }: StudentFormProps) {
     // );
     setActiveStep((current) => (current < stepsCount ? current + 1 : current));
   };
+
+  function deleteDocById(fileName: string, fileKey: string) {
+    console.log('debug-delete', fileName, fileKey);
+    deleteDocumentById.mutate(
+      {
+        id: studentId,
+        fileName,
+        fileKey,
+      },
+      {
+        onSuccess: (dt) => {
+          showSuccessNotification('Document deleted.');
+          studentDetailRefetch();
+        },
+      }
+    );
+  }
+
+  const FileNameAnchor = ({ file, fileKey }: { file: any; fileKey: string }) =>
+    file && (
+      <Group justify="space-between">
+        <Anchor
+          href={`/src/assets/uploads/${file}`}
+          target="_blank"
+          underline="hover"
+        >
+          <Box w={150}>
+            <Text size="xs" mt="xs" truncate="end">
+              {file}
+            </Text>
+          </Box>
+        </Anchor>
+
+        <ActionIcon
+          variant="transparent"
+          color="red"
+          onClick={() => deleteDocById(file, fileKey)}
+        >
+          <IconX />
+        </ActionIcon>
+      </Group>
+    );
 
   return (
     <>
@@ -1189,44 +1259,59 @@ export default function StudentForm({ action }: StudentFormProps) {
                   <FileInput
                     label="Student's Photo"
                     leftSection={<IconUpload size={18} />}
-                    withAsterisk
                     {...studentDocumentForm.getInputProps('studentPhoto')}
+                  />
+                  <FileNameAnchor
+                    file={studentDocumentForm.values.studentPhotoR}
+                    fileKey="studentPhoto"
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <FileInput
                     label="Father's Photo"
                     leftSection={<IconUpload size={18} />}
-                    withAsterisk
                     {...studentDocumentForm.getInputProps('fatherPhoto')}
+                  />
+                  <FileNameAnchor
+                    file={studentDocumentForm.values.fatherPhotoR}
+                    fileKey="fatherPhoto"
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <FileInput
                     label="Mother's Photo"
                     leftSection={<IconUpload size={18} />}
-                    withAsterisk
                     {...studentDocumentForm.getInputProps('motherPhoto')}
+                  />
+                  <FileNameAnchor
+                    file={studentDocumentForm.values.motherPhotoR}
+                    fileKey="motherPhoto"
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <FileInput
                     label="Student's Birth Certificate"
                     leftSection={<IconUpload size={18} />}
-                    withAsterisk
                     {...studentDocumentForm.getInputProps(
                       'studentBirthCertificate'
                     )}
+                  />
+                  <FileNameAnchor
+                    file={studentDocumentForm.values.studentBirthCertificateR}
+                    fileKey="studentBirthCertificate"
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <FileInput
                     label="Student's Vaccination Record"
                     leftSection={<IconUpload size={18} />}
-                    withAsterisk
                     {...studentDocumentForm.getInputProps(
                       'studentVacinationRecord'
                     )}
+                  />
+                  <FileNameAnchor
+                    file={studentDocumentForm.values.studentVacinationRecordR}
+                    fileKey="studentVacinationRecord"
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
@@ -1252,7 +1337,13 @@ export default function StudentForm({ action }: StudentFormProps) {
                 {studentDocumentForm.values.medicalHistory === 'Y' && (
                   <>
                     <Grid.Col span={8}>
-                      <Textarea label="Medical History Details" withAsterisk />
+                      <Textarea
+                        label="Medical History Details"
+                        withAsterisk
+                        {...studentDocumentForm.getInputProps(
+                          'medicalHistoryDetails'
+                        )}
+                      />
                     </Grid.Col>
                     <Grid.Col span={4}>
                       <FileInput
@@ -1263,6 +1354,10 @@ export default function StudentForm({ action }: StudentFormProps) {
                           'studentMedicalRecord'
                         )}
                       />
+                      <FileNameAnchor
+                        file={studentDocumentForm.values.studentMedicalRecordR}
+                        fileKey="studentMedicalRecord"
+                      />
                     </Grid.Col>
                   </>
                 )}
@@ -1270,24 +1365,33 @@ export default function StudentForm({ action }: StudentFormProps) {
                   <FileInput
                     label="Father's Signature"
                     leftSection={<IconUpload size={18} />}
-                    withAsterisk
                     {...studentDocumentForm.getInputProps('fatherSignature')}
+                  />
+                  <FileNameAnchor
+                    file={studentDocumentForm.values.fatherSignatureR}
+                    fileKey="fatherSignature"
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <FileInput
                     label="Mother's Signature"
                     leftSection={<IconUpload size={18} />}
-                    withAsterisk
                     {...studentDocumentForm.getInputProps('motherSignature')}
+                  />
+                  <FileNameAnchor
+                    file={studentDocumentForm.values.motherSignatureR}
+                    fileKey="motherSignature"
                   />
                 </Grid.Col>
                 <Grid.Col span={4}>
                   <FileInput
                     label="Guardian's Signature"
                     leftSection={<IconUpload size={18} />}
-                    withAsterisk
                     {...studentDocumentForm.getInputProps('guardainSignature')}
+                  />
+                  <FileNameAnchor
+                    file={studentDocumentForm.values.guardianSignatureR}
+                    fileKey="guardainSignature"
                   />
                 </Grid.Col>
               </Grid>
