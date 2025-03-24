@@ -1,11 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
+  deleteStudentDocumentById,
   enrolledStudent,
   getEnrolledStudents,
   getRegStudents,
   getStudentById,
   saveStudent,
   saveStudentPersonalInfo,
+  updateStudentDocuments,
   updateStudentGuardianInfo,
 } from '.';
 
@@ -55,5 +57,17 @@ export function useUpdateStudentGuardianInfo() {
 export function useEnrolledStudent() {
   return useMutation({
     mutationFn: enrolledStudent,
+  });
+}
+
+export function useUpdateStudentDocuments() {
+  return useMutation({
+    mutationFn: updateStudentDocuments,
+  });
+}
+
+export function useDeleteDocumentById() {
+  return useMutation({
+    mutationFn: deleteStudentDocumentById,
   });
 }

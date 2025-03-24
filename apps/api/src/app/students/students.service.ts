@@ -10,10 +10,15 @@ import { and, asc, count, desc, eq, like, max, ne } from 'drizzle-orm';
 import {
   CreateStudentDto,
   CreateStudentPersonalInfoDto,
+  RemoveDocumentByIdDto,
+  StudentDocumentDto,
   StudentQueryDto,
   UpdateStudentDto,
   UpdateStudentGuardianInfoDto,
 } from './students.dto';
+import { join } from 'path';
+import * as fs from 'fs';
+import { StudentPhotoDocumentType } from './types/student';
 
 @Injectable()
 export class StudentsService {
@@ -240,5 +245,138 @@ export class StudentsService {
     //   .update(studentsTable)
     //   .set(student)
     //   .where(eq(studentsTable.id, id));
+  }
+
+  removeFile(file) {
+    const filePath = join(
+      __dirname,
+      '../../../apps/web/src/assets/uploads/',
+      file
+    );
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  }
+
+  async uploadDocuments(
+    id: string,
+    student: StudentDocumentDto,
+    files: StudentPhotoDocumentType
+  ) {
+    const isStudentIdExists: any = await this.db
+      .select({
+        count: count(),
+        studentPhoto: studentsTable.studentPhoto,
+        fatherPhoto: studentsTable.fatherPhoto,
+        motherPhoto: studentsTable.motherPhoto,
+        studentBirthCertificate: studentsTable.studentBirthCertificate,
+        studentVacinationRecord: studentsTable.studentVacinationRecord,
+        studentMedicalRecord: studentsTable.studentMedicalRecord,
+
+        fatherSignature: studentsTable.fatherSignature,
+        motherSignature: studentsTable.motherSignature,
+        guardainSignature: studentsTable.guardainSignature,
+      })
+      .from(studentsTable)
+      .where(and(eq(studentsTable.id, Number(id))))
+      .then((res) => (res[0].count > 0 ? res[0] : {}));
+
+    // console.log('debug-obj', isStudentIdExists);
+    delete isStudentIdExists.count;
+
+    const fileKeys = files;
+    const {
+      studentPhoto,
+      fatherPhoto,
+      motherPhoto,
+      studentBirthCertificate,
+      studentVacinationRecord,
+      studentMedicalRecord,
+
+      fatherSignature,
+      motherSignature,
+      guardainSignature,
+    } = files;
+
+    for (const [k, v] of Object.entries(isStudentIdExists)) {
+      if (v && Array.isArray(fileKeys[k]) && k !== 'studentMedicalRecord')
+        this.removeFile(v as string);
+    }
+
+    if (
+      (student.medicalHistory === 'Y' &&
+        isStudentIdExists.studentMedicalRecord &&
+        studentMedicalRecord) ||
+      (student.medicalHistory === 'N' && isStudentIdExists.studentMedicalRecord)
+    )
+      this.removeFile(isStudentIdExists.studentMedicalRecord);
+
+    const set = {
+      studentPhoto:
+        (studentPhoto && studentPhoto[0].filename) ||
+        isStudentIdExists.studentPhoto ||
+        null,
+      fatherPhoto:
+        (fatherPhoto && fatherPhoto[0].filename) ||
+        isStudentIdExists.fatherPhoto ||
+        null,
+      motherPhoto:
+        (motherPhoto && motherPhoto[0].filename) ||
+        isStudentIdExists.motherPhoto ||
+        null,
+      studentBirthCertificate:
+        (studentBirthCertificate && studentBirthCertificate[0].filename) ||
+        isStudentIdExists.studentBirthCertificate ||
+        null,
+      studentVacinationRecord:
+        (studentVacinationRecord && studentVacinationRecord[0].filename) ||
+        isStudentIdExists.studentVacinationRecord ||
+        null,
+      studentMedicalRecord:
+        student.medicalHistory === 'N'
+          ? null
+          : studentMedicalRecord && studentMedicalRecord[0].filename
+          ? studentMedicalRecord[0].filename
+          : isStudentIdExists.studentMedicalRecord,
+      fatherSignature:
+        (fatherSignature && fatherSignature[0].filename) ||
+        isStudentIdExists.fatherSignature ||
+        null,
+      motherSignature:
+        (motherSignature && motherSignature[0].filename) ||
+        isStudentIdExists.motherSignature ||
+        null,
+      guardainSignature:
+        (guardainSignature && guardainSignature[0].filename) ||
+        isStudentIdExists.guardainSignature ||
+        null,
+
+      medicalHistory: student.medicalHistory === 'Y' ? true : false,
+      medicalHistoryDetails:
+        student.medicalHistory === 'N' ? null : student.medicalHistoryDetails,
+    };
+
+    return await this.db
+      .update(studentsTable)
+      .set(set)
+      .where(eq(studentsTable.id, Number(id)));
+  }
+
+  async removeDocumentById(id: string, body: RemoveDocumentByIdDto) {
+    const isStudent: any = await this.db
+      .select({
+        count: count(),
+      })
+      .from(studentsTable)
+      .where(
+        and(
+          eq(studentsTable.id, Number(id)),
+          eq(studentsTable[body.fileKey], body.fileName)
+        )
+      )
+      .then((res) => (res[0].count > 0 ? res[0] : {}));
+
+    this.removeFile(body.fileName);
+    return await this.db.update(studentsTable).set({
+      [body.fileKey]: null,
+    });
   }
 }

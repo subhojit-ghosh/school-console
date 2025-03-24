@@ -101,6 +101,19 @@ export const studentsTable = mysqlTable(
     enrolledId: varchar({ length: 10 }),
     enrolledNo: varchar({ length: 10 }),
 
+    studentPhoto: text(),
+    fatherPhoto: text(),
+    motherPhoto: text(),
+    studentBirthCertificate: text(),
+    studentVacinationRecord: text(),
+    medicalHistory: boolean().default(false),
+    medicalHistoryDetails: text(),
+    studentMedicalRecord: text(),
+
+    fatherSignature: text(),
+    motherSignature: text(),
+    guardainSignature: text(),
+
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp().onUpdateNow(),
   },
