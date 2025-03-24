@@ -55,11 +55,7 @@ import { v4 as uuid } from 'uuid';
     }),
     MulterModule.register({
       storage: diskStorage({
-        destination: join(
-          __dirname,
-          '../../../apps/web/src/assets/',
-          'uploads'
-        ),
+        destination: join(__dirname, '../../../', 'storage', 'uploads'),
         filename: (req, file, cb) => {
           const filename = `${uuid()}.${file.originalname.split('.').pop()}`;
           console.log('debug-filename', filename);
