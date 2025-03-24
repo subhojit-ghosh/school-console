@@ -57,10 +57,9 @@ import { UsersService } from './users/users.service';
     }),
     MulterModule.register({
       storage: diskStorage({
-        destination: join(__dirname, '../../../', 'storage', 'uploads'),
+        destination: join(__dirname, `${process.env.FILE_UPLOAD_PATH}`),
         filename: (req, file, cb) => {
           const filename = `${uuid()}.${file.originalname.split('.').pop()}`;
-          console.log('debug-filename', filename);
           cb(null, filename);
         },
       }),
