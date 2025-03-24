@@ -40,7 +40,7 @@ export async function saveStudentPersonalInfo(payload: any) {
 
 export async function updateStudentGuardianInfo(payload: any) {
   const { data } = await httpClient.put(
-    endpoints.students.updatePersonalInfo(payload.id),
+    endpoints.students.updatePersonalInfoById(payload.id),
     {
       ...payload,
     }
@@ -51,6 +51,24 @@ export async function updateStudentGuardianInfo(payload: any) {
 export async function enrolledStudent(payload: any) {
   const { data } = await httpClient.put(
     endpoints.students.enrolled(payload.id)
+  );
+  return data;
+}
+
+export async function updateStudentDocuments(payload: any) {
+  const { data } = await httpClient.post(
+    endpoints.students.updateDocumentsById(payload.id),
+    payload.formData
+  );
+  return data;
+}
+
+export async function deleteStudentDocumentById(payload: any) {
+  const { data } = await httpClient.post(
+    endpoints.students.deleteDocument(payload.id),
+    {
+      ...payload,
+    }
   );
   return data;
 }

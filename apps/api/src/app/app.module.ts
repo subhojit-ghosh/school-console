@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { DrizzleModule } from '@school-console/drizzle';
 import * as Joi from 'joi';
+import { diskStorage } from 'multer';
 import { join } from 'path';
+import { v4 as uuid } from 'uuid';
 import { AcademicFeeController } from './academic-fees/academic-fees.controller';
 import { AcademicFeeService } from './academic-fees/academic-fees.service';
 import { AcademicYearsController } from './academic-years/academic-years.controller';
@@ -21,10 +24,10 @@ import { PaymentsController } from './payments/payments.controller';
 import { PaymentsService } from './payments/payments.service';
 import { StudentsController } from './students/students.controller';
 import { StudentsService } from './students/students.service';
-import { UsersController } from './users/users.controller';
-import { UsersService } from './users/users.service';
 import { TransactionsController } from './transaction/transactions.controller';
 import { TransactionsService } from './transaction/transactions.service';
+import { UsersController } from './users/users.controller';
+import { UsersService } from './users/users.service';
 
 @Module({
   imports: [
@@ -51,6 +54,16 @@ import { TransactionsService } from './transaction/transactions.service';
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../../../', 'storage'),
+    }),
+    MulterModule.register({
+      storage: diskStorage({
+        destination: join(__dirname, '../../../', 'storage', 'uploads'),
+        filename: (req, file, cb) => {
+          const filename = `${uuid()}.${file.originalname.split('.').pop()}`;
+          console.log('debug-filename', filename);
+          cb(null, filename);
+        },
+      }),
     }),
     DrizzleModule,
   ],

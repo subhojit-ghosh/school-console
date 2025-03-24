@@ -529,3 +529,45 @@ export class StudentQueryDto {
   @IsString()
   fathersName?: string;
 }
+
+export class StudentDocumentDto {
+  @IsOptional()
+  studentPhoto: string;
+
+  @IsOptional()
+  fatherPhoto: string;
+
+  @IsOptional()
+  motherPhoto: string;
+
+  @IsOptional()
+  studentBirthCertificate: string;
+
+  @IsOptional()
+  studentVacinationRecord: string;
+
+  @IsOptional()
+  medicalHistory: 'Y' | 'N';
+
+  @IsOptional()
+  medicalHistoryDetails: string;
+
+  @IsOptional()
+  studentMedicalRecord: string;
+
+  @IsOptional()
+  fatherSignature: string;
+
+  @IsOptional()
+  motherSignature: string;
+
+  @IsOptional()
+  guardainSignature: string;
+}
+
+export class RemoveDocumentByIdDto {
+  @IsNotEmpty()
+  fileKey: string;
+  @IsNotEmpty()
+  fileName: string;
+}
