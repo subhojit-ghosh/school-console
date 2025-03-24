@@ -2,31 +2,59 @@ import {
   Group,
   Paper,
   SimpleGrid,
+  Skeleton,
   Text,
   Title,
   useMantineTheme,
 } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import endpoints from '../../api/endpoints';
+import httpClient from '../../api/http-client';
 
-const data = [
-  { title: 'Students', value: '20' },
-  { title: 'Classes', value: '12' },
-  { title: 'Payments', value: '100' },
+const statsList = [
+  { title: 'Enrolled Students', key: 'enrolledStudents' },
+  { title: 'New Registrations', key: 'newRegistrations' },
 ];
 
 function DashboardPage() {
   const theme = useMantineTheme();
+  const [loading, setLoading] = useState(true);
+  const [statsData, setStatsData] = useState<any>({
+    enrolledStudents: 0,
+    newRegistrations: 0,
+  });
 
-  const stats = data.map((stat) => {
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    setLoading(true);
+    try {
+      const response = await httpClient.get(endpoints.dashboard.stats());
+      setStatsData(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const stats = statsList.map((stat) => {
     return (
-      <Paper withBorder p="md"  key={stat.title}>
+      <Paper withBorder p="md" key={stat.title}>
         <Group justify="apart">
           <div>
             <Text tt="uppercase" fw={700} fz="sm" c={theme.colors.indigo[9]}>
               {stat.title}
             </Text>
-            <Text fw={700} fz="xl">
-              {stat.value}
-            </Text>
+            {loading ? (
+              <Skeleton height={20} mt={10} />
+            ) : (
+              <Text fw={700} fz="xl">
+                {statsData[stat.key]}
+              </Text>
+            )}
           </div>
         </Group>
       </Paper>

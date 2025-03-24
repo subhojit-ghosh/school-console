@@ -141,10 +141,13 @@ export default function TransactionsPage() {
   }, [type]);
 
   useEffect(() => {
-    fetchAcademicYears();
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, sortStatus]);
+
+  useEffect(() => {
+    fetchAcademicYears();
+  }, []);
 
   const fetchAcademicYears = async () => {
     try {

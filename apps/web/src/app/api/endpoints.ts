@@ -7,6 +7,9 @@ const endpoints = {
     logout: () => api('auth/logout'),
     profile: () => api('auth/profile'),
   },
+  dashboard: {
+    stats: () => api('dashboard/stats'),
+  },
   users: {
     list: () => api('users'),
     create: () => api('users'),
