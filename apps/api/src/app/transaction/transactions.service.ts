@@ -18,16 +18,34 @@ export class TransactionsService {
   constructor(@Inject(DRIZZLE) private db: DrizzleDB) {}
 
   async getAcademicFees(academicYearId: number, classId: number) {
-    // Fetch all academic fees for the class
-    return await this.db
-      .select()
+    // Fetch all distinct categories
+    const academicRecords = await this.db
+      .selectDistinct({
+        id: academicFeeTable.id,
+        name: academicFeeTable.name,
+        category: academicFeeTable.category,
+        amount: academicFeeTable.amount,
+      })
       .from(academicFeeTable)
       .where(
         and(
           eq(academicFeeTable.academicYearId, academicYearId),
           eq(academicFeeTable.classId, classId)
         )
+      )
+      .orderBy(academicFeeTable.category);
+    const distinctCategory = [
+      ...new Set(academicRecords.map((rec) => rec.category)),
+    ];
+    const obj = {};
+    distinctCategory.forEach((rec) => {
+      const tempData = academicRecords.filter(
+        (acdRec) => String(acdRec.category) === String(rec)
       );
+      obj[rec] = tempData;
+    });
+
+    return obj;
   }
 
   async getStudentTransactions(studentId: number, academicYearId: number) {
