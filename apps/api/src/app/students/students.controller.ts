@@ -48,6 +48,11 @@ export class StudentsController {
     return this.studentsService.findById(id);
   }
 
+  @Get('byclass/dropdown/:id')
+  async findAllClassesForStudentsDropdown(@Param('id') id: string) {
+    return this.studentsService.findAllClassesForStudentsDropdown(id);
+  }
+
   @Post('personal')
   async studentInfo(@Body() body: CreateStudentPersonalInfoDto) {
     return this.studentsService.createStudentPersonalInfo(body);

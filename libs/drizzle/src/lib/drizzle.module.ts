@@ -28,6 +28,7 @@ export * from './schemas';
           schema,
           mode: 'default',
           casing: 'snake_case',
+          logger: true,
         });
       },
     },

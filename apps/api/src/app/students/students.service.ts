@@ -396,4 +396,15 @@ export class StudentsService {
       [body.fileKey]: null,
     });
   }
+
+  async findAllClassesForStudentsDropdown(classId: string) {
+    return await this.db
+      .select({
+        id: studentsTable.id,
+        name: studentsTable.name,
+      })
+      .from(studentsTable)
+      .where(eq(studentsTable.classId, Number(classId)))
+      .orderBy(desc(studentsTable.name));
+  }
 }
