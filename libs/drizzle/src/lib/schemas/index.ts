@@ -5,4 +5,4 @@ export * from './enrollment.schema';
 export * from './student.schema';
 export * from './transaction.schema';
 export * from './user.schema';
-export * from './transaction-fee-item.schema';
+export * from './transaction-item.schema';
