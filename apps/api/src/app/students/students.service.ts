@@ -19,10 +19,15 @@ import {
 import { join } from 'path';
 import * as fs from 'fs';
 import { StudentPhotoDocumentType } from './types/student';
+import { ConfigService } from '@nestjs/config';
+import { uploadDirectoryFor } from '../utils';
 
 @Injectable()
 export class StudentsService {
-  constructor(@Inject(DRIZZLE) private db: DrizzleDB) {}
+  constructor(
+    @Inject(DRIZZLE) private db: DrizzleDB,
+    private configService: ConfigService
+  ) {}
 
   async findAllEnrolled(query: StudentQueryDto) {
     const {
@@ -250,10 +255,14 @@ export class StudentsService {
   removeFile(file) {
     const filePath = join(
       __dirname,
-      '../../../apps/web/src/assets/uploads/',
+      this.configService.get('FILE_UPLOAD_PATH') as string,
       file
     );
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  }
+
+  makeFilePath(fileName) {
+    return fileName ? uploadDirectoryFor.studentDoc + '/' + fileName : fileName;
   }
 
   async uploadDocuments(
@@ -310,44 +319,52 @@ export class StudentsService {
       this.removeFile(isStudentIdExists.studentMedicalRecord);
 
     const set = {
-      studentPhoto:
+      studentPhoto: this.makeFilePath(
         (studentPhoto && studentPhoto[0].filename) ||
-        isStudentIdExists.studentPhoto ||
-        null,
-      fatherPhoto:
+          isStudentIdExists.studentPhoto ||
+          null
+      ),
+      fatherPhoto: this.makeFilePath(
         (fatherPhoto && fatherPhoto[0].filename) ||
-        isStudentIdExists.fatherPhoto ||
-        null,
-      motherPhoto:
+          isStudentIdExists.fatherPhoto ||
+          null
+      ),
+      motherPhoto: this.makeFilePath(
         (motherPhoto && motherPhoto[0].filename) ||
-        isStudentIdExists.motherPhoto ||
-        null,
-      studentBirthCertificate:
+          isStudentIdExists.motherPhoto ||
+          null
+      ),
+      studentBirthCertificate: this.makeFilePath(
         (studentBirthCertificate && studentBirthCertificate[0].filename) ||
-        isStudentIdExists.studentBirthCertificate ||
-        null,
-      studentVacinationRecord:
+          isStudentIdExists.studentBirthCertificate ||
+          null
+      ),
+      studentVacinationRecord: this.makeFilePath(
         (studentVacinationRecord && studentVacinationRecord[0].filename) ||
-        isStudentIdExists.studentVacinationRecord ||
-        null,
+          isStudentIdExists.studentVacinationRecord ||
+          null
+      ),
       studentMedicalRecord:
         student.medicalHistory === 'N'
           ? null
           : studentMedicalRecord && studentMedicalRecord[0].filename
-          ? studentMedicalRecord[0].filename
-          : isStudentIdExists.studentMedicalRecord,
-      fatherSignature:
+          ? this.makeFilePath(studentMedicalRecord[0].filename)
+          : this.makeFilePath(isStudentIdExists.studentMedicalRecord),
+      fatherSignature: this.makeFilePath(
         (fatherSignature && fatherSignature[0].filename) ||
-        isStudentIdExists.fatherSignature ||
-        null,
-      motherSignature:
+          isStudentIdExists.fatherSignature ||
+          null
+      ),
+      motherSignature: this.makeFilePath(
         (motherSignature && motherSignature[0].filename) ||
-        isStudentIdExists.motherSignature ||
-        null,
-      guardainSignature:
+          isStudentIdExists.motherSignature ||
+          null
+      ),
+      guardainSignature: this.makeFilePath(
         (guardainSignature && guardainSignature[0].filename) ||
-        isStudentIdExists.guardainSignature ||
-        null,
+          isStudentIdExists.guardainSignature ||
+          null
+      ),
 
       medicalHistory: student.medicalHistory === 'Y' ? true : false,
       medicalHistoryDetails:
@@ -378,5 +395,27 @@ export class StudentsService {
     return await this.db.update(studentsTable).set({
       [body.fileKey]: null,
     });
+  }
+
+  async findAllClassesForStudentsDropdown(
+    classId: string,
+    enrolled: number = 0
+  ) {
+    return await this.db
+      .select({
+        id: studentsTable.id,
+        name: studentsTable.name,
+        regId: studentsTable.regId,
+        isEnrolled: studentsTable.isEnrolled,
+        enrolledNo: studentsTable.enrolledNo,
+      })
+      .from(studentsTable)
+      .where(
+        and(
+          eq(studentsTable.classId, Number(classId)),
+          eq(studentsTable.isEnrolled, Boolean(enrolled))
+        )
+      )
+      .orderBy(desc(studentsTable.name));
   }
 }

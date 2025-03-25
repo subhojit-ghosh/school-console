@@ -592,7 +592,7 @@ export default function StudentForm({ action }: StudentFormProps) {
     file && (
       <Group justify="space-between">
         <Anchor
-          href={`/src/assets/uploads/${file}`}
+          href={`${import.meta.env.VITE_API_GATEWAY}${file}`}
           target="_blank"
           underline="hover"
         >

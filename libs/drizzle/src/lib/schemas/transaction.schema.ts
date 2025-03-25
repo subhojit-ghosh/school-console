@@ -25,6 +25,7 @@ export const transactionTable = mysqlTable(
       () => classesTable.id
     ),
     payable: int().notNull(),
+    concession: int().notNull(),
     paid: int().notNull(),
     due: int().notNull(),
     mode: varchar({ length: 100 }).notNull(),
