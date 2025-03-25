@@ -397,14 +397,25 @@ export class StudentsService {
     });
   }
 
-  async findAllClassesForStudentsDropdown(classId: string) {
+  async findAllClassesForStudentsDropdown(
+    classId: string,
+    enrolled: number = 0
+  ) {
     return await this.db
       .select({
         id: studentsTable.id,
         name: studentsTable.name,
+        regId: studentsTable.regId,
+        isEnrolled: studentsTable.isEnrolled,
+        enrolledNo: studentsTable.enrolledNo,
       })
       .from(studentsTable)
-      .where(eq(studentsTable.classId, Number(classId)))
+      .where(
+        and(
+          eq(studentsTable.classId, Number(classId)),
+          eq(studentsTable.isEnrolled, Boolean(enrolled))
+        )
+      )
       .orderBy(desc(studentsTable.name));
   }
 }
