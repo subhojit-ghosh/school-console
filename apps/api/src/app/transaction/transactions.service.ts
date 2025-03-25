@@ -18,7 +18,7 @@ export class TransactionsService {
   constructor(@Inject(DRIZZLE) private db: DrizzleDB) {}
 
   async getAcademicFees(academicYearId: number, classId: number) {
-    // Fetch all distinct categories
+    // Fetch all distinct categories of academic fees
     const academicRecords = await this.db
       .selectDistinct({
         id: academicFeeTable.id,
