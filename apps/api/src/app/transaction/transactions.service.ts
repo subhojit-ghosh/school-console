@@ -1,17 +1,81 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   academicFeeTable,
+  classesTable,
   DRIZZLE,
   DrizzleDB,
+  studentsTable,
   transactionItemTable,
   transactionTable,
 } from '@school-console/drizzle';
-import { and, eq, inArray } from 'drizzle-orm';
-import { CreateTransactionDto } from './transactions.dto';
+import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
+import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
 
 @Injectable()
 export class TransactionsService {
   constructor(@Inject(DRIZZLE) private db: DrizzleDB) {}
+
+  async findAll(query: TransactionQueryDto) {
+    const {
+      page = 1,
+      size = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'asc',
+      classId,
+    } = query;
+
+    const offset = (page - 1) * size;
+    const whereConditions: any = [];
+
+    const [transactions, totalRecords] = await Promise.all([
+      this.db
+        .select({
+          id: transactionTable.id,
+          academicYearId: transactionTable.academicYearId,
+          studentId: transactionTable.studentId,
+          classId: transactionTable.classId,
+          totalAmount: transactionTable.totalAmount,
+          payable: transactionTable.payable,
+          concession: transactionTable.concession,
+          paid: transactionTable.paid,
+          due: transactionTable.due,
+          mode: transactionTable.mode,
+          createdAt: transactionTable.createdAt,
+          class: classesTable.name,
+          studentName: studentsTable.name,
+          enrolledNo: studentsTable.enrolledNo,
+          regId: studentsTable.regId,
+        })
+        .from(transactionTable)
+        .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
+        .innerJoin(
+          studentsTable,
+          eq(transactionTable.studentId, studentsTable.id)
+        )
+        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+        .orderBy(
+          sortOrder === 'asc'
+            ? asc(transactionTable[sortBy])
+            : desc(transactionTable[sortBy])
+        )
+        .limit(size)
+        .offset(offset),
+      this.db
+        .select({ count: count() })
+        .from(transactionTable)
+        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+        .then((res) => res[0].count),
+    ]);
+
+    const totalPages = Math.ceil(totalRecords / size);
+    return {
+      size,
+      page,
+      totalPages,
+      totalRecords,
+      data: transactions,
+    };
+  }
 
   async getStudentFeeSummary(
     academicYearId: number,
