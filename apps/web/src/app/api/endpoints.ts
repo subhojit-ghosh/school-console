@@ -25,8 +25,7 @@ const endpoints = {
     updateStatus: (id: string) => api(`academic-years/${id}/status`),
   },
   students: {
-    listEnrolled: (query: string = '') => api(`students/enrolled?${query}`),
-    list: (query: string = '') => api(`students?${query}`),
+    list: () => api(`students`),
     findById: (id: string) => api(`students/${id}`),
     create: () => api('students'),
     createPersonalInfo: () => api('students/personal'),
@@ -46,6 +45,13 @@ const endpoints = {
     list: () => api('academic-fees'),
     create: () => api('academic-fees'),
     update: (id: string) => api(`academic-fees/${id}`),
+  },
+  transactions: {
+    fees: (
+      academicYearId: number | string,
+      classId: number | string,
+      studentId: number | string
+    ) => api(`transactions/fees/${academicYearId}/${classId}/${studentId}`),
   },
 };
 

@@ -8,9 +8,12 @@ import {
   Query,
   UploadedFile,
   UploadedFiles,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import {
   CreateStudentDto,
   CreateStudentPersonalInfoDto,
@@ -21,13 +24,7 @@ import {
   UpdateStudentGuardianInfoDto,
 } from './students.dto';
 import { StudentsService } from './students.service';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-} from '@nestjs/platform-express';
 import { StudentPhotoDocumentType } from './types/student';
-import { AuthUser, IAuthUser } from '../auth/auth-user.decorator';
-import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('students')
 export class StudentsController {
@@ -36,11 +33,6 @@ export class StudentsController {
   @Get()
   async findAll(@Query() query: StudentQueryDto) {
     return this.studentsService.findAll(query);
-  }
-
-  @Get('enrolled')
-  async findAllEnrolled(@Query() query: StudentQueryDto) {
-    return this.studentsService.findAllEnrolled(query);
   }
 
   @Get(':id')

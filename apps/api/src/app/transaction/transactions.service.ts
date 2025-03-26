@@ -1,30 +1,30 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   academicFeeTable,
   DRIZZLE,
   DrizzleDB,
+  transactionItemTable,
   transactionTable,
 } from '@school-console/drizzle';
-import { and, eq, sum } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { CreateTransactionDto } from './transactions.dto';
 
 @Injectable()
 export class TransactionsService {
   constructor(@Inject(DRIZZLE) private db: DrizzleDB) {}
 
-  async getAcademicFees(academicYearId: number, classId: number) {
-    // Fetch all distinct categories of academic fees
-    const academicRecords = await this.db
-      .selectDistinct({
+  async getStudentFeeSummary(
+    academicYearId: number,
+    classId: number,
+    studentId: number
+  ) {
+    const academicFees = await this.db
+      .select({
         id: academicFeeTable.id,
         name: academicFeeTable.name,
         category: academicFeeTable.category,
         amount: academicFeeTable.amount,
+        dueDate: academicFeeTable.dueDate,
       })
       .from(academicFeeTable)
       .where(
@@ -34,80 +34,133 @@ export class TransactionsService {
         )
       )
       .orderBy(academicFeeTable.category);
-    const distinctCategory = [
-      ...new Set(academicRecords.map((rec) => rec.category)),
-    ];
-    const obj = {};
-    distinctCategory.forEach((rec) => {
-      const tempData = academicRecords.filter(
-        (acdRec) => String(acdRec.category) === String(rec)
-      );
-      obj[rec] = tempData;
-    });
 
-    return obj;
-  }
-
-  async getStudentTransactions(studentId: number, academicYearId: number) {
-    // Fetch student transaction history
-    return await this.db
-      .select({
-        totalPaid: sum(transactionTable.paid),
-        totalDue: sum(transactionTable.due),
-      })
+    const transactions = await this.db
+      .select()
       .from(transactionTable)
       .where(
         and(
-          eq(transactionTable.studentId, studentId),
-          eq(transactionTable.academicYearId, academicYearId)
+          eq(transactionTable.academicYearId, academicYearId),
+          eq(transactionTable.classId, classId),
+          eq(transactionTable.studentId, studentId)
         )
-      )
-      .then((res) => res[0]);
+      );
+
+    const transactionItems = await this.db
+      .select()
+      .from(transactionItemTable)
+      .where(
+        inArray(
+          transactionItemTable.transactionId,
+          transactions.map((transaction) => transaction.id)
+        )
+      );
+
+    const feesWithDue = academicFees.map((fee) => {
+      const relatedItems = transactionItems.filter(
+        (item) => item.academicFeeId === fee.id
+      );
+
+      const totalPaid = relatedItems.reduce((sum, item) => sum + item.paid, 0);
+      const totalConcession = relatedItems.reduce(
+        (sum, item) => sum + item.concession,
+        0
+      );
+      const totalPayable = fee.amount - totalConcession;
+      const totalDue = totalPayable - totalPaid;
+      const isOverdue = fee.dueDate
+        ? new Date(fee.dueDate) < new Date()
+        : false;
+
+      return {
+        ...fee,
+        totalPaid,
+        totalConcession,
+        totalPayable,
+        totalDue,
+        isOverdue,
+      };
+    });
+
+    const totalPaid = feesWithDue.reduce((sum, fee) => sum + fee.totalPaid, 0);
+    const totalDue = feesWithDue.reduce((sum, fee) => sum + fee.totalDue, 0);
+    const currentDue = feesWithDue.reduce((sum, fee) => {
+      if (fee.isOverdue) {
+        return sum + fee.totalDue;
+      }
+      return sum;
+    }, 0);
+
+    return {
+      feesWithDue,
+      stats: {
+        totalPaid,
+        totalDue,
+        currentDue,
+      },
+    };
   }
 
-  async collectFee(dto: CreateTransactionDto) {
-    // Fetch academic fee details
-    const fee = await this.db
+  async create(dto: CreateTransactionDto) {
+    const fees = await this.db
       .select()
       .from(academicFeeTable)
       .where(
         and(
-          eq(academicFeeTable.id, dto.feeId),
+          inArray(
+            academicFeeTable.id,
+            dto.items.map((item) => item.academicFeeId)
+          ),
           eq(academicFeeTable.academicYearId, dto.academicYearId)
         )
-      )
-      .then((res) => res[0]);
+      );
 
-    if (!fee) {
-      throw new NotFoundException('Academic Fee not found');
-    }
-
-    // Fetch previous transactions
-    const previousPayments = await this.getStudentTransactions(
-      dto.studentId,
-      dto.academicYearId
+    const totalAmount = fees.reduce((sum, fee) => sum + fee.amount, 0);
+    const concession = dto.items.reduce(
+      (sum, item) => sum + item.concession,
+      0
     );
+    const payable = totalAmount - concession;
+    const paid = dto.items.reduce((sum, item) => sum + item.paid, 0);
+    const due = payable - paid;
 
-    const totalPaid = previousPayments?.totalPaid
-      ? Number(previousPayments.totalPaid)
-      : 0;
-    const totalDue = Number(fee.amount) - totalPaid;
+    await this.db.transaction(async (trx) => {
+      const [{ id: transactionId }] = await trx
+        .insert(transactionTable)
+        .values({
+          academicYearId: dto.academicYearId,
+          studentId: dto.studentId,
+          classId: dto.classId,
+          totalAmount,
+          payable,
+          concession,
+          paid,
+          due,
+          mode: dto.mode,
+        })
+        .$returningId();
 
-    if (dto.paid > totalDue) {
-      throw new BadRequestException('Paid amount exceeds due balance');
-    }
+      const items = dto.items.map((item) => {
+        const fee = fees.find((fee) => fee.id === item.academicFeeId);
+        if (!fee) {
+          throw new BadRequestException(
+            `Fee with ID ${item.academicFeeId} not found`
+          );
+        }
+        return {
+          transactionId,
+          academicFeeId: item.academicFeeId,
+          amount: fee.amount,
+          concession: item.concession,
+          payable: fee.amount - item.concession,
+          paid: item.paid,
+          due: fee.amount - item.concession - item.paid,
+        };
+      });
 
-    // Save transaction
-    const result = await this.db.insert(transactionTable).values({
-      academicYearId: dto.academicYearId,
-      studentId: dto.studentId,
-      classId: dto.classId,
-      payable: fee.amount,
-      paid: dto.paid,
-      due: totalDue - dto.paid,
-      mode: dto.mode,
+      await trx.insert(transactionItemTable).values(items);
     });
 
-    return { message: 'Transaction saved successfully', result };
+    return { message: 'Transaction saved successfully' };
   }
 }

@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
@@ -519,7 +519,11 @@ export class StudentQueryDto {
 
   @IsOptional()
   @IsString()
-  id?: string;
+  regId?: string;
+
+  @IsOptional()
+  @IsString()
+  enrolledNo?: string;
 
   @IsOptional()
   @IsString()
@@ -528,6 +532,19 @@ export class StudentQueryDto {
   @IsOptional()
   @IsString()
   fathersName?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    return value === 'true';
+  })
+  @IsBoolean()
+  isEnrolled?: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  classId?: number;
 }
 
 export class StudentDocumentDto {

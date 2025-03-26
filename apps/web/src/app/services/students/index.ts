@@ -2,16 +2,24 @@ import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 
 export async function getEnrolledStudents() {
-  const { data } = await httpClient.get(
-    endpoints.students.listEnrolled('page=1&size=10')
-  );
+  const { data } = await httpClient.get(endpoints.students.list(), {
+    params: {
+      page: 1,
+      size: 10,
+      isEnrolled: true,
+    },
+  });
   return data;
 }
 
 export async function getRegStudents() {
-  const { data } = await httpClient.get(
-    endpoints.students.list('page=1&size=10')
-  );
+  const { data } = await httpClient.get(endpoints.students.list(), {
+    params: {
+      page: 1,
+      size: 10,
+      isEnrolled: false,
+    },
+  });
   return data;
 }
 

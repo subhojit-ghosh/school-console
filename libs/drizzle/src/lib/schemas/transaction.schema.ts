@@ -10,7 +10,6 @@ import {
 import { academicYearsTable } from './academic-year.schema';
 import { classesTable } from './class.schema';
 import { studentsTable } from './student.schema';
-import { transactionFeeItemTable } from './transaction-fee-item.schema';
 
 export const transactionTable = mysqlTable(
   'transactions',
@@ -25,10 +24,9 @@ export const transactionTable = mysqlTable(
     classId: bigint({ mode: 'number', unsigned: true }).references(
       () => classesTable.id
     ),
-    transactionFeeItemId: bigint({ mode: 'number', unsigned: true }).references(
-      () => transactionFeeItemTable.id
-    ),
+    totalAmount: int().notNull(),
     payable: int().notNull(),
+    concession: int().notNull(),
     paid: int().notNull(),
     due: int().notNull(),
     mode: varchar({ length: 100 }).notNull(),
@@ -39,6 +37,5 @@ export const transactionTable = mysqlTable(
     index('academic_year_id_idx').on(table.academicYearId),
     index('student_id_idx').on(table.studentId),
     index('class_id_idx').on(table.classId),
-    index('transaction_fee_item_id_idx').on(table.transactionFeeItemId),
   ]
 );
