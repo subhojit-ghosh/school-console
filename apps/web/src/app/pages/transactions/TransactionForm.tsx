@@ -21,6 +21,11 @@ import * as yup from 'yup';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import { titleCase } from '../../utils/text-formating';
+import {
+  showInfoNotification,
+  showSuccessNotification,
+} from '../../utils/notification';
+import { useSaveTransactionFee } from '../../services/transactions/apiQuery';
 
 export default function TransactionForm() {
   const [academicYears, setAcademicYears] = useState<any[]>([]);
@@ -28,13 +33,22 @@ export default function TransactionForm() {
   const [studentSearchValue, setStudentSearchValue] = useState('');
   const [students, setStudents] = useState<any[]>([]);
   const [fees, setFees] = useState<any>(null);
+  const [feesRight, setFeesRight] = useState<any>(null);
 
-  const form = useForm({
+  const form = useForm<{
+    academicYearId: any;
+    classId: any;
+    studentId: any;
+    mode: any;
+    note: any;
+  }>({
     validateInputOnChange: true,
     initialValues: {
-      academicYearId: '',
-      classId: '',
-      studentId: '',
+      academicYearId: null,
+      classId: null,
+      studentId: null,
+      mode: null,
+      note: null,
     },
     validate: yupResolver(
       yup.object().shape({
@@ -44,6 +58,7 @@ export default function TransactionForm() {
           .required('Academic Year is required'),
         classId: yup.string().trim().required('Class is required'),
         studentId: yup.string().trim().required('Student is required'),
+        mode: yup.string().trim().required('Student is required'),
       })
     ),
   });
@@ -56,9 +71,10 @@ export default function TransactionForm() {
 
   useEffect(() => {
     if (form.values.classId) {
-      form.setFieldValue('studentId', '');
+      form.setFieldValue('studentId', null);
       setStudentSearchValue('');
       setFees(null);
+      setFeesRight(null);
       fetchStudents();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,15 +137,96 @@ export default function TransactionForm() {
           form.values.studentId
         )
       );
-      setFees(data);
+      setFees({
+        ...data,
+        feesWithDue: data.feesWithDue.map((rec: any) => ({
+          ...rec,
+          isChecked: false,
+          disabled: !rec.totalDue,
+        })),
+      });
     } catch (error) {
       console.error(error);
     }
   };
 
+  const saveTransacriotnFee = useSaveTransactionFee();
+
+  function resetForm() {
+    form.setValues({
+      academicYearId: null,
+      classId: null,
+      studentId: null,
+      mode: null,
+      note: null,
+    });
+    setFees(null);
+    setFeesRight(null);
+  }
+
   const handleSubmit = async () => {
     console.log(form.values);
+    let isGreaterError = false;
+    feesRight.every((item: any, index: number) => {
+      if (Number(item.concession + item.paid) > item.totalDue) {
+        isGreaterError = true;
+        showInfoNotification(
+          `Sum of concession & paid can not be greater than total due which is ${
+            item.totalDue
+          } for item ${item.name} and type ${titleCase(item.category)} at row ${
+            index + 1
+          }`
+        );
+        return false;
+      }
+      return true;
+    });
+    if (isGreaterError) return;
+    const payload = {
+      academicYearId: Number(form.values.academicYearId),
+      classId: Number(form.values.classId),
+      studentId: Number(form.values.studentId),
+      mode: form.values.mode,
+      note: form.values.note,
+      items: feesRight.map((rec: any) => ({
+        academicFeeId: rec.id,
+        concession: Number(rec.concession),
+        paid: Number(rec.paid),
+      })),
+    };
+
+    saveTransacriotnFee.mutate(
+      {
+        ...payload,
+      },
+      {
+        onSuccess: () => {
+          showSuccessNotification('Fees added.');
+          resetForm();
+        },
+      }
+    );
   };
+
+  function onChangeChekbox(checked: boolean, item: any) {
+    let items: any = feesRight || [];
+    if (!checked) items = items.filter((rec: any) => rec.name === item.name);
+    else items.push({ ...item, concession: '', paid: '' });
+    console.log('debug-checked', checked, items);
+    setFeesRight(items.length > 0 ? [...items] : null);
+  }
+
+  function onConcessionChange(v: number, index: number) {
+    let items: any = feesRight || [];
+    items[index].concession = v;
+    setFeesRight([...items]);
+  }
+
+  function onPaidChange(v: number, index: number) {
+    let items: any = feesRight || [];
+    items[index].paid = v;
+    setFeesRight([...items]);
+  }
 
   return (
     <>
@@ -144,11 +241,7 @@ export default function TransactionForm() {
           Back
         </Button>
       </Group>
-      <form
-        onSubmit={form.onSubmit(handleSubmit, () => {
-          console.log(form.errors);
-        })}
-      >
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         <Paper withBorder shadow="md" p="md">
           <Grid>
             <Grid.Col span={12}>
@@ -250,7 +343,21 @@ export default function TransactionForm() {
                                   </Table.Td>
                                 )}
                                 <Table.Td>
-                                  <Checkbox label={item.name} />
+                                  <Checkbox
+                                    label={item.name}
+                                    // checked={item.isChecked}
+                                    disabled={item.disabled}
+                                    onChange={(e) =>
+                                      onChangeChekbox(e.target.checked, item)
+                                    }
+                                    c={
+                                      item.isOverdue
+                                        ? 'red'
+                                        : !item.totalDue
+                                        ? 'green'
+                                        : undefined
+                                    }
+                                  />
                                 </Table.Td>
                                 <Table.Td>₹{item.amount}</Table.Td>
                               </Table.Tr>
@@ -274,113 +381,58 @@ export default function TransactionForm() {
                             <Table.Th>Paid</Table.Th>
                           </Table.Tr>
                         </Table.Thead>
-                        <Table.Tbody>
-                          <Table.Tr>
-                            <Table.Td rowSpan={2}>Enrollment</Table.Td>
-                            <Table.Td>Admission</Table.Td>
-                            <Table.Td>₹1000</Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                          </Table.Tr>
-                          <Table.Tr>
-                            <Table.Td>Development</Table.Td>
-                            <Table.Td>₹1000</Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                          </Table.Tr>
-                          <Table.Tr>
-                            <Table.Td rowSpan={1}>Tution</Table.Td>
-                            <Table.Td>Quarter 1 (April - June)</Table.Td>
-                            <Table.Td>₹1000</Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                          </Table.Tr>
-                          <Table.Tr>
-                            <Table.Td rowSpan={3}>Material</Table.Td>
-                            <Table.Td>Books</Table.Td>
-                            <Table.Td>₹100</Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                          </Table.Tr>
-                          <Table.Tr>
-                            <Table.Td>Shoes</Table.Td>
-                            <Table.Td>₹50</Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                          </Table.Tr>
-                          <Table.Tr>
-                            <Table.Td>ID Card</Table.Td>
-                            <Table.Td>₹10</Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                            <Table.Td>
-                              <NumberInput
-                                hideControls
-                                leftSection={<Text size="sm">₹</Text>}
-                              />
-                            </Table.Td>
-                          </Table.Tr>
-                          <Table.Tr fw="bold">
-                            <Table.Td colSpan={2}>Total</Table.Td>
-                            <Table.Td>₹3160</Table.Td>
-                            <Table.Td>₹160</Table.Td>
-                            <Table.Td>3000</Table.Td>
-                          </Table.Tr>
-                        </Table.Tbody>
+                        {feesRight && (
+                          <Table.Tbody>
+                            {feesRight
+                              .reduce(
+                                (acc: any, item: any) => [
+                                  ...new Set([...acc, item.category]),
+                                ],
+                                []
+                              )
+                              .map((category: any, pIndex: number) => {
+                                const items = feesRight.filter(
+                                  (fee: any) => fee.category === category
+                                );
+                                return items.map((item: any, index: number) => (
+                                  <Table.Tr key={index}>
+                                    {index === 0 && (
+                                      <Table.Td rowSpan={items.length}>
+                                        {titleCase(category)}
+                                      </Table.Td>
+                                    )}
+                                    <Table.Td>
+                                      <Text size="xs">{item.name}</Text>
+                                    </Table.Td>
+                                    <Table.Td>₹{item.totalDue}</Table.Td>
+
+                                    <Table.Td>
+                                      <NumberInput
+                                        hideControls
+                                        min={0}
+                                        value={item.concession}
+                                        onChange={(e) =>
+                                          onConcessionChange(Number(e), pIndex)
+                                        }
+                                        leftSection={<Text size="sm">₹</Text>}
+                                      />
+                                    </Table.Td>
+                                    <Table.Td>
+                                      <NumberInput
+                                        hideControls
+                                        min={0}
+                                        value={item.paid}
+                                        onChange={(e) =>
+                                          onPaidChange(Number(e), pIndex)
+                                        }
+                                        leftSection={<Text size="sm">₹</Text>}
+                                      />
+                                    </Table.Td>
+                                  </Table.Tr>
+                                ));
+                              })}
+                          </Table.Tbody>
+                        )}
                       </Table>
                     </Grid.Col>
                     <Grid.Col span={6}>
@@ -388,16 +440,17 @@ export default function TransactionForm() {
                         label="Mode"
                         data={['Cash', 'Cheque', 'UPI']}
                         withAsterisk
+                        {...form.getInputProps('mode')}
                       />
                     </Grid.Col>
                     <Grid.Col span={6}>
-                      <TextInput label="Note" />
+                      <TextInput label="Note" {...form.getInputProps('note')} />
                     </Grid.Col>
                     <Grid.Col
                       span={12}
                       style={{ display: 'flex', justifyContent: 'flex-end' }}
                     >
-                      <Button>Save</Button>
+                      <Button type="submit">Save</Button>
                     </Grid.Col>
                   </Grid>
                 </Grid.Col>
