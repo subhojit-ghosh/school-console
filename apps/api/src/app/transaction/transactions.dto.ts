@@ -1,10 +1,27 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateNested,
+  ArrayMinSize,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class CreateTransactionDto {
+class TransactionItemDto {
   @IsNotEmpty()
   @IsNumber()
-  feeId: number; // Academic Fee ID
+  academicFeeId: number;
 
+  @IsNotEmpty()
+  @IsNumber()
+  concession: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  paid: number;
+}
+
+export class CreateTransactionDto {
   @IsNotEmpty()
   @IsNumber()
   academicYearId: number;
@@ -18,18 +35,11 @@ export class CreateTransactionDto {
   classId: number;
 
   @IsNotEmpty()
-  @IsNumber()
-  payable: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  paid: number;
-
-  @IsNotEmpty()
-  @IsNumber()
-  due: number;
-
-  @IsNotEmpty()
   @IsString()
   mode: string; // Cash, Card, Online, etc.
+
+  @ValidateNested({ each: true })
+  @ArrayMinSize(1)
+  @Type(() => TransactionItemDto)
+  items: TransactionItemDto[];
 }

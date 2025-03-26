@@ -1,16 +1,12 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   academicFeeTable,
   DRIZZLE,
   DrizzleDB,
+  transactionItemTable,
   transactionTable,
 } from '@school-console/drizzle';
-import { and, eq, sum } from 'drizzle-orm';
+import { and, eq, inArray, sum } from 'drizzle-orm';
 import { CreateTransactionDto } from './transactions.dto';
 
 @Injectable()
@@ -66,48 +62,65 @@ export class TransactionsService {
   }
 
   async collectFee(dto: CreateTransactionDto) {
-    // Fetch academic fee details
-    const fee = await this.db
+    const fees = await this.db
       .select()
       .from(academicFeeTable)
       .where(
         and(
-          eq(academicFeeTable.id, dto.feeId),
+          inArray(
+            academicFeeTable.id,
+            dto.items.map((item) => item.academicFeeId)
+          ),
           eq(academicFeeTable.academicYearId, dto.academicYearId)
         )
-      )
-      .then((res) => res[0]);
+      );
 
-    if (!fee) {
-      throw new NotFoundException('Academic Fee not found');
-    }
-
-    // Fetch previous transactions
-    const previousPayments = await this.getStudentTransactions(
-      dto.studentId,
-      dto.academicYearId
+    const totalAmount = fees.reduce((sum, fee) => sum + fee.amount, 0);
+    const concession = dto.items.reduce(
+      (sum, item) => sum + item.concession,
+      0
     );
+    const payable = totalAmount - concession;
+    const paid = dto.items.reduce((sum, item) => sum + item.paid, 0);
+    const due = payable - paid;
 
-    const totalPaid = previousPayments?.totalPaid
-      ? Number(previousPayments.totalPaid)
-      : 0;
-    const totalDue = Number(fee.amount) - totalPaid;
+    await this.db.transaction(async (trx) => {
+      const [{ id: transactionId }] = await trx
+        .insert(transactionTable)
+        .values({
+          academicYearId: dto.academicYearId,
+          studentId: dto.studentId,
+          classId: dto.classId,
+          totalAmount,
+          payable,
+          concession,
+          paid,
+          due,
+          mode: dto.mode,
+        })
+        .$returningId();
 
-    if (dto.paid > totalDue) {
-      throw new BadRequestException('Paid amount exceeds due balance');
-    }
+      const items = dto.items.map((item) => {
+        const fee = fees.find((fee) => fee.id === item.academicFeeId);
+        if (!fee) {
+          throw new BadRequestException(
+            `Fee with ID ${item.academicFeeId} not found`
+          );
+        }
+        return {
+          transactionId,
+          academicFeeId: item.academicFeeId,
+          amount: fee.amount,
+          concession: item.concession,
+          payable: fee.amount - item.concession,
+          paid: item.paid,
+          due: fee.amount - item.concession - item.paid,
+        };
+      });
 
-    // Save transaction
-    const result = await this.db.insert(transactionTable).values({
-      academicYearId: dto.academicYearId,
-      studentId: dto.studentId,
-      classId: dto.classId,
-      payable: fee.amount,
-      paid: dto.paid,
-      due: totalDue - dto.paid,
-      mode: dto.mode,
+      await trx.insert(transactionItemTable).values(items);
     });
 
-    return { message: 'Transaction saved successfully', result };
+    return { message: 'Transaction saved successfully' };
   }
 }

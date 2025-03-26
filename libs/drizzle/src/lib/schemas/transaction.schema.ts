@@ -24,6 +24,7 @@ export const transactionTable = mysqlTable(
     classId: bigint({ mode: 'number', unsigned: true }).references(
       () => classesTable.id
     ),
+    totalAmount: int().notNull(),
     payable: int().notNull(),
     concession: int().notNull(),
     paid: int().notNull(),

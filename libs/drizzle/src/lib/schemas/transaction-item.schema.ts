@@ -21,9 +21,13 @@ export const transactionItemTable = mysqlTable(
       .references(() => academicFeeTable.id),
     amount: int().notNull(),
     concession: int().notNull(),
+    payable: int().notNull(),
     paid: int().notNull(),
+    due: int().notNull(),
     createdAt: timestamp().defaultNow().notNull(),
-    updatedAt: timestamp().onUpdateNow(),
   },
-  (table) => [index('transaction_id_idx').on(table.transactionId)]
+  (table) => [
+    index('transaction_id_idx').on(table.transactionId),
+    index('academic_fee_id_idx').on(table.academicFeeId),
+  ]
 );
