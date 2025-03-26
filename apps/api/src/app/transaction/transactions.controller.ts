@@ -26,7 +26,7 @@ export class TransactionsController {
   }
 
   @Post()
-  async collectFee(@Body() dto: CreateTransactionDto) {
-    return this.transactionsService.collectFee(dto);
+  async create(@Body() dto: CreateTransactionDto) {
+    return this.transactionsService.create(dto);
   }
 }

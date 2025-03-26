@@ -45,7 +45,6 @@ export class TransactionsService {
   }
 
   async getStudentTransactions(studentId: number, academicYearId: number) {
-    // Fetch student transaction history
     return await this.db
       .select({
         totalPaid: sum(transactionTable.paid),
@@ -61,7 +60,7 @@ export class TransactionsService {
       .then((res) => res[0]);
   }
 
-  async collectFee(dto: CreateTransactionDto) {
+  async create(dto: CreateTransactionDto) {
     const fees = await this.db
       .select()
       .from(academicFeeTable)
