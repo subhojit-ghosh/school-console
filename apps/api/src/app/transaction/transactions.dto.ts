@@ -4,6 +4,7 @@ import {
   IsString,
   ValidateNested,
   ArrayMinSize,
+  IsOptional,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -37,6 +38,10 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   @IsString()
   mode: string; // Cash, Card, Online, etc.
+  
+  @IsOptional()
+  @IsString()
+  note?: string;
 
   @ValidateNested({ each: true })
   @ArrayMinSize(1)

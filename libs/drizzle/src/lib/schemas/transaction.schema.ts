@@ -30,6 +30,7 @@ export const transactionTable = mysqlTable(
     paid: int().notNull(),
     due: int().notNull(),
     mode: varchar({ length: 100 }).notNull(),
+    note: varchar({ length: 200 }),
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp().onUpdateNow(),
   },
