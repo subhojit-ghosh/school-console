@@ -14,13 +14,13 @@ export class TransactionsService {
   constructor(@Inject(DRIZZLE) private db: DrizzleDB) {}
 
   async getAcademicFees(academicYearId: number, classId: number) {
-    // Fetch all distinct categories
-    const academicRecords = await this.db
-      .selectDistinct({
+    const academicFees = await this.db
+      .select({
         id: academicFeeTable.id,
         name: academicFeeTable.name,
         category: academicFeeTable.category,
         amount: academicFeeTable.amount,
+        dueDate: academicFeeTable.dueDate,
       })
       .from(academicFeeTable)
       .where(
@@ -30,18 +30,70 @@ export class TransactionsService {
         )
       )
       .orderBy(academicFeeTable.category);
-    const distinctCategory = [
-      ...new Set(academicRecords.map((rec) => rec.category)),
-    ];
-    const obj = {};
-    distinctCategory.forEach((rec) => {
-      const tempData = academicRecords.filter(
-        (acdRec) => String(acdRec.category) === String(rec)
+
+    const transactions = await this.db
+      .select()
+      .from(transactionTable)
+      .where(
+        and(
+          eq(transactionTable.academicYearId, academicYearId),
+          eq(transactionTable.classId, classId)
+        )
       );
-      obj[rec] = tempData;
+
+    const transactionItems = await this.db
+      .select()
+      .from(transactionItemTable)
+      .where(
+        inArray(
+          transactionItemTable.transactionId,
+          transactions.map((transaction) => transaction.id)
+        )
+      );
+
+    const feesWithDue = academicFees.map((fee) => {
+      const relatedItems = transactionItems.filter(
+        (item) => item.academicFeeId === fee.id
+      );
+
+      const totalPaid = relatedItems.reduce((sum, item) => sum + item.paid, 0);
+      const totalConcession = relatedItems.reduce(
+        (sum, item) => sum + item.concession,
+        0
+      );
+      const totalPayable = fee.amount - totalConcession;
+      const totalDue = totalPayable - totalPaid;
+      const isOverdue = fee.dueDate
+        ? new Date(fee.dueDate) < new Date()
+        : false;
+
+      return {
+        ...fee,
+        totalPaid,
+        totalConcession,
+        totalPayable,
+        totalDue,
+        isOverdue,
+      };
     });
 
-    return obj;
+    const totalPaid = feesWithDue.reduce((sum, fee) => sum + fee.totalPaid, 0);
+    const totalDue = feesWithDue.reduce((sum, fee) => sum + fee.totalDue, 0);
+    const currentDue = feesWithDue.reduce((sum, fee) => {
+      if (fee.isOverdue) {
+        return sum + fee.totalDue;
+      }
+      return sum;
+    }, 0);
+
+    return {
+      feesWithDue,
+      stats: {
+        totalPaid,
+        totalDue,
+        currentDue,
+      },
+    };
   }
 
   async getStudentTransactions(studentId: number, academicYearId: number) {
