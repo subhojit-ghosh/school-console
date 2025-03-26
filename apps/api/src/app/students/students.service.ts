@@ -56,7 +56,6 @@ export class StudentsService {
     if (fathersName) {
       whereConditions.push(like(studentsTable.fathersName, `%${fathersName}%`));
     }
-    console.log(isEnrolled);
     if (typeof isEnrolled === 'boolean') {
       whereConditions.push(eq(studentsTable.isEnrolled, isEnrolled));
     }

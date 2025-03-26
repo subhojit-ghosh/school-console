@@ -37,8 +37,9 @@ export default function TransactionsPage() {
   });
   const [filters, setFilters] = useDebouncedState(
     {
-      name: '',
+      student: '',
       academicYearId: '',
+      classId: '',
     },
     200
   );
@@ -47,14 +48,19 @@ export default function TransactionsPage() {
     direction: 'desc',
   });
   const [academicYears, setAcademicYears] = useState<any[]>([]);
+  const [classes, setClasses] = useState<any[]>([]);
 
   useEffect(() => {
+    if (!filters.academicYearId) {
+      return;
+    }
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, sortStatus, type]);
 
   useEffect(() => {
     fetchAcademicYears();
+    fetchClasses();
   }, []);
 
   const fetchAcademicYears = async () => {
@@ -66,6 +72,15 @@ export default function TransactionsPage() {
         ...filters,
         academicYearId: String(currentAcademicYear.id),
       });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchClasses = async () => {
+    try {
+      const { data } = await httpClient.get(endpoints.classes.dropdown());
+      setClasses(data.data);
     } catch (error) {
       console.error(error);
     }
@@ -86,6 +101,9 @@ export default function TransactionsPage() {
                 sortOrder: sortStatus.direction,
               }
             : {}),
+          ...(type === 'enrolled'
+            ? { isEnrolled: true, regId: undefined }
+            : { isEnrolled: false, enrolledNo: undefined }),
         },
       });
 
@@ -177,19 +195,39 @@ export default function TransactionsPage() {
               })`,
             filter: (
               <TextInput
-                label="Student ID"
+                label="Student"
                 leftSection={<IconSearch size={16} />}
-                defaultValue={filters.name}
+                defaultValue={filters.student}
                 onChange={(e) =>
-                  setFilters({ ...filters, name: e.currentTarget.value })
+                  setFilters({ ...filters, student: e.currentTarget.value })
                 }
               />
             ),
-            filtering: !!filters.name,
+            filtering: !!filters.student,
           },
           {
-            accessor: 'class',
+            accessor: 'classId',
             title: 'Class',
+            render: (row: any) =>
+              classes.find((item) => item.id === row.classId)?.name,
+            sortable: true,
+            filter: (
+              <Select
+                data={classes.map((item) => ({
+                  label: item.name,
+                  value: String(item.id),
+                }))}
+                label="Class"
+                placeholder="Select"
+                clearable
+                comboboxProps={{ withinPortal: false }}
+                defaultValue={filters.classId}
+                onChange={(value) =>
+                  setFilters({ ...filters, classId: value || '' })
+                }
+              />
+            ),
+            filtering: !!filters.classId,
           },
           {
             accessor: 'payable',

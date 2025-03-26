@@ -1,15 +1,16 @@
+import { Transform, Type } from 'class-transformer';
 import {
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  ValidateNested,
   ArrayMinSize,
-  IsOptional,
+  IsBoolean,
   IsIn,
   IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
   IsPositive,
+  IsString,
+  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 class TransactionItemDto {
   @IsNotEmpty()
@@ -76,6 +77,16 @@ export class TransactionQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @IsPositive()
   classId?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    return value === 'true';
+  })
+  @IsBoolean()
+  isEnrolled?: boolean;
+
+  @IsOptional()
+  @IsString()
+  student?: number;
 }

@@ -8,7 +8,7 @@ import {
   transactionItemTable,
   transactionTable,
 } from '@school-console/drizzle';
-import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, like, or } from 'drizzle-orm';
 import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
 
 @Injectable()
@@ -22,10 +22,29 @@ export class TransactionsService {
       sortBy = 'createdAt',
       sortOrder = 'asc',
       classId,
+      isEnrolled,
+      student,
     } = query;
 
     const offset = (page - 1) * size;
+
     const whereConditions: any = [];
+    if (classId) {
+      whereConditions.push(eq(transactionTable.classId, classId));
+    }
+    if (typeof isEnrolled === 'boolean') {
+      whereConditions.push(eq(studentsTable.isEnrolled, isEnrolled));
+    }
+    if (student) {
+      whereConditions.push(
+        or(
+          isEnrolled
+            ? like(studentsTable.enrolledNo, `%${student}%`)
+            : like(studentsTable.regId, `%${student}%`),
+          like(studentsTable.name, `%${student}%`)
+        )
+      );
+    }
 
     const [transactions, totalRecords] = await Promise.all([
       this.db
@@ -64,6 +83,11 @@ export class TransactionsService {
       this.db
         .select({ count: count() })
         .from(transactionTable)
+        .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
+        .innerJoin(
+          studentsTable,
+          eq(transactionTable.studentId, studentsTable.id)
+        )
         .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
         .then((res) => res[0].count),
     ]);
