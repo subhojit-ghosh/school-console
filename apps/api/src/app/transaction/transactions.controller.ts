@@ -17,7 +17,7 @@ export class TransactionsController {
   async getStudentFeeSummary(
     @Param('academicYearId', ParseIntPipe) academicYearId: number,
     @Param('classId', ParseIntPipe) classId: number,
-    @Param('classId', ParseIntPipe) studentId: number
+    @Param('studentId', ParseIntPipe) studentId: number
   ) {
     return this.transactionsService.getStudentFeeSummary(
       academicYearId,
