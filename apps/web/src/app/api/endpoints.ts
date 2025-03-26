@@ -53,6 +53,7 @@ const endpoints = {
       studentId: number | string
     ) => api(`transactions/fees/${academicYearId}/${classId}/${studentId}`),
     list: () => api(`transactions`),
+    saveTransaction: () => api(`transactions`),
   },
 };
 
