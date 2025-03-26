@@ -20,12 +20,13 @@ import { Link } from 'react-router-dom';
 import * as yup from 'yup';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import { titleCase } from '../../utils/text-formating';
+import { useSaveTransactionFee } from '../../services/transactions/apiQuery';
 import {
   showInfoNotification,
   showSuccessNotification,
 } from '../../utils/notification';
-import { useSaveTransactionFee } from '../../services/transactions/apiQuery';
+import { titleCase } from '../../utils/text-formating';
+import moment from 'moment';
 
 export default function TransactionForm() {
   const [academicYears, setAcademicYears] = useState<any[]>([]);
@@ -33,7 +34,9 @@ export default function TransactionForm() {
   const [studentSearchValue, setStudentSearchValue] = useState('');
   const [students, setStudents] = useState<any[]>([]);
   const [fees, setFees] = useState<any>(null);
-  const [feesRight, setFeesRight] = useState<any>(null);
+  const [feesRight, setFeesRight] = useState<any>([]);
+  const [feesLoading, setFeesLoading] = useState<any>(false);
+  const [saving, setSaving] = useState<any>(false);
 
   const form = useForm<{
     academicYearId: any;
@@ -48,7 +51,7 @@ export default function TransactionForm() {
       classId: null,
       studentId: null,
       mode: null,
-      note: null,
+      note: '',
     },
     validate: yupResolver(
       yup.object().shape({
@@ -58,7 +61,7 @@ export default function TransactionForm() {
           .required('Academic Year is required'),
         classId: yup.string().trim().required('Class is required'),
         studentId: yup.string().trim().required('Student is required'),
-        mode: yup.string().trim().required('Student is required'),
+        mode: yup.string().trim().required('Mode is required'),
       })
     ),
   });
@@ -74,7 +77,7 @@ export default function TransactionForm() {
       form.setFieldValue('studentId', null);
       setStudentSearchValue('');
       setFees(null);
-      setFeesRight(null);
+      setFeesRight([]);
       fetchStudents();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,7 +95,7 @@ export default function TransactionForm() {
       const { data } = await httpClient.get(endpoints.academicYears.dropdown());
       setAcademicYears(data.data);
       const currentAcademicYear = data.data.find((item: any) => item.isActive);
-      form.setFieldValue('academicYearId', currentAcademicYear.id);
+      form.setFieldValue('academicYearId', String(currentAcademicYear.id));
     } catch (error) {
       console.error(error);
     }
@@ -129,6 +132,7 @@ export default function TransactionForm() {
   };
 
   const fetchFees = async () => {
+    setFeesLoading(true);
     try {
       const { data } = await httpClient.get(
         endpoints.transactions.fees(
@@ -148,20 +152,19 @@ export default function TransactionForm() {
     } catch (error) {
       console.error(error);
     }
+    setFeesLoading(false);
   };
 
   const saveTransacriotnFee = useSaveTransactionFee();
 
   function resetForm() {
     form.setValues({
-      academicYearId: null,
-      classId: null,
       studentId: null,
       mode: null,
       note: null,
     });
     setFees(null);
-    setFeesRight(null);
+    setFeesRight([]);
   }
 
   const handleSubmit = async () => {
@@ -195,14 +198,16 @@ export default function TransactionForm() {
       })),
     };
 
+    setSaving(true);
     saveTransacriotnFee.mutate(
       {
         ...payload,
       },
       {
         onSuccess: () => {
-          showSuccessNotification('Fees added.');
+          showSuccessNotification('Transaction saved successfully');
           resetForm();
+          setSaving(false);
         },
       }
     );
@@ -210,20 +215,22 @@ export default function TransactionForm() {
 
   function onChangeChekbox(checked: boolean, item: any) {
     let items: any = feesRight || [];
-    if (!checked) items = items.filter((rec: any) => rec.name === item.name);
-    else items.push({ ...item, concession: '', paid: '' });
-    console.log('debug-checked', checked, items);
-    setFeesRight(items.length > 0 ? [...items] : null);
+    if (checked) {
+      items.push({ ...item, concession: '', paid: '' });
+    } else {
+      items = items.filter((rec: any) => rec.id !== item.id);
+    }
+    setFeesRight([...items]);
   }
 
   function onConcessionChange(v: number, index: number) {
-    let items: any = feesRight || [];
+    const items: any = feesRight || [];
     items[index].concession = v;
     setFeesRight([...items]);
   }
 
   function onPaidChange(v: number, index: number) {
-    let items: any = feesRight || [];
+    const items: any = feesRight || [];
     items[index].paid = v;
     setFeesRight([...items]);
   }
@@ -251,7 +258,6 @@ export default function TransactionForm() {
                     <Select
                       label="Academic Year"
                       placeholder="Select"
-                      defaultValue={form.values.academicYearId}
                       data={academicYears.map((item: any) => ({
                         label: item.name,
                         value: String(item.id),
@@ -291,7 +297,23 @@ export default function TransactionForm() {
                 </Grid.Col>
               </Grid>
             </Grid.Col>
-            {fees && (
+            {feesLoading && (
+              <Grid.Col span={6}>
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+                <Skeleton height={20} mb={5} />
+              </Grid.Col>
+            )}
+            {fees && !feesLoading && (
               <>
                 <Grid.Col span={6}>
                   <Grid>
@@ -314,12 +336,19 @@ export default function TransactionForm() {
                       </Badge>
                     </Grid.Col>
                     <Grid.Col span={12}>
-                      <Table withTableBorder withColumnBorders>
+                      <Table
+                        withTableBorder
+                        withColumnBorders
+                        style={{
+                          fontSize: 13,
+                        }}
+                      >
                         <Table.Thead>
                           <Table.Tr>
                             <Table.Th>Type</Table.Th>
                             <Table.Th>Name</Table.Th>
                             <Table.Th>Amount</Table.Th>
+                            <Table.Th>Due</Table.Th>
                           </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
@@ -344,22 +373,31 @@ export default function TransactionForm() {
                                 )}
                                 <Table.Td>
                                   <Checkbox
+                                    size="sm"
                                     label={item.name}
-                                    // checked={item.isChecked}
                                     disabled={item.disabled}
                                     onChange={(e) =>
                                       onChangeChekbox(e.target.checked, item)
                                     }
-                                    c={
-                                      item.isOverdue
-                                        ? 'red'
-                                        : !item.totalDue
-                                        ? 'green'
-                                        : undefined
-                                    }
                                   />
                                 </Table.Td>
                                 <Table.Td>₹{item.amount}</Table.Td>
+                                <Table.Td
+                                  style={{
+                                    color:
+                                      item.totalDue === 0
+                                        ? 'green'
+                                        : item.isOverdue
+                                        ? 'red'
+                                        : 'black',
+                                  }}
+                                >
+                                  ₹{item.totalDue}{' '}
+                                  {!!(item.dueDate && item.totalDue) &&
+                                    `(${moment(item.dueDate).format(
+                                      'DD-MMM-YYYY'
+                                    )})`}
+                                </Table.Td>
                               </Table.Tr>
                             ));
                           })}
@@ -369,19 +407,26 @@ export default function TransactionForm() {
                   </Grid>
                 </Grid.Col>
                 <Grid.Col span={6}>
-                  <Grid>
-                    <Grid.Col span={12} mt="65">
-                      <Table withTableBorder withColumnBorders>
-                        <Table.Thead>
-                          <Table.Tr>
-                            <Table.Th>Type</Table.Th>
-                            <Table.Th>Name</Table.Th>
-                            <Table.Th>Amount</Table.Th>
-                            <Table.Th>Concession</Table.Th>
-                            <Table.Th>Paid</Table.Th>
-                          </Table.Tr>
-                        </Table.Thead>
-                        {feesRight && (
+                  {!!feesRight.length && (
+                    <Grid>
+                      <Grid.Col span={12} mt="65">
+                        <Table
+                          withTableBorder
+                          withColumnBorders
+                          style={{
+                            fontSize: 13,
+                          }}
+                        >
+                          <Table.Thead>
+                            <Table.Tr>
+                              <Table.Th>Type</Table.Th>
+                              <Table.Th>Name</Table.Th>
+                              <Table.Th>Amount</Table.Th>
+                              <Table.Th>Concession</Table.Th>
+                              <Table.Th>Paid</Table.Th>
+                            </Table.Tr>
+                          </Table.Thead>
+
                           <Table.Tbody>
                             {feesRight
                               .reduce(
@@ -432,27 +477,32 @@ export default function TransactionForm() {
                                 ));
                               })}
                           </Table.Tbody>
-                        )}
-                      </Table>
-                    </Grid.Col>
-                    <Grid.Col span={6}>
-                      <Select
-                        label="Mode"
-                        data={['Cash', 'Cheque', 'UPI']}
-                        withAsterisk
-                        {...form.getInputProps('mode')}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={6}>
-                      <TextInput label="Note" {...form.getInputProps('note')} />
-                    </Grid.Col>
-                    <Grid.Col
-                      span={12}
-                      style={{ display: 'flex', justifyContent: 'flex-end' }}
-                    >
-                      <Button type="submit">Save</Button>
-                    </Grid.Col>
-                  </Grid>
+                        </Table>
+                      </Grid.Col>
+                      <Grid.Col span={6}>
+                        <Select
+                          label="Mode"
+                          data={['Cash', 'Cheque', 'UPI']}
+                          withAsterisk
+                          {...form.getInputProps('mode')}
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={6}>
+                        <TextInput
+                          label="Note"
+                          {...form.getInputProps('note')}
+                        />
+                      </Grid.Col>
+                      <Grid.Col
+                        span={12}
+                        style={{ display: 'flex', justifyContent: 'flex-end' }}
+                      >
+                        <Button type="submit" loading={saving}>
+                          Save
+                        </Button>
+                      </Grid.Col>
+                    </Grid>
+                  )}
                 </Grid.Col>
               </>
             )}
