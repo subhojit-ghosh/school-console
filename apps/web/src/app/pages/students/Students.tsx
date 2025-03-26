@@ -27,6 +27,8 @@ import {
 } from '../../services/students/apiQuery';
 import tabStyles from '../../styles/Tab.module.scss';
 import { showSuccessNotification } from '../../utils/notification';
+import httpClient from '../../api/http-client';
+import endpoints from '../../api/endpoints';
 
 export default function StudentsPage() {
   const [type, setType] = useState<string | null>('enrolled');
@@ -40,7 +42,8 @@ export default function StudentsPage() {
   });
   const [filters, setFilters] = useDebouncedState(
     {
-      id: '',
+      enrolledNo: '',
+      regId: '',
       name: '',
       fatherName: '',
     },
@@ -51,96 +54,99 @@ export default function StudentsPage() {
     direction: 'asc',
   });
 
-  const {
-    data: enrolledStudentLists = [],
-    isFetching: isEnrolledStudentFetching,
-    isFetched: isEnrolledStudentFetched,
-    refetch: refetchEnrolledStudent,
-  } = useGetEnrolledStudents();
+  // const {
+  //   data: enrolledStudentLists = [],
+  //   isFetching: isEnrolledStudentFetching,
+  //   isFetched: isEnrolledStudentFetched,
+  //   refetch: refetchEnrolledStudent,
+  // } = useGetEnrolledStudents();
 
-  const {
-    data: studentLists = [],
-    isFetching: isStudentFetching,
-    isFetched: isStudentFetched,
-    refetch: refetchStudent,
-  } = useGetStudents();
+  // const {
+  //   data: studentLists = [],
+  //   isFetching: isStudentFetching,
+  //   isFetched: isStudentFetched,
+  //   refetch: refetchStudent,
+  // } = useGetStudents();
 
-  useEffect(() => {
-    if (type === 'enrolled' && isEnrolledStudentFetched) {
-      setListData({
-        data: enrolledStudentLists.data || [],
-        totalRecords: (enrolledStudentLists.data || []).length,
-        totalPages: 1,
-        size: 10,
-        page: 1,
-      });
-    }
-    if (type === 'registration' && isStudentFetched) {
-      setListData({
-        data: studentLists.data || [],
-        totalRecords: (studentLists.data || []).length,
-        totalPages: 1,
-        size: 10,
-        page: 1,
-      });
-    }
-  }, [
-    type,
-    isEnrolledStudentFetched,
-    isStudentFetched,
-    studentLists,
-    enrolledStudentLists,
-  ]);
+  // useEffect(() => {
+  //   if (type === 'enrolled' && isEnrolledStudentFetched) {
+  //     setListData({
+  //       data: enrolledStudentLists.data || [],
+  //       totalRecords: (enrolledStudentLists.data || []).length,
+  //       totalPages: 1,
+  //       size: 10,
+  //       page: 1,
+  //     });
+  //   }
+  //   if (type === 'registration' && isStudentFetched) {
+  //     setListData({
+  //       data: studentLists.data || [],
+  //       totalRecords: (studentLists.data || []).length,
+  //       totalPages: 1,
+  //       size: 10,
+  //       page: 1,
+  //     });
+  //   }
+  // }, [
+  //   type,
+  //   isEnrolledStudentFetched,
+  //   isStudentFetched,
+  //   studentLists,
+  //   enrolledStudentLists,
+  // ]);
 
   useEffect(() => {
     fetchList();
-  }, [filters, sortStatus]);
+  }, [filters, sortStatus, type]);
 
   const fetchList = async (page: number | null = null) => {
     setIsListLoading(true);
 
-    // try {
-    //   const { data } = await httpClient.get(endpoints.students.list(), {
-    //     params: {
-    //       ...filters,
-    //       size: listData.size,
-    //       page: page || listData.page,
-    //       ...(sortStatus.columnAccessor
-    //         ? {
-    //             sortBy: sortStatus.columnAccessor,
-    //             sortOrder: sortStatus.direction,
-    //           }
-    //         : {}),
-    //     },
-    //   });
+    try {
+      const { data } = await httpClient.get(endpoints.students.list(), {
+        params: {
+          ...filters,
+          size: listData.size,
+          page: page || listData.page,
+          ...(sortStatus.columnAccessor
+            ? {
+                sortBy: sortStatus.columnAccessor,
+                sortOrder: sortStatus.direction,
+              }
+            : {}),
+          ...(type === 'enrolled'
+            ? { isEnrolled: true, regId: undefined }
+            : { isEnrolled: false, enrolledNo: undefined }),
+        },
+      });
 
-    //   setListData({
-    //     ...listData,
-    //     ...data,
-    //   });
-    // } catch (error) {
-    //   console.error(error);
-    // }
+      setListData({
+        ...listData,
+        ...data,
+      });
+    } catch (error) {
+      console.error(error);
+    }
 
     setIsListLoading(false);
   };
 
   const enrolled = useEnrolledStudent();
 
-  function enrolledStudent({ id }: any) {
-    enrolled.mutate(
-      {
-        id,
-      },
-      {
-        onSuccess: () => {
-          showSuccessNotification('Student enrolled successfully.');
-          refetchStudent();
-          refetchEnrolledStudent();
-        },
-      }
-    );
-  }
+  // function enrolledStudent({ id }: any) {
+  //   enrolled.mutate(
+  //     {
+  //       id,
+  //     },
+  //     {
+  //       onSuccess: () => {
+  //         showSuccessNotification('Student enrolled successfully.');
+  //         refetchStudent();
+  //         refetchEnrolledStudent();
+  //       },
+  //     }
+  //   );
+  // }
 
   return (
     <>
@@ -194,22 +200,42 @@ export default function StudentsPage() {
         sortStatus={sortStatus}
         onSortStatusChange={setSortStatus}
         columns={[
-          {
-            accessor: 'recordNo',
-            title: 'ID',
-            sortable: true,
-            filter: (
-              <TextInput
-                label="ID"
-                leftSection={<IconSearch size={16} />}
-                defaultValue={filters.id}
-                onChange={(e) =>
-                  setFilters({ ...filters, id: e.currentTarget.value })
-                }
-              />
-            ),
-            filtering: !!filters.id,
-          },
+          type === 'enrolled'
+            ? {
+                accessor: 'enrolledNo',
+                title: 'ID',
+                sortable: true,
+                filter: (
+                  <TextInput
+                    label="ID"
+                    leftSection={<IconSearch size={16} />}
+                    defaultValue={filters.enrolledNo}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        enrolledNo: e.currentTarget.value,
+                      })
+                    }
+                  />
+                ),
+                filtering: !!filters.enrolledNo,
+              }
+            : {
+                accessor: 'regId',
+                title: 'ID',
+                sortable: true,
+                filter: (
+                  <TextInput
+                    label="ID"
+                    leftSection={<IconSearch size={16} />}
+                    defaultValue={filters.regId}
+                    onChange={(e) =>
+                      setFilters({ ...filters, regId: e.currentTarget.value })
+                    }
+                  />
+                ),
+                filtering: !!filters.regId,
+              },
           {
             accessor: 'name',
             title: 'Name',
@@ -259,7 +285,7 @@ export default function StudentsPage() {
                     <ActionIcon
                       size="sm"
                       variant="subtle"
-                      onClick={() => enrolledStudent(row)}
+                      // onClick={() => enrolledStudent(row)}
                     >
                       <IconCheck size={16} />
                     </ActionIcon>

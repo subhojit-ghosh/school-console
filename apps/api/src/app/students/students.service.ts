@@ -35,7 +35,8 @@ export class StudentsService {
       size = 10,
       sortBy = 'createdAt',
       sortOrder = 'asc',
-      id,
+      enrolledNo,
+      regId,
       name,
       fathersName,
       isEnrolled,
@@ -43,8 +44,11 @@ export class StudentsService {
     } = query;
     const offset = (page - 1) * size;
     const whereConditions: any = [];
-    if (id) {
-      whereConditions.push(like(studentsTable.id, `%${id}%`));
+    if (enrolledNo) {
+      whereConditions.push(like(studentsTable.enrolledNo, `%${enrolledNo}%`));
+    }
+    if (regId) {
+      whereConditions.push(like(studentsTable.regId, `%${regId}%`));
     }
     if (name) {
       whereConditions.push(like(studentsTable.name, `%${name}%`));
@@ -52,10 +56,10 @@ export class StudentsService {
     if (fathersName) {
       whereConditions.push(like(studentsTable.fathersName, `%${fathersName}%`));
     }
-    if (isEnrolled) {
-      whereConditions.push(eq(studentsTable.isEnrolled, true));
+    console.log(isEnrolled);
+    if (typeof isEnrolled === 'boolean') {
+      whereConditions.push(eq(studentsTable.isEnrolled, isEnrolled));
     }
-    console.log(classId)
     if (classId) {
       whereConditions.push(eq(studentsTable.classId, classId));
     }
@@ -63,7 +67,8 @@ export class StudentsService {
       this.db
         .select({
           id: studentsTable.id,
-          recordNo: studentsTable.regId,
+          regId: studentsTable.regId,
+          enrolledNo: studentsTable.enrolledNo,
           name: studentsTable.name,
           fathersName: studentsTable.fathersName,
           mothersName: studentsTable.mothersName,
@@ -159,7 +164,7 @@ export class StudentsService {
 
     const enrolledId = lastRecordId ? Number(lastRecordId) + 1 : 1;
     const enrolledNo = `${studentIdPrefix.value}${String(enrolledId).padStart(
-      6,
+      3,
       '0'
     )}`;
 
