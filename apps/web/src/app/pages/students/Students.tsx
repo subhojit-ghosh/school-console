@@ -20,61 +20,13 @@ import {
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import tabStyles from '../../styles/Tab.module.scss';
 import {
   useEnrolledStudent,
   useGetEnrolledStudents,
   useGetStudents,
 } from '../../services/students/apiQuery';
+import tabStyles from '../../styles/Tab.module.scss';
 import { showSuccessNotification } from '../../utils/notification';
-
-const enrolledStudents = [
-  {
-    id: 'J-1',
-    name: 'John Doe',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-  {
-    id: 'J-2',
-    name: 'Jane Doe',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-  {
-    id: 'J-3',
-    name: 'John Doe Jr.',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-];
-
-const newRegistrations = [
-  {
-    id: 'REG-4',
-    name: 'Jane Doe Jr.',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-  {
-    id: 'REG-5',
-    name: 'John Doe III',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-  {
-    id: 'REG-6',
-    name: 'Jane Doe III',
-    fatherName: 'John Doe Sr.',
-    motherName: 'Jane Doe',
-    class: 'Class 1',
-  },
-];
 
 export default function StudentsPage() {
   const [type, setType] = useState<string | null>('enrolled');

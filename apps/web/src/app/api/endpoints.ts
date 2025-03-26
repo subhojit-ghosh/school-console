@@ -25,8 +25,7 @@ const endpoints = {
     updateStatus: (id: string) => api(`academic-years/${id}/status`),
   },
   students: {
-    listEnrolled: (query: string = '') => api(`students/enrolled?${query}`),
-    list: (query: string = '') => api(`students?${query}`),
+    list: () => api(`students`),
     findById: (id: string) => api(`students/${id}`),
     create: () => api('students'),
     createPersonalInfo: () => api('students/personal'),

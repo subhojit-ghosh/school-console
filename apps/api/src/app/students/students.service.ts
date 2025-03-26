@@ -1,4 +1,5 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   academicYearsTable,
   classesTable,
@@ -6,7 +7,10 @@ import {
   DrizzleDB,
   studentsTable,
 } from '@school-console/drizzle';
-import { and, asc, count, desc, eq, like, max, ne } from 'drizzle-orm';
+import { and, asc, count, desc, eq, like, max } from 'drizzle-orm';
+import * as fs from 'fs';
+import { join } from 'path';
+import { uploadDirectoryFor } from '../utils';
 import {
   CreateStudentDto,
   CreateStudentPersonalInfoDto,
@@ -16,11 +20,7 @@ import {
   UpdateStudentDto,
   UpdateStudentGuardianInfoDto,
 } from './students.dto';
-import { join } from 'path';
-import * as fs from 'fs';
 import { StudentPhotoDocumentType } from './types/student';
-import { ConfigService } from '@nestjs/config';
-import { uploadDirectoryFor } from '../utils';
 
 @Injectable()
 export class StudentsService {
@@ -28,65 +28,6 @@ export class StudentsService {
     @Inject(DRIZZLE) private db: DrizzleDB,
     private configService: ConfigService
   ) {}
-
-  async findAllEnrolled(query: StudentQueryDto) {
-    const {
-      page = 1,
-      size = 10,
-      sortBy = 'createdAt',
-      sortOrder = 'asc',
-      id,
-      name,
-      fathersName,
-    } = query;
-    const offset = (page - 1) * size;
-    const whereConditions: any = [eq(studentsTable.isEnrolled, true)];
-    if (id) {
-      whereConditions.push(like(studentsTable.id, `%${id}%`));
-    }
-    if (name) {
-      whereConditions.push(like(studentsTable.name, `%${name}%`));
-    }
-    if (fathersName) {
-      whereConditions.push(like(studentsTable.fathersName, `%${fathersName}%`));
-    }
-    const [students, totalRecords] = await Promise.all([
-      this.db
-        .select({
-          id: studentsTable.id,
-          recordNo: studentsTable.enrolledNo,
-          name: studentsTable.name,
-          fathersName: studentsTable.fathersName,
-          mothersName: studentsTable.mothersName,
-          createdAt: studentsTable.createdAt,
-          updatedAt: studentsTable.updatedAt,
-          class: classesTable.name,
-        })
-        .from(studentsTable)
-        .innerJoin(classesTable, eq(studentsTable.classId, classesTable.id))
-        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
-        .orderBy(
-          sortOrder === 'asc'
-            ? asc(studentsTable[sortBy])
-            : desc(studentsTable[sortBy])
-        )
-        .limit(size)
-        .offset(offset),
-      this.db
-        .select({ count: count() })
-        .from(studentsTable)
-        .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
-        .then((res) => res[0].count),
-    ]);
-    const totalPages = Math.ceil(totalRecords / size);
-    return {
-      size,
-      page,
-      totalPages,
-      totalRecords,
-      data: students,
-    };
-  }
 
   async findAll(query: StudentQueryDto) {
     const {
@@ -97,9 +38,11 @@ export class StudentsService {
       id,
       name,
       fathersName,
+      isEnrolled,
+      classId,
     } = query;
     const offset = (page - 1) * size;
-    const whereConditions: any = [eq(studentsTable.isEnrolled, false)];
+    const whereConditions: any = [];
     if (id) {
       whereConditions.push(like(studentsTable.id, `%${id}%`));
     }
@@ -108,6 +51,13 @@ export class StudentsService {
     }
     if (fathersName) {
       whereConditions.push(like(studentsTable.fathersName, `%${fathersName}%`));
+    }
+    if (isEnrolled) {
+      whereConditions.push(eq(studentsTable.isEnrolled, true));
+    }
+    console.log(classId)
+    if (classId) {
+      whereConditions.push(eq(studentsTable.classId, classId));
     }
     const [students, totalRecords] = await Promise.all([
       this.db
@@ -397,10 +347,7 @@ export class StudentsService {
     });
   }
 
-  async findAllClassesForStudentsDropdown(
-    classId: string,
-    enrolled: number = 0
-  ) {
+  async findAllClassesForStudentsDropdown(classId: string, enrolled = 0) {
     return await this.db
       .select({
         id: studentsTable.id,

@@ -528,6 +528,17 @@ export class StudentQueryDto {
   @IsOptional()
   @IsString()
   fathersName?: string;
+
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  isEnrolled?: boolean;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  classId?: number;
 }
 
 export class StudentDocumentDto {
