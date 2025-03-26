@@ -43,6 +43,7 @@ export class TransactionsService {
           createdAt: transactionTable.createdAt,
           class: classesTable.name,
           studentName: studentsTable.name,
+          isEnrolled: studentsTable.isEnrolled,
           enrolledNo: studentsTable.enrolledNo,
           regId: studentsTable.regId,
         })

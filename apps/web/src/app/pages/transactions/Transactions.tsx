@@ -18,83 +18,12 @@ import {
   IconUserPlus,
 } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import tabStyles from '../../styles/Tab.module.scss';
-
-const enrolledStudents = [
-  {
-    id: 'TXN-1',
-    studentId: 'J-1',
-    studentName: 'John Doe',
-    class: 'IV',
-    date: '2024-09-01',
-    payable: 400,
-    paid: 300,
-    due: 100,
-    mode: 'Cash',
-  },
-  {
-    id: 'TXN-2',
-    studentId: 'J-2',
-    studentName: 'Jane Doe',
-    class: 'IV',
-    date: '2024-09-01',
-    payable: 900,
-    paid: 900,
-    due: 0,
-    mode: 'UPI',
-  },
-  {
-    id: 'TXN-3',
-    studentId: 'J-3',
-    studentName: 'John Doe Jr.',
-    class: 'IV',
-    date: '2024-09-01',
-    payable: 700,
-    paid: 500,
-    due: 200,
-    mode: 'Cheque',
-  },
-];
-
-const newRegistrations = [
-  {
-    id: 'TXN-1',
-    regId: 'REG-1',
-    studentName: 'John Doe',
-    class: 'IV',
-    date: '2024-09-01',
-    payable: 900,
-    paid: 900,
-    due: 0,
-    mode: 'UPI',
-  },
-  {
-    id: 'TXN-2',
-    regId: 'REG-2',
-    studentName: 'Jane Doe',
-    class: 'IV',
-    date: '2024-09-01',
-    payable: 500,
-    paid: 400,
-    due: 100,
-    mode: 'Cheque',
-  },
-  {
-    id: 'TXN-3',
-    regId: 'REG-3',
-    studentName: 'John Doe Jr.',
-    class: 'IV',
-    date: '2024-09-01',
-    payable: 700,
-    paid: 500,
-    due: 200,
-    mode: 'Cash',
-  },
-];
 
 export default function TransactionsPage() {
   const [type, setType] = useState<string | null>('enrolled');
@@ -114,36 +43,15 @@ export default function TransactionsPage() {
     200
   );
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-    columnAccessor: 'name',
+    columnAccessor: 'createdAt',
     direction: 'desc',
   });
   const [academicYears, setAcademicYears] = useState<any[]>([]);
 
   useEffect(() => {
-    if (type === 'enrolled') {
-      setListData({
-        data: enrolledStudents,
-        totalRecords: enrolledStudents.length,
-        totalPages: 1,
-        size: 10,
-        page: 1,
-      });
-    }
-    if (type === 'registrations') {
-      setListData({
-        data: newRegistrations,
-        totalRecords: enrolledStudents.length,
-        totalPages: 1,
-        size: 10,
-        page: 1,
-      });
-    }
-  }, [type]);
-
-  useEffect(() => {
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, sortStatus]);
+  }, [filters, sortStatus, type]);
 
   useEffect(() => {
     fetchAcademicYears();
@@ -166,43 +74,30 @@ export default function TransactionsPage() {
   const fetchList = async (page: number | null = null) => {
     setIsListLoading(true);
 
-    // try {
-    //   const { data } = await httpClient.get(endpoints.academicYears.list(), {
-    //     params: {
-    //       ...filters,
-    //       size: listData.size,
-    //       page: page || listData.page,
-    //       ...(sortStatus.columnAccessor
-    //         ? {
-    //             sortBy: sortStatus.columnAccessor,
-    //             sortOrder: sortStatus.direction,
-    //           }
-    //         : {}),
-    //     },
-    //   });
-
-    //   setListData({
-    //     ...listData,
-    //     ...data,
-    //   });
-    // } catch (error) {
-    //   console.error(error);
-    // }
-
-    setIsListLoading(false);
-  };
-
-  const updateStatus = async (id: string, isActive: boolean) => {
     try {
-      setIsListLoading(true);
-      await httpClient.put(endpoints.academicYears.updateStatus(id), {
-        isActive,
+      const { data } = await httpClient.get(endpoints.transactions.list(), {
+        params: {
+          ...filters,
+          size: listData.size,
+          page: page || listData.page,
+          ...(sortStatus.columnAccessor
+            ? {
+                sortBy: sortStatus.columnAccessor,
+                sortOrder: sortStatus.direction,
+              }
+            : {}),
+        },
       });
-      fetchList();
+
+      setListData({
+        ...listData,
+        ...data,
+      });
     } catch (error) {
       console.error(error);
-      setIsListLoading(false);
     }
+
+    setIsListLoading(false);
   };
 
   return (
@@ -273,46 +168,16 @@ export default function TransactionsPage() {
             accessor: 'id',
             title: 'ID',
           },
-          type === 'enrolled'
-            ? {
-                accessor: 'studentId',
-                title: 'Student ID',
-                sortable: true,
-                filter: (
-                  <TextInput
-                    label="Student ID"
-                    leftSection={<IconSearch size={16} />}
-                    defaultValue={filters.name}
-                    onChange={(e) =>
-                      setFilters({ ...filters, name: e.currentTarget.value })
-                    }
-                  />
-                ),
-                filtering: !!filters.name,
-              }
-            : {
-                accessor: 'regId',
-                title: 'Reg ID',
-                sortable: true,
-                filter: (
-                  <TextInput
-                    label="Reg ID"
-                    leftSection={<IconSearch size={16} />}
-                    defaultValue={filters.name}
-                    onChange={(e) =>
-                      setFilters({ ...filters, name: e.currentTarget.value })
-                    }
-                  />
-                ),
-                filtering: !!filters.name,
-              },
           {
-            accessor: 'studentName',
-            title: 'Student Name',
-            sortable: true,
+            accessor: 'studentId',
+            title: 'Student',
+            render: (row: any) =>
+              `${row.studentName} (${
+                row.isEnrolled ? row.enrolledNo : row.regId
+              })`,
             filter: (
               <TextInput
-                label="Student Name"
+                label="Student ID"
                 leftSection={<IconSearch size={16} />}
                 defaultValue={filters.name}
                 onChange={(e) =>
@@ -346,8 +211,13 @@ export default function TransactionsPage() {
             title: 'Mode',
           },
           {
-            accessor: 'date',
+            accessor: 'createdAt',
             title: 'Date',
+            render: (row: any) =>
+              row.createdAt
+                ? moment(row.createdAt).format('DD-MMM-YYYY hh:mm A')
+                : '',
+            sortable: true,
           },
           {
             accessor: 'actions',

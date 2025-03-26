@@ -7,7 +7,7 @@ import {
   DrizzleDB,
   studentsTable,
 } from '@school-console/drizzle';
-import { and, asc, count, desc, eq, like, max } from 'drizzle-orm';
+import { and, asc, count, desc, eq, like, max, sql } from 'drizzle-orm';
 import * as fs from 'fs';
 import { join } from 'path';
 import { uploadDirectoryFor } from '../utils';
@@ -126,15 +126,20 @@ export class StudentsService {
           .where(eq(studentsTable.id, Number(student.id)));
     }
 
-    const lastRecordId = await this.db
+    const lastRegId = await this.db
       .select({
-        value: count(),
+        value: max(sql`CAST(SUBSTRING(${studentsTable.regId}, 5) AS UNSIGNED)`),
       })
       .from(studentsTable)
       .then((res) => res[0].value);
+
+    const nextRegId = lastRegId ? parseInt(lastRegId, 10) + 1 : 1;
+
+    const paddedRegId = `REG-${String(nextRegId).padStart(3, '0')}`;
+
     return await this.db
       .insert(studentsTable)
-      .values({ ...student, regId: `REG-${(lastRecordId || 0) + 1}` });
+      .values({ ...student, regId: paddedRegId });
   }
 
   async updateStudentGuardianInfo(
