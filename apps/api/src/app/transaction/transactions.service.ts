@@ -6,14 +6,18 @@ import {
   transactionItemTable,
   transactionTable,
 } from '@school-console/drizzle';
-import { and, eq, inArray, sum } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { CreateTransactionDto } from './transactions.dto';
 
 @Injectable()
 export class TransactionsService {
   constructor(@Inject(DRIZZLE) private db: DrizzleDB) {}
 
-  async getAcademicFees(academicYearId: number, classId: number) {
+  async getStudentFeeSummary(
+    academicYearId: number,
+    classId: number,
+    studentId: number
+  ) {
     const academicFees = await this.db
       .select({
         id: academicFeeTable.id,
@@ -37,7 +41,8 @@ export class TransactionsService {
       .where(
         and(
           eq(transactionTable.academicYearId, academicYearId),
-          eq(transactionTable.classId, classId)
+          eq(transactionTable.classId, classId),
+          eq(transactionTable.studentId, studentId)
         )
       );
 
@@ -94,22 +99,6 @@ export class TransactionsService {
         currentDue,
       },
     };
-  }
-
-  async getStudentTransactions(studentId: number, academicYearId: number) {
-    return await this.db
-      .select({
-        totalPaid: sum(transactionTable.paid),
-        totalDue: sum(transactionTable.due),
-      })
-      .from(transactionTable)
-      .where(
-        and(
-          eq(transactionTable.studentId, studentId),
-          eq(transactionTable.academicYearId, academicYearId)
-        )
-      )
-      .then((res) => res[0]);
   }
 
   async create(dto: CreateTransactionDto) {

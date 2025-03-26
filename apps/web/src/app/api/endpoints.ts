@@ -46,6 +46,13 @@ const endpoints = {
     create: () => api('academic-fees'),
     update: (id: string) => api(`academic-fees/${id}`),
   },
+  transactions: {
+    fees: (
+      academicYearId: number | string,
+      classId: number | string,
+      studentId: number | string
+    ) => api(`transactions/fees/${academicYearId}/${classId}/${studentId}`),
+  },
 };
 
 export default endpoints;

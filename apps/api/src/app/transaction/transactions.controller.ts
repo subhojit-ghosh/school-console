@@ -1,27 +1,28 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
-import { TransactionsService } from './transactions.service';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { CreateTransactionDto } from './transactions.dto';
+import { TransactionsService } from './transactions.service';
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
-  @Get('/fees/:academicYearId/:classId')
-  async getAcademicFees(
+  @Get('/fees/:academicYearId/:classId/:studentId')
+  async getStudentFeeSummary(
     @Param('academicYearId', ParseIntPipe) academicYearId: number,
-    @Param('classId', ParseIntPipe) classId: number
+    @Param('classId', ParseIntPipe) classId: number,
+    @Param('classId', ParseIntPipe) studentId: number
   ) {
-    return this.transactionsService.getAcademicFees(academicYearId, classId);
-  }
-
-  @Get('/student/:studentId/:academicYearId')
-  async getStudentTransactions(
-    @Param('studentId', ParseIntPipe) studentId: number,
-    @Param('academicYearId', ParseIntPipe) academicYearId: number
-  ) {
-    return this.transactionsService.getStudentTransactions(
-      studentId,
-      academicYearId
+    return this.transactionsService.getStudentFeeSummary(
+      academicYearId,
+      classId,
+      studentId
     );
   }
 

@@ -69,6 +69,7 @@ export class StudentsService {
           id: studentsTable.id,
           regId: studentsTable.regId,
           enrolledNo: studentsTable.enrolledNo,
+          isEnrolled: studentsTable.isEnrolled,
           name: studentsTable.name,
           fathersName: studentsTable.fathersName,
           mothersName: studentsTable.mothersName,
