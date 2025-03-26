@@ -46,8 +46,6 @@ export class TransactionsService {
         )
       );
 
-    console.log(transactions);
-
     const transactionItems = await this.db
       .select()
       .from(transactionItemTable)
