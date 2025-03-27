@@ -3,6 +3,8 @@ export type StudentPersonalType = {
   regNo: string;
   admissionDate: string | null;
   classId: number | string | null;
+  academicYearId: number | string | null;
+  isEnrolled: boolean;
 
   name: string;
   dob: any;

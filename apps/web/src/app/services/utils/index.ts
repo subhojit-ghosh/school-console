@@ -9,3 +9,12 @@ export async function getClasses() {
     label: rec.name,
   }));
 }
+
+export async function getAcadDropdown() {
+  const { data } = await httpClient.get(endpoints.academicYears.dropdown());
+  return data.data.map((rec: any) => ({
+    ...rec,
+    value: String(rec.id),
+    label: rec.name,
+  }));
+}

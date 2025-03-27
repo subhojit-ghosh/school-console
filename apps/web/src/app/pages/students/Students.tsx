@@ -3,12 +3,14 @@ import {
   Box,
   Button,
   Group,
+  Modal,
   Tabs,
+  Text,
   TextInput,
   Title,
   Tooltip,
 } from '@mantine/core';
-import { useDebouncedState } from '@mantine/hooks';
+import { useDebouncedState, useDisclosure } from '@mantine/hooks';
 import {
   IconCheck,
   IconEdit,
@@ -33,6 +35,8 @@ import endpoints from '../../api/endpoints';
 export default function StudentsPage() {
   const [type, setType] = useState<string | null>('enrolled');
   const [isListLoading, setIsListLoading] = useState(true);
+  const [clickedStudent, setClickedStudent] = useState<any>(null);
+  const [opened, { open, close }] = useDisclosure(false);
   const [listData, setListData] = useState<any>({
     data: [],
     totalRecords: 0,
@@ -133,20 +137,20 @@ export default function StudentsPage() {
 
   const enrolled = useEnrolledStudent();
 
-  // function enrolledStudent({ id }: any) {
-  //   enrolled.mutate(
-  //     {
-  //       id,
-  //     },
-  //     {
-  //       onSuccess: () => {
-  //         showSuccessNotification('Student enrolled successfully.');
-  //         refetchStudent();
-  //         refetchEnrolledStudent();
-  //       },
-  //     }
-  //   );
-  // }
+  function enrolledStudent({ id }: any) {
+    console.log('debug-id', id);
+    enrolled.mutate(
+      {
+        id,
+      },
+      {
+        onSuccess: () => {
+          showSuccessNotification('Student enrolled successfully.');
+          fetchList();
+        },
+      }
+    );
+  }
 
   return (
     <>
@@ -285,7 +289,10 @@ export default function StudentsPage() {
                     <ActionIcon
                       size="sm"
                       variant="subtle"
-                      // onClick={() => enrolledStudent(row)}
+                      onClick={() => {
+                        setClickedStudent(row);
+                        open();
+                      }}
                     >
                       <IconCheck size={16} />
                     </ActionIcon>
@@ -296,6 +303,31 @@ export default function StudentsPage() {
           },
         ]}
       />
+
+      <Modal
+        opened={opened}
+        withCloseButton={false}
+        onClose={() => {}}
+        centered
+        size="sm"
+        padding="lg"
+      >
+        <Text size="sm" fw={600}>
+          Are you sure you want to enroll this student?
+        </Text>
+        <Group justify="flex-end" gap="sm" align="center" mt="lg">
+          <Button onClick={close} size="xs" variant="default">
+            Close
+          </Button>
+          <Button
+            size="xs"
+            color="indigo"
+            onClick={() => enrolledStudent(clickedStudent)}
+          >
+            Enroll
+          </Button>
+        </Group>
+      </Modal>
     </>
   );
 }
