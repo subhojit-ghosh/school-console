@@ -12,6 +12,7 @@ import {
   Paper,
   Radio,
   Select,
+  Skeleton,
   Space,
   Stepper,
   Table,
@@ -41,7 +42,10 @@ import { Fragment, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { StudentPersonalType } from '../../types/student';
 import { titleCase } from '../../utils/text-formating';
-import { useGetClasses } from '../../services/utils/apiQuery';
+import {
+  useGetAcadDropdown,
+  useGetClasses,
+} from '../../services/utils/apiQuery';
 import {
   useAddStudent,
   useAddStudentPersonal,
@@ -94,6 +98,7 @@ export default function StudentForm({ action }: StudentFormProps) {
   const [isBothAddressSame, setIsBothAddressSame] = useState<boolean>(false);
 
   const { data: classLists = [] } = useGetClasses();
+  const { data: academicYears = [] } = useGetAcadDropdown();
   const saveStudentPersonal = useAddStudentPersonal();
   const saveStudentGuardian = useUpdateStudentGuardianInfo();
   const saveStudentDocuments = useUpdateStudentDocuments();
@@ -252,6 +257,7 @@ export default function StudentForm({ action }: StudentFormProps) {
     validate: {
       name: (v) => (!v ? reqFieldError : null),
       classId: (v) => (!v ? reqFieldError : null),
+      academicYearId: (v) => (!v ? reqFieldError : null),
       dob: (v) => (!v ? reqFieldError : null),
       gender: (v) => (!v ? reqFieldError : null),
       religion: (v) => (!v ? reqFieldError : null),
@@ -310,6 +316,7 @@ export default function StudentForm({ action }: StudentFormProps) {
       ...values,
       dob: moment(values.dob).format('YYYY-MM-DD'),
       classId: Number(values.classId),
+      academicYearId: Number(values.academicYearId),
       fathersPhone: String(values.fathersPhone),
       mothersPhone: String(values.mothersPhone),
       presentPin: Number(values.presentPin),
@@ -417,6 +424,7 @@ export default function StudentForm({ action }: StudentFormProps) {
       studentPersonalForm.setValues({
         ...studentDetailsById,
         classId: String(studentDetailsById.classId),
+        academicYearId: String(studentDetailsById.academicYearId),
         dob: studentDetailsById.dob
           ? new Date(studentDetailsById.dob)
           : undefined,
@@ -644,6 +652,21 @@ export default function StudentForm({ action }: StudentFormProps) {
                       key={studentPersonalForm.key('name')}
                       {...studentPersonalForm.getInputProps('name')}
                     />
+                  </Grid.Col>
+                  <Grid.Col span={3}>
+                    {academicYears.length ? (
+                      <Select
+                        label="Academic Year"
+                        placeholder="Select"
+                        data={academicYears || []}
+                        withAsterisk
+                        {...studentPersonalForm.getInputProps('academicYearId')}
+                        key={studentPersonalForm.key('academicYearId')}
+                        disabled={studentPersonalForm.getValues().isEnrolled}
+                      />
+                    ) : (
+                      <Skeleton height={50} mt={10}></Skeleton>
+                    )}
                   </Grid.Col>
                   <Grid.Col span={3}>
                     <Select

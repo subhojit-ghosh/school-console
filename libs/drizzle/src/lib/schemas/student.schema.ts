@@ -12,6 +12,7 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { classesTable } from './class.schema';
+import { academicYearsTable } from './academic-year.schema';
 
 export const studentsTable = mysqlTable(
   'students',
@@ -24,6 +25,11 @@ export const studentsTable = mysqlTable(
     })
       .notNull()
       .references(() => classesTable.id),
+
+    academicYearId: bigint({ mode: 'number', unsigned: true })
+      .notNull()
+      .references(() => academicYearsTable.id)
+      .default(1),
     name: varchar({ length: 100 }),
     dob: date().notNull(),
     gender: char({ length: 1 }).notNull(),

@@ -253,6 +253,11 @@ export class CreateStudentPersonalInfoDto {
   @IsNotEmpty()
   classId: number;
 
+  @IsInt()
+  @IsPositive()
+  @IsNotEmpty()
+  academicYearId: number;
+
   @IsString()
   @IsNotEmpty()
   name: string;
