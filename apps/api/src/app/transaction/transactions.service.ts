@@ -169,7 +169,7 @@ export class TransactionsService {
           ? Math.ceil(
               (new Date().getTime() - new Date(fee.dueDate).getTime()) /
                 (1000 * 60 * 60 * 24)
-            )
+            ) - 1
           : 0;
       }
 
@@ -197,7 +197,7 @@ export class TransactionsService {
     );
     const currentDue = feesWithDue.reduce((sum, fee) => {
       if (fee.isOverdue) {
-        return sum + fee.totalDue + fee.lateFine;
+        return sum + fee.totalDue;
       }
       return sum;
     }, 0);
