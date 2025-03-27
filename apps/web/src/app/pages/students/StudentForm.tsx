@@ -460,6 +460,16 @@ export default function StudentForm({ action }: StudentFormProps) {
     }
   }, [studentDetailsById, studentDetailIsFetched]);
 
+  useEffect(() => {
+    if (!studentId) {
+      const activeYr = academicYears.filter((item: any) => item.isActive);
+      if (activeYr.length > 0)
+        studentPersonalForm.setValues({
+          academicYearId: String(activeYr[0].id),
+        });
+    }
+  }, [academicYears]);
+
   const studentDocumentForm = useForm<Partial<StudentPersonalType>>({
     mode: 'controlled',
     initialValues: {
