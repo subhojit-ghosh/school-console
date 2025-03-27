@@ -324,7 +324,7 @@ export default function StudentsPage() {
             color="indigo"
             onClick={() => enrolledStudent(clickedStudent)}
           >
-            Transfer
+            Enroll
           </Button>
         </Group>
       </Modal>
