@@ -105,7 +105,8 @@ export class TransactionsService {
   async getStudentFeeSummary(
     academicYearId: number,
     classId: number,
-    studentId: number
+    studentId: number,
+    finePerDay: number
   ) {
     const academicFees = await this.db
       .select({
@@ -156,10 +157,25 @@ export class TransactionsService {
         0
       );
       const totalPayable = fee.amount - totalConcession;
-      const totalDue = totalPayable - totalPaid;
-      const isOverdue = fee.dueDate
-        ? new Date(fee.dueDate) < new Date()
-        : false;
+      let totalDue = Math.max(0, totalPayable - totalPaid);
+
+      let isOverdue = false;
+      let lateDays = 0;
+
+      if (fee.dueDate && totalDue > 0) {
+        isOverdue = fee.dueDate ? new Date(fee.dueDate) < new Date() : false;
+
+        lateDays = isOverdue
+          ? Math.ceil(
+              (new Date().getTime() - new Date(fee.dueDate).getTime()) /
+                (1000 * 60 * 60 * 24)
+            )
+          : 0;
+      }
+
+      const lateFine = lateDays * finePerDay;
+
+      totalDue += lateFine;
 
       return {
         ...fee,
@@ -168,14 +184,20 @@ export class TransactionsService {
         totalPayable,
         totalDue,
         isOverdue,
+        lateDays,
+        lateFine,
       };
     });
 
     const totalPaid = feesWithDue.reduce((sum, fee) => sum + fee.totalPaid, 0);
     const totalDue = feesWithDue.reduce((sum, fee) => sum + fee.totalDue, 0);
+    const totalLateFine = feesWithDue.reduce(
+      (sum, fee) => sum + fee.lateFine,
+      0
+    );
     const currentDue = feesWithDue.reduce((sum, fee) => {
       if (fee.isOverdue) {
-        return sum + fee.totalDue;
+        return sum + fee.totalDue + fee.lateFine;
       }
       return sum;
     }, 0);
@@ -185,6 +207,7 @@ export class TransactionsService {
       stats: {
         totalPaid,
         totalDue,
+        totalLateFine,
         currentDue,
       },
     };

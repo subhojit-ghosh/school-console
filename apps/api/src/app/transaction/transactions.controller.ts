@@ -28,7 +28,8 @@ export class TransactionsController {
     return this.transactionsService.getStudentFeeSummary(
       academicYearId,
       classId,
-      studentId
+      studentId,
+      5
     );
   }
 

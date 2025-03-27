@@ -449,7 +449,14 @@ export default function TransactionForm() {
                                     <Table.Td>
                                       <Text size="xs">{item.name}</Text>
                                     </Table.Td>
-                                    <Table.Td>₹{item.totalDue}</Table.Td>
+                                    <Table.Td>
+                                      <p>₹{item.totalDue}</p>
+                                      {!!item.lateFine && (
+                                        <p style={{ color: 'red' }}>
+                                          ₹{item.lateFine} ({item.lateDays}d)
+                                        </p>
+                                      )}
+                                    </Table.Td>
 
                                     <Table.Td>
                                       <NumberInput
