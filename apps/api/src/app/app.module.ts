@@ -5,7 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { DrizzleModule } from '@school-console/drizzle';
 import * as Joi from 'joi';
-import { diskStorage } from 'multer';
+import { diskStorage, memoryStorage } from 'multer';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { AcademicFeeController } from './academic-fees/academic-fees.controller';
@@ -56,13 +56,17 @@ import { UsersService } from './users/users.service';
       rootPath: join(__dirname, '../../../', 'storage'),
     }),
     MulterModule.register({
-      storage: diskStorage({
-        destination: join(__dirname, `${process.env.FILE_UPLOAD_PATH}`),
-        filename: (req, file, cb) => {
-          const filename = `${uuid()}.${file.originalname.split('.').pop()}`;
-          cb(null, filename);
-        },
-      }),
+      storage: process.env.AWS_LAMBDA_FUNCTION_NAME
+        ? memoryStorage()
+        : diskStorage({
+            destination: join(__dirname, `${process.env.FILE_UPLOAD_PATH}`),
+            filename: (req, file, cb) => {
+              const filename = `${uuid()}.${file.originalname
+                .split('.')
+                .pop()}`;
+              cb(null, filename);
+            },
+          }),
     }),
     DrizzleModule,
   ],
