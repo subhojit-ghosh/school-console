@@ -24,6 +24,7 @@ import { Link } from 'react-router-dom';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import tabStyles from '../../styles/Tab.module.scss';
+import { useGetTrasnsactionReceiptById } from '../../services/transactions/apiQuery';
 
 export default function TransactionsPage() {
   const [type, setType] = useState<string | null>('enrolled');
@@ -49,6 +50,7 @@ export default function TransactionsPage() {
   });
   const [academicYears, setAcademicYears] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
+  const receptTransaction = useGetTrasnsactionReceiptById();
 
   useEffect(() => {
     if (!filters.academicYearId) {
@@ -117,6 +119,17 @@ export default function TransactionsPage() {
 
     setIsListLoading(false);
   };
+
+  function getReceiptById(row: any) {
+    receptTransaction.mutate(
+      { id: row.id, studentId: row.studentId },
+      {
+        onSuccess: (dt) => {
+          console.log('debug-dt', dt);
+        },
+      }
+    );
+  }
 
   return (
     <>
@@ -264,7 +277,11 @@ export default function TransactionsPage() {
             render: (row: any) => (
               <Group gap={4} justify="center" wrap="nowrap">
                 <Tooltip label="Print Receipt" withArrow>
-                  <ActionIcon size="sm" variant="subtle">
+                  <ActionIcon
+                    size="sm"
+                    variant="subtle"
+                    onClick={() => getReceiptById(row)}
+                  >
                     <IconPrinter size={16} />
                   </ActionIcon>
                 </Tooltip>

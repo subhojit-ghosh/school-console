@@ -9,5 +9,5 @@
     "target": "es2021",
     "strictNullChecks": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }
