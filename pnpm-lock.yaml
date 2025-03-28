@@ -137,6 +137,9 @@ importers:
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
+      written-number:
+        specifier: ^0.11.1
+        version: 0.11.1
       yup:
         specifier: ^1.6.1
         version: 1.6.1
@@ -9522,6 +9525,9 @@ packages:
   write-file-atomic@4.0.2:
     resolution: {integrity: sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+
+  written-number@0.11.1:
+    resolution: {integrity: sha512-LhQ68uUnzHH0bwm/QiGA9JwqgadSDOwqB2AIs/LBsrOY6ScqVXKRN2slTCeKAhstDBJ/Of/Yxcjn0pnQmVlmtg==}
 
   ws@8.18.0:
     resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
@@ -20577,6 +20583,8 @@ snapshots:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 3.0.7
+
+  written-number@0.11.1: {}
 
   ws@8.18.0: {}
 

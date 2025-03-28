@@ -13,7 +13,7 @@ export async function saveTransactionFee(payload: any) {
 
 export async function getTrasnsactionReceiptById(payload: any) {
   const { data } = await httpClient.post(
-    endpoints.transactions.receiptById(payload.id),
+    endpoints.transactions.receiptById(payload.id, payload.studentId),
     {},
     {
       responseType: 'blob',

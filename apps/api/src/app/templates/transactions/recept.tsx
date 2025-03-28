@@ -9,7 +9,8 @@ import {
 } from '@react-pdf/renderer';
 
 // Create Document Component
-const TransactionReceipt = ({ logo }: { logo: string }) => {
+const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
+  console.log('debug-data', data);
   // Create styles
   const styles = StyleSheet.create({
     page: {
@@ -199,41 +200,41 @@ const TransactionReceipt = ({ logo }: { logo: string }) => {
         </Text>
       </View>
 
-      {['BOOKS', 'UNIFORM', 'shows', 'bag', 'icard', 'misc fees', 'others'].map(
-        (rec, index) => (
-          <View style={styles.flexTableRow}>
-            <Text
-              style={{
-                ...styles.defaultText,
-                ...styles.flexTableRowFirstCell,
-                borderTopWidth: '0px',
-              }}
-            >
-              {index + 1}
-            </Text>
-            <Text
-              style={{
-                ...styles.defaultText,
-                ...styles.flexTableRowSecondCell,
-                borderTopWidth: '0px',
-                textAlign: 'left',
-                paddingLeft: '10px',
-                textTransform: 'uppercase',
-              }}
-            >
-              {rec}
-            </Text>
-            <Text
-              style={{
-                ...styles.defaultText,
-                ...styles.flexTableRowThirdCell,
-                borderTopWidth: '0px',
-                textAlign: 'left',
-              }}
-            ></Text>
-          </View>
-        )
-      )}
+      {(data.items || []).map((rec, index) => (
+        <View style={styles.flexTableRow}>
+          <Text
+            style={{
+              ...styles.defaultText,
+              ...styles.flexTableRowFirstCell,
+              borderTopWidth: '0px',
+            }}
+          >
+            {index + 1}
+          </Text>
+          <Text
+            style={{
+              ...styles.defaultText,
+              ...styles.flexTableRowSecondCell,
+              borderTopWidth: '0px',
+              textAlign: 'left',
+              paddingLeft: '10px',
+              textTransform: 'uppercase',
+            }}
+          >
+            {rec.academicFeeName || ''}
+          </Text>
+          <Text
+            style={{
+              ...styles.defaultText,
+              ...styles.flexTableRowThirdCell,
+              borderTopWidth: '0px',
+              textAlign: 'left',
+            }}
+          >
+            {rec.paid || ''}
+          </Text>
+        </View>
+      ))}
 
       <View style={styles.flexTableRow}>
         <Text
@@ -256,7 +257,9 @@ const TransactionReceipt = ({ logo }: { logo: string }) => {
             borderTopWidth: '0px',
             textAlign: 'left',
           }}
-        ></Text>
+        >
+          {data.totalAmount || ''}
+        </Text>
       </View>
     </View>
   );
@@ -265,23 +268,28 @@ const TransactionReceipt = ({ logo }: { logo: string }) => {
     <View style={styles.flexCol}>
       <View style={styles.flexRow}>
         <Text style={styles.defaultText}>Name of Student</Text>
-        <View style={styles.dashedLine}></View>
+        <Text>{data.name || ''}</Text>
       </View>
       <View style={styles.flexRow}>
         <Text style={styles.defaultText}>Guardian Name</Text>
-        <View style={styles.dashedLine}></View>
+        <Text>{data.guardianName || ''}</Text>
+        {/* <View style={styles.dashedLine}>
+
+        </View> */}
       </View>
       <View style={styles.flexRow}>
         <View style={styles.flex1}>
           <View style={styles.flexRow}>
             <Text style={styles.defaultText}>Class</Text>
-            <View style={styles.dashedLine}></View>
+            <Text>{data.className || ''}</Text>
+            {/* <View style={styles.dashedLine}></View> */}
           </View>
         </View>
         <View style={styles.flex1}>
           <View style={styles.flexRow}>
             <Text style={styles.defaultText}>Session</Text>
-            <View style={styles.dashedLine}></View>
+            {/* <View style={styles.dashedLine}></View> */}
+            <Text>{data.session}</Text>
           </View>
         </View>
         <View style={styles.flex1}>
@@ -296,14 +304,16 @@ const TransactionReceipt = ({ logo }: { logo: string }) => {
 
       <View style={styles.flexRow}>
         <Text style={styles.defaultText}>Ruppes In Words</Text>
-        <View style={styles.dashedLine}></View>
+        {/* <View style={styles.dashedLine}></View> */}
+        <Text>{data.totalInWords} Only</Text>
       </View>
       <View style={styles.flexRow}>
         <View style={styles.dashedLine}></View>
       </View>
       <View style={{ ...styles.flexRow, marginTop: '5px' }}>
         <Text style={styles.defaultText}>Paid by:- CASH/UPI/CARD/CHQ.</Text>
-        <View style={styles.dashedLine}></View>
+        <Text>{data.mode || ''}</Text>
+        {/* <View style={styles.dashedLine}></View> */}
       </View>
     </View>
   );

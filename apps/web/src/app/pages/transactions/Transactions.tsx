@@ -120,9 +120,9 @@ export default function TransactionsPage() {
     setIsListLoading(false);
   };
 
-  function getReceiptById(id: number) {
+  function getReceiptById(row: any) {
     receptTransaction.mutate(
-      { id: id },
+      { id: row.id, studentId: row.studentId },
       {
         onSuccess: (dt) => {
           console.log('debug-dt', dt);
@@ -280,7 +280,7 @@ export default function TransactionsPage() {
                   <ActionIcon
                     size="sm"
                     variant="subtle"
-                    onClick={() => getReceiptById(row.id)}
+                    onClick={() => getReceiptById(row)}
                   >
                     <IconPrinter size={16} />
                   </ActionIcon>

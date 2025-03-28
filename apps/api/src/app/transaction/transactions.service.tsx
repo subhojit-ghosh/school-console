@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   academicFeeTable,
+  academicYearsTable,
   classesTable,
   DRIZZLE,
   DrizzleDB,
@@ -14,6 +15,7 @@ import ReactPDF from '@react-pdf/renderer';
 import TransactionReceipt from '../templates/transactions/recept';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+var writtenNumber = require('written-number');
 
 @Injectable()
 export class TransactionsService {
@@ -280,14 +282,76 @@ export class TransactionsService {
     return { message: 'Transaction saved successfully' };
   }
 
-  async getReceipt(id: string) {
+  async getReceipt(id: string, studentId: string) {
+    const studentData = await this.db
+      .select({
+        name: studentsTable.name,
+        guardianName: studentsTable.fathersName,
+        className: classesTable.name,
+        session: academicYearsTable.name,
+        totalAmount: transactionTable.totalAmount,
+        mode: transactionTable.mode,
+      })
+      .from(transactionTable)
+      .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
+      .innerJoin(
+        academicYearsTable,
+        eq(transactionTable.academicYearId, academicYearsTable.id)
+      )
+      .innerJoin(
+        studentsTable,
+        eq(transactionTable.studentId, studentsTable.id)
+      )
+      .innerJoin(
+        transactionItemTable,
+        eq(transactionTable.id, transactionItemTable.transactionId)
+      )
+      .where(eq(transactionTable.id, Number(id)))
+      .then((res) => {
+        let obj = {};
+        if (res.length > 0) {
+          obj = { ...res[0] };
+        }
+        return obj;
+      });
+
+    const transactionItems = await this.db
+      .select({
+        academicFeeName: academicFeeTable.name,
+        amount: transactionItemTable.amount,
+        concession: transactionItemTable.concession,
+        payable: transactionItemTable.payable,
+        paid: transactionItemTable.paid,
+        due: transactionItemTable.due,
+      })
+      .from(transactionItemTable)
+      .innerJoin(
+        academicFeeTable,
+        eq(transactionItemTable.academicFeeId, academicFeeTable.id)
+      )
+      .where(eq(transactionItemTable.transactionId, Number(id)));
+
+    const totalAmount = transactionItems.reduce(
+      (acc, item) => acc + item.paid,
+      0
+    );
+
+    let studentRes: any = {
+      ...studentData,
+      items: transactionItems,
+      totalAmount: totalAmount,
+      totalInWords: writtenNumber(totalAmount),
+    };
+
+    console.log('debug-id', studentData, transactionItems);
+
     //@ts-ignore
     const logo = readFileSync(
       join(__dirname, '../../../', 'storage/logo-circle.png')
     );
     console.log('debug-logo', logo);
     return await ReactPDF.renderToStream(
-      <TransactionReceipt logo={logo.toString('base64')} />
+      <TransactionReceipt logo={logo.toString('base64')} data={studentRes} />
     );
   }
 }
