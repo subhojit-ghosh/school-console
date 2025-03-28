@@ -26,6 +26,7 @@ export default function AcademicFeeForm({
   fetchList,
   academicYears,
   classes,
+  filters,
 }: any) {
   const [loading, setLoading] = useState(false);
   const form = useForm({
@@ -55,6 +56,12 @@ export default function AcademicFeeForm({
       })
     ),
   });
+
+  useEffect(() => {
+    form.setFieldValue('academicYearId', filters.academicYearId || '');
+    form.setFieldValue('classId', filters.classId || '');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
 
   useEffect(() => {
     if (mode === 'add') {

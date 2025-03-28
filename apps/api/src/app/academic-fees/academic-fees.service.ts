@@ -81,17 +81,18 @@ export class AcademicFeeService {
       .select({ count: count() })
       .from(academicFeeTable)
       .where(
-        and(
-          eq(academicFeeTable.name, fee.name),
-          eq(academicFeeTable.category, fee.category),
-          eq(academicFeeTable.academicYearId, fee.academicYearId)
-        )
+      and(
+        eq(academicFeeTable.name, fee.name),
+        eq(academicFeeTable.category, fee.category),
+        eq(academicFeeTable.academicYearId, fee.academicYearId),
+        eq(academicFeeTable.classId, fee.classId)
+      )
       )
       .then((res) => res[0].count > 0);
 
     if (isFeeNameExists) {
       throw new BadRequestException(
-        'Name already exists for this academic year and category'
+      'Name already exists for this academic year, category, and class'
       );
     }
 
@@ -103,18 +104,19 @@ export class AcademicFeeService {
       .select({ count: count() })
       .from(academicFeeTable)
       .where(
-        and(
-          eq(academicFeeTable.name, fee.name),
-          eq(academicFeeTable.category, fee.category),
-          eq(academicFeeTable.academicYearId, fee.academicYearId),
-          ne(academicFeeTable.id, id)
-        )
+      and(
+        eq(academicFeeTable.name, fee.name),
+        eq(academicFeeTable.category, fee.category),
+        eq(academicFeeTable.academicYearId, fee.academicYearId),
+        eq(academicFeeTable.classId, fee.classId),
+        ne(academicFeeTable.id, id)
+      )
       )
       .then((res) => res[0].count > 0);
 
     if (isFeeNameExists) {
       throw new BadRequestException(
-        'Name already exists for this academic year and category'
+      'Name already exists for this academic year, category, and class'
       );
     }
 

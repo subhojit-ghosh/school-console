@@ -14,8 +14,8 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import AcademicFeeForm from './AcademicFeeForm';
 import { titleCase } from '../../utils/text-formating';
+import AcademicFeeForm from './AcademicFeeForm';
 
 export default function AcademicFeesPage() {
   const [isListLoading, setIsListLoading] = useState(true);
@@ -44,7 +44,7 @@ export default function AcademicFeesPage() {
   const [classes, setClasses] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!filters.academicYearId) {
+    if (!filters.academicYearId || !filters.classId) {
       return;
     }
     fetchList();
@@ -52,34 +52,45 @@ export default function AcademicFeesPage() {
   }, [filters, sortStatus]);
 
   useEffect(() => {
-    fetchAcademicYears();
-    fetchClasses();
+    fetchDropdowns();
   }, []);
 
-  const fetchAcademicYears = async () => {
+  const fetchDropdowns = async () => {
     try {
-      const { data } = await httpClient.get(endpoints.academicYears.dropdown());
-      setAcademicYears(data.data);
-      const currentAcademicYear = data.data.find((item: any) => item.isActive);
-      setFilters({
-        ...filters,
-        academicYearId: String(currentAcademicYear.id),
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+      const [{ data: academicYearsDropdown }, { data: classesDropdown }] =
+        await Promise.all([
+          httpClient.get(endpoints.academicYears.dropdown()),
+          httpClient.get(endpoints.classes.dropdown()),
+        ]);
 
-  const fetchClasses = async () => {
-    try {
-      const { data } = await httpClient.get(endpoints.classes.dropdown());
-      setClasses(data.data);
-      if (data.data.length) {
-        setFilters({
-          ...filters,
-          classId: String(data.data[0].id),
+      setAcademicYears(academicYearsDropdown.data);
+      setClasses(classesDropdown.data);
+
+      const newFilters: any = {};
+
+      if (academicYearsDropdown.data.length) {
+        const currentAcademicYear = academicYearsDropdown.data.find(
+          (item: any) => item.isActive
+        );
+        Object.assign(newFilters, {
+          academicYearId: String(
+            currentAcademicYear
+              ? currentAcademicYear.id
+              : academicYearsDropdown.data[0].id
+          ),
         });
       }
+
+      if (classesDropdown.data.length) {
+        Object.assign(newFilters, {
+          classId: String(classesDropdown.data[0].id),
+        });
+      }
+
+      setFilters((prev) => ({
+        ...prev,
+        ...newFilters,
+      }));
     } catch (error) {
       console.error(error);
     }
@@ -230,6 +241,7 @@ export default function AcademicFeesPage() {
         fetchList={fetchList}
         academicYears={academicYears}
         classes={classes}
+        filters={filters}
       />
     </>
   );
