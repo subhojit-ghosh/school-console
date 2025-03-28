@@ -10,6 +10,10 @@ import {
 } from '@school-console/drizzle';
 import { and, asc, count, desc, eq, inArray, like, or } from 'drizzle-orm';
 import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
+import ReactPDF from '@react-pdf/renderer';
+import TransactionReceipt from '../templates/transactions/recept';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class TransactionsService {
@@ -274,5 +278,16 @@ export class TransactionsService {
     });
 
     return { message: 'Transaction saved successfully' };
+  }
+
+  async getReceipt(id: string) {
+    //@ts-ignore
+    const logo = readFileSync(
+      join(__dirname, '../../../', 'storage/logo-circle.png')
+    );
+    console.log('debug-logo', logo);
+    return await ReactPDF.renderToStream(
+      <TransactionReceipt logo={logo.toString('base64')} />
+    );
   }
 }
