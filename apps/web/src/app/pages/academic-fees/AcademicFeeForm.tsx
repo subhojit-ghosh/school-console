@@ -60,7 +60,7 @@ export default function AcademicFeeForm({
   useEffect(() => {
     form.setFieldValue('academicYearId', filters.academicYearId || '');
     form.setFieldValue('classId', filters.classId || '');
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   useEffect(() => {
@@ -73,6 +73,7 @@ export default function AcademicFeeForm({
         name: data.name || '',
         academicYearId: String(data.academicYearId) || '',
         classId: data.classId ? String(data.classId) : '',
+        category: data.category || '',
         amount: data.amount || '',
         dueDate: data.dueDate ? (new Date(data.dueDate) as any) : '',
       });
@@ -126,7 +127,7 @@ export default function AcademicFeeForm({
         })}
       >
         <Grid>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
             <Select
               label="Academic Year"
               placeholder="Select"
@@ -138,7 +139,7 @@ export default function AcademicFeeForm({
               {...form.getInputProps('academicYearId')}
             />
           </Grid.Col>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
             <Select
               label="Class"
               placeholder="Select"
@@ -166,7 +167,7 @@ export default function AcademicFeeForm({
               {...form.getInputProps('name')}
             />
           </Grid.Col>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
             <NumberInput
               label="Amount"
               withAsterisk
@@ -175,7 +176,7 @@ export default function AcademicFeeForm({
               {...form.getInputProps('amount')}
             />
           </Grid.Col>
-          <Grid.Col span={12}>
+          <Grid.Col span={6}>
             <DateInput label="Due Date" {...form.getInputProps('dueDate')} />
           </Grid.Col>
           <Grid.Col span={12}>

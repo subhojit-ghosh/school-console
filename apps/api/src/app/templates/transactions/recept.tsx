@@ -18,8 +18,8 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       backgroundColor: '#fff',
       fontSize: 11,
       paddingTop: 10,
-      paddingLeft: 40,
-      paddingRight: 40,
+      paddingLeft: 20,
+      paddingRight: 20,
       lineHeight: 1.5,
     },
     section: {
@@ -39,15 +39,15 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       color: '#3E3E3E',
       gap: '1px',
     },
-    logo: { width: 100, height: 100 },
+    logo: { width: 80, height: 80 },
     reportTitle: {
-      fontSize: 30,
+      fontSize: 20,
       textAlign: 'center',
       fontWeight: 900,
       lineHeight: 1.3,
     },
     defaultText: {
-      fontSize: 13,
+      fontSize: 10,
       lineHeight: 1.4,
       paddingRight: '3px',
       paddingLeft: '3px',
@@ -159,6 +159,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       </Text>
     </View>
   );
+
   const InvoiceTitle = () => (
     <View style={styles.titleContainer}>
       <Image style={styles.logo} src={`data:image/png;base64, ${logo}`} />
@@ -174,6 +175,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       </View>
     </View>
   );
+
   const HrRuler = () => <View style={styles.hrRuler}></View>;
 
   const MoneyReceiptHead = () => (
@@ -267,35 +269,24 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
   const FormSection = () => (
     <View style={styles.flexCol}>
       <View style={styles.flexRow}>
-        <Text style={styles.defaultText}>Name of Student</Text>
-        <Text>{data.name || ''}</Text>
+        <Text style={styles.defaultText}>Name of Student:</Text>
+        <Text style={styles.defaultText}>{data.name || ''}</Text>
       </View>
       <View style={styles.flexRow}>
-        <Text style={styles.defaultText}>Guardian Name</Text>
-        <Text>{data.guardianName || ''}</Text>
-        {/* <View style={styles.dashedLine}>
-
-        </View> */}
+        <Text style={styles.defaultText}>Guardian Name:</Text>
+        <Text style={styles.defaultText}>{data.guardianName || ''}</Text>
       </View>
       <View style={styles.flexRow}>
         <View style={styles.flex1}>
           <View style={styles.flexRow}>
-            <Text style={styles.defaultText}>Class</Text>
-            <Text>{data.className || ''}</Text>
-            {/* <View style={styles.dashedLine}></View> */}
+            <Text style={styles.defaultText}>Class:</Text>
+            <Text style={styles.defaultText}>{data.className || ''}</Text>
           </View>
         </View>
         <View style={styles.flex1}>
           <View style={styles.flexRow}>
-            <Text style={styles.defaultText}>Session</Text>
-            {/* <View style={styles.dashedLine}></View> */}
-            <Text>{data.session}</Text>
-          </View>
-        </View>
-        <View style={styles.flex1}>
-          <View style={styles.flexRow}>
-            <Text style={styles.defaultText}>Roll No.</Text>
-            <View style={styles.dashedLine}></View>
+            <Text style={styles.defaultText}>Session:</Text>
+            <Text style={styles.defaultText}>{data.session}</Text>
           </View>
         </View>
       </View>
@@ -304,16 +295,14 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
 
       <View style={styles.flexRow}>
         <Text style={styles.defaultText}>Ruppes In Words</Text>
-        {/* <View style={styles.dashedLine}></View> */}
-        <Text>{data.totalInWords} Only</Text>
+        <Text style={styles.defaultText}>{data.totalInWords} Only</Text>
       </View>
       <View style={styles.flexRow}>
         <View style={styles.dashedLine}></View>
       </View>
       <View style={{ ...styles.flexRow, marginTop: '5px' }}>
-        <Text style={styles.defaultText}>Paid by:- CASH/UPI/CARD/CHQ.</Text>
-        <Text>{data.mode || ''}</Text>
-        {/* <View style={styles.dashedLine}></View> */}
+        <Text style={styles.defaultText}>Paid by:</Text>
+        <Text style={styles.defaultText}>{data.mode || ''}</Text>
       </View>
     </View>
   );
@@ -357,7 +346,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
   return (
     <Document>
       <Page
-        size="A4"
+        size="A5"
         style={{
           ...styles.page,
           justifyContent: 'space-between',
