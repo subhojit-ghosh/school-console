@@ -4,26 +4,20 @@ import {
   Button,
   Group,
   Select,
-  Tabs,
-  TextInput,
   Title,
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
-import { FeeCategory } from '@school-console/utils';
-import { IconEdit, IconPlus, IconSearch } from '@tabler/icons-react';
+import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import tabStyles from '../../styles/Tab.module.scss';
 import AcademicFeeForm from './AcademicFeeForm';
+import { titleCase } from '../../utils/text-formating';
 
 export default function AcademicFeesPage() {
-  const [category, setCategory] = useState<string | null>(
-    FeeCategory.Enrollment
-  );
   const [isListLoading, setIsListLoading] = useState(true);
   const [listData, setListData] = useState({
     data: [],
@@ -34,14 +28,13 @@ export default function AcademicFeesPage() {
   });
   const [filters, setFilters] = useDebouncedState(
     {
-      name: '',
       academicYearId: '',
       classId: '',
     },
     200
   );
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-    columnAccessor: '',
+    columnAccessor: 'category',
     direction: 'asc',
   });
   const [formOpened, setFormOpened] = useState(false);
@@ -56,7 +49,7 @@ export default function AcademicFeesPage() {
     }
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, filters, sortStatus]);
+  }, [filters, sortStatus]);
 
   useEffect(() => {
     fetchAcademicYears();
@@ -81,6 +74,12 @@ export default function AcademicFeesPage() {
     try {
       const { data } = await httpClient.get(endpoints.classes.dropdown());
       setClasses(data.data);
+      if (data.data.length) {
+        setFilters({
+          ...filters,
+          classId: String(data.data[0].id),
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -92,7 +91,6 @@ export default function AcademicFeesPage() {
     try {
       const { data } = await httpClient.get(endpoints.academicFees.list(), {
         params: {
-          category,
           ...filters,
           size: listData.size,
           page: page || listData.page,
@@ -121,30 +119,32 @@ export default function AcademicFeesPage() {
       <Group justify="space-between" align="center" mb="md">
         <Title size="lg">Academic Fees</Title>
       </Group>
-      <Tabs
-        value={category}
-        onChange={setCategory}
-        variant="unstyled"
-        classNames={{ tab: tabStyles.tab }}
-      >
-        <Tabs.List grow>
-          <Tabs.Tab value={FeeCategory.Enrollment}>Enrollment</Tabs.Tab>
-          <Tabs.Tab value={FeeCategory.Tuition}>Tuition</Tabs.Tab>
-          <Tabs.Tab value={FeeCategory.Material}>Material</Tabs.Tab>
-          <Tabs.Tab value={FeeCategory.Miscellaneous}>Miscellaneous</Tabs.Tab>
-        </Tabs.List>
-      </Tabs>
       <Group justify="space-between" my={10}>
-        <Select
-          data={academicYears.map((item: any) => ({
-            label: item.name,
-            value: String(item.id),
-          }))}
-          value={filters.academicYearId}
-          onChange={(value) =>
-            setFilters({ ...filters, academicYearId: value || '' })
-          }
-        />
+        <div className="flex flex-row">
+          <Select
+            label="Academic Year"
+            data={academicYears.map((item: any) => ({
+              label: item.name,
+              value: String(item.id),
+            }))}
+            value={filters.academicYearId}
+            onChange={(value) =>
+              setFilters({ ...filters, academicYearId: value || '' })
+            }
+            mr="md"
+          />
+          <Select
+            label="Class"
+            data={classes.map((item: any) => ({
+              label: item.name,
+              value: String(item.id),
+            }))}
+            value={filters.classId}
+            onChange={(value) =>
+              setFilters({ ...filters, classId: value || '' })
+            }
+          />
+        </div>
         <Button
           variant="filled"
           leftSection={<IconPlus size={14} />}
@@ -174,44 +174,15 @@ export default function AcademicFeesPage() {
         onSortStatusChange={setSortStatus}
         columns={[
           {
-            accessor: 'classId',
-            title: 'Class',
-            render: (row: any) =>
-              classes.find((item) => item.id === row.classId)?.name,
+            accessor: 'category',
+            title: 'Category',
+            render: (row: any) => titleCase(row.category),
             sortable: true,
-            filter: (
-              <Select
-                data={classes.map((item) => ({
-                  label: item.name,
-                  value: String(item.id),
-                }))}
-                label="Class"
-                placeholder="Select"
-                clearable
-                comboboxProps={{ withinPortal: false }}
-                defaultValue={filters.classId}
-                onChange={(value) =>
-                  setFilters({ ...filters, classId: value || '' })
-                }
-              />
-            ),
-            filtering: !!filters.classId,
           },
           {
             accessor: 'name',
             title: 'Name',
             sortable: true,
-            filter: (
-              <TextInput
-                label="Name"
-                leftSection={<IconSearch size={16} />}
-                defaultValue={filters.name}
-                onChange={(e) =>
-                  setFilters({ ...filters, name: e.currentTarget.value })
-                }
-              />
-            ),
-            filtering: !!filters.name,
           },
           {
             accessor: 'amount',
@@ -219,19 +190,13 @@ export default function AcademicFeesPage() {
             render: (row: any) => `₹${row.amount}`,
             sortable: true,
           },
-          ...(category !== FeeCategory.Enrollment
-            ? [
-                {
-                  accessor: 'dueDate',
-                  title: 'Due Date',
-                  render: (row: any) =>
-                    row.dueDate
-                      ? moment(row.dueDate).format('MMMM DD, YYYY')
-                      : '',
-                  sortable: true,
-                },
-              ]
-            : []),
+          {
+            accessor: 'dueDate',
+            title: 'Due Date',
+            render: (row: any) =>
+              row.dueDate ? moment(row.dueDate).format('MMMM DD, YYYY') : '',
+            sortable: true,
+          },
           {
             accessor: 'actions',
             title: <Box mr={6}>Actions</Box>,
@@ -265,7 +230,6 @@ export default function AcademicFeesPage() {
         fetchList={fetchList}
         academicYears={academicYears}
         classes={classes}
-        category={category}
       />
     </>
   );

@@ -9,13 +9,13 @@ import {
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { FeeCategory } from '@school-console/utils';
 import { yupResolver } from 'mantine-form-yup-resolver';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
+import { FeeCategories } from '../../data/fee-categories';
 import { showSuccessNotification } from '../../utils/notification';
 
 export default function AcademicFeeForm({
@@ -26,12 +26,12 @@ export default function AcademicFeeForm({
   fetchList,
   academicYears,
   classes,
-  category,
 }: any) {
   const [loading, setLoading] = useState(false);
   const form = useForm({
     validateInputOnChange: true,
     initialValues: {
+      category: '',
       academicYearId: '',
       classId: '',
       name: '',
@@ -40,6 +40,7 @@ export default function AcademicFeeForm({
     },
     validate: yupResolver(
       yup.object().shape({
+        category: yup.string().trim().required('Category is required'),
         academicYearId: yup
           .string()
           .trim()
@@ -79,7 +80,6 @@ export default function AcademicFeeForm({
       ...form.values,
       academicYearId: Number(form.values.academicYearId),
       classId: form.values.classId ? Number(form.values.classId) : null,
-      category,
       dueDate: form.values.dueDate
         ? moment(form.values.dueDate).format('YYYY-MM-DD')
         : null,
@@ -119,7 +119,7 @@ export default function AcademicFeeForm({
         })}
       >
         <Grid>
-          <Grid.Col span={6}>
+          <Grid.Col span={12}>
             <Select
               label="Academic Year"
               placeholder="Select"
@@ -131,7 +131,7 @@ export default function AcademicFeeForm({
               {...form.getInputProps('academicYearId')}
             />
           </Grid.Col>
-          <Grid.Col span={6}>
+          <Grid.Col span={12}>
             <Select
               label="Class"
               placeholder="Select"
@@ -141,6 +141,15 @@ export default function AcademicFeeForm({
               }))}
               withAsterisk
               {...form.getInputProps('classId')}
+            />
+          </Grid.Col>
+          <Grid.Col span={12}>
+            <Select
+              label="Category"
+              placeholder="Select"
+              data={FeeCategories}
+              withAsterisk
+              {...form.getInputProps('category')}
             />
           </Grid.Col>
           <Grid.Col span={12}>
@@ -159,11 +168,9 @@ export default function AcademicFeeForm({
               {...form.getInputProps('amount')}
             />
           </Grid.Col>
-          {category !== FeeCategory.Enrollment && (
-            <Grid.Col span={12}>
-              <DateInput label="Due Date" {...form.getInputProps('dueDate')} />
-            </Grid.Col>
-          )}
+          <Grid.Col span={12}>
+            <DateInput label="Due Date" {...form.getInputProps('dueDate')} />
+          </Grid.Col>
           <Grid.Col span={12}>
             <Group justify="space-between">
               <Button variant="subtle" onClick={() => close()}>
