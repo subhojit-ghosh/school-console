@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Box,
   Button,
+  Grid,
   Group,
   Switch,
   TextInput,
@@ -103,7 +104,18 @@ export default function AcademicYearsPage() {
           Add
         </Button>
       </Group>
-
+      <Grid mb="md">
+        <Grid.Col span={6}>
+          <TextInput
+            placeholder="Search by name"
+            leftSection={<IconSearch size={16} />}
+            defaultValue={filters.name}
+            onChange={(e) =>
+              setFilters({ ...filters, name: e.currentTarget.value })
+            }
+          />
+        </Grid.Col>
+      </Grid>
       <DataTable
         withTableBorder
         withColumnBorders
@@ -124,17 +136,6 @@ export default function AcademicYearsPage() {
             accessor: 'name',
             title: 'Name',
             sortable: true,
-            filter: (
-              <TextInput
-                label="Name"
-                leftSection={<IconSearch size={16} />}
-                defaultValue={filters.name}
-                onChange={(e) =>
-                  setFilters({ ...filters, name: e.currentTarget.value })
-                }
-              />
-            ),
-            filtering: !!filters.name,
           },
           {
             accessor: 'startDate',

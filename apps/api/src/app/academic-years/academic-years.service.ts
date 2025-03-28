@@ -76,7 +76,6 @@ export class AcademicYearsService {
         studentIdPrefix: academicYearsTable.studentIdPrefix,
       })
       .from(academicYearsTable)
-      .where(eq(academicYearsTable.isActive, true))
       .orderBy(desc(academicYearsTable.studentIdPrefix))
       .limit(1);
 
