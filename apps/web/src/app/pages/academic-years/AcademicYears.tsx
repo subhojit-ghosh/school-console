@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import AcademicYearForm from './AcademicYearForm';
+import Currency from '../../components/Currency';
 
 export default function AcademicYearsPage() {
   const [isListLoading, setIsListLoading] = useState(true);
@@ -150,6 +151,11 @@ export default function AcademicYearsPage() {
           {
             accessor: 'studentIdPrefix',
             title: 'Student ID Prefix',
+          },
+          {
+            accessor: 'lateFinePerDay',
+            title: 'Late Fine Per Day',
+            render: (row: any) => <Currency value={row.lateFinePerDay} />,
           },
           {
             accessor: 'isActive',

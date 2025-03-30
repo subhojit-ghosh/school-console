@@ -9,9 +9,9 @@ import {
   Res,
   StreamableFile,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
 import { TransactionsService } from './transactions.service';
-import { ReadStream } from 'fs';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -31,8 +31,7 @@ export class TransactionsController {
     return this.transactionsService.getStudentFeeSummary(
       academicYearId,
       classId,
-      studentId,
-      5
+      studentId
     );
   }
 
@@ -47,7 +46,6 @@ export class TransactionsController {
     @Param('studentId') studentId: string,
     @Res({ passthrough: true }) res: Response
   ) {
-    //@ts-ignore
     res.header('Content-Type', 'application/pdf');
     return new StreamableFile(
       (await this.transactionsService.getReceipt(id, studentId)) as any

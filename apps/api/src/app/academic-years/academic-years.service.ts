@@ -39,6 +39,7 @@ export class AcademicYearsService {
           startDate: academicYearsTable.startDate,
           endDate: academicYearsTable.endDate,
           studentIdPrefix: academicYearsTable.studentIdPrefix,
+          lateFinePerDay: academicYearsTable.lateFinePerDay,
           isActive: academicYearsTable.isActive,
           createdAt: academicYearsTable.createdAt,
           updatedAt: academicYearsTable.updatedAt,

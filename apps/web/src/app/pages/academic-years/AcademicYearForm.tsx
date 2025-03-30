@@ -1,4 +1,12 @@
-import { Button, Grid, Group, Loader, Modal, TextInput } from '@mantine/core';
+import {
+  Button,
+  Grid,
+  Group,
+  Loader,
+  Modal,
+  NumberInput,
+  TextInput,
+} from '@mantine/core';
 import { DateInput, YearPickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { IconCalendar } from '@tabler/icons-react';
@@ -29,6 +37,7 @@ export default function AcademicYearForm({
       startDate: '',
       endDate: '',
       studentIdPrefix: '',
+      lateFinePerDay: null,
     },
     validate: yupResolver(
       yup.object().shape({
@@ -37,6 +46,7 @@ export default function AcademicYearForm({
           .string()
           .trim()
           .required('Student ID Prefix is required'),
+        lateFinePerDay: yup.number().required('Late Fine Per Day is required'),
       })
     ),
   });
@@ -55,6 +65,7 @@ export default function AcademicYearForm({
         startDate: new Date(data.startDate) as any,
         endDate: new Date(data.endDate) as any,
         studentIdPrefix: data.studentIdPrefix,
+        lateFinePerDay: data.lateFinePerDay,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,6 +146,7 @@ export default function AcademicYearForm({
           <Grid.Col span={6}>
             <YearPickerInput
               label="End Year"
+              withAsterisk
               leftSection={<IconCalendar size={18} />}
               {...form.getInputProps('endYear')}
             />
@@ -142,21 +154,36 @@ export default function AcademicYearForm({
           <Grid.Col span={6}>
             <DateInput
               label="Start Date"
+              withAsterisk
               {...form.getInputProps('startDate')}
             />
           </Grid.Col>
           <Grid.Col span={6}>
-            <DateInput label="End Date" {...form.getInputProps('endDate')} />
+            <DateInput
+              label="End Date"
+              withAsterisk
+              {...form.getInputProps('endDate')}
+            />
           </Grid.Col>
           <Grid.Col span={12}>
             <TextInput
               label="Student ID Prefix"
+              withAsterisk
               rightSection={nextStudentIdPrefixLoading && <Loader size={16} />}
               {...form.getInputProps('studentIdPrefix')}
               onChange={(e: ChangeEvent<HTMLInputElement>) => {
                 const upperCasedValue = e.target.value.toUpperCase();
                 form.setFieldValue('studentIdPrefix', upperCasedValue);
               }}
+            />
+          </Grid.Col>
+          <Grid.Col span={12}>
+            <NumberInput
+              label="Late Fine Per Day"
+              min={0}
+              withAsterisk
+              prefix="₹"
+              {...form.getInputProps('lateFinePerDay')}
             />
           </Grid.Col>
           <Grid.Col span={12}>

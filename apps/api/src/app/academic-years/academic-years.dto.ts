@@ -5,6 +5,7 @@ import {
   IsIn,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsPositive,
   IsString,
@@ -26,6 +27,10 @@ export class CreateAcademicYearDto {
 
   @IsOptional()
   studentIdPrefix: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  lateFinePerDay: number;
 }
 
 export class UpdateAcademicYearDto extends CreateAcademicYearDto {}

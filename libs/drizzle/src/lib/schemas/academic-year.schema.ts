@@ -1,6 +1,7 @@
 import {
   boolean,
   date,
+  int,
   mysqlTable,
   serial,
   timestamp,
@@ -13,6 +14,7 @@ export const academicYearsTable = mysqlTable('academic_years', {
   startDate: date().notNull(),
   endDate: date().notNull(),
   studentIdPrefix: varchar({ length: 100 }).unique().notNull(),
+  lateFinePerDay: int().notNull().default(0),
   isActive: boolean().notNull().default(false).notNull(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().onUpdateNow(),

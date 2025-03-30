@@ -111,9 +111,16 @@ export class TransactionsService {
   async getStudentFeeSummary(
     academicYearId: number,
     classId: number,
-    studentId: number,
-    finePerDay: number
+    studentId: number
   ) {
+    const academicYear = await this.db
+      .select({
+        lateFinePerDay: academicYearsTable.lateFinePerDay,
+      })
+      .from(academicYearsTable)
+      .where(eq(academicYearsTable.id, academicYearId))
+      .then((res) => res[0]);
+
     const academicFees = await this.db
       .select({
         id: academicFeeTable.id,
@@ -177,7 +184,7 @@ export class TransactionsService {
           : 0;
       }
 
-      const lateFine = lateDays * finePerDay;
+      const lateFine = lateDays * academicYear.lateFinePerDay;
 
       totalDue += lateFine;
 
