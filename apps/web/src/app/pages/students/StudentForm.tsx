@@ -25,38 +25,35 @@ import {
 import { DateInput, YearPickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { randomId } from '@mantine/hooks';
+import { titleCase } from '@school-console/utils';
 import {
   IconArrowBack,
   IconArrowLeft,
   IconArrowRight,
   IconCalendar,
   IconCalendarMonth,
-  IconDeviceFloppy,
   IconPlus,
   IconTrash,
   IconUpload,
-  IconX,
+  IconX
 } from '@tabler/icons-react';
 import moment from 'moment';
 import { Fragment, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { StudentPersonalType } from '../../types/student';
-import { titleCase } from '../../utils/text-formating';
 import {
-  useGetAcadDropdown,
-  useGetClasses,
-} from '../../services/utils/apiQuery';
-import {
-  useAddStudent,
   useAddStudentPersonal,
   useDeleteDocumentById,
   useGetStudentById,
   useUpdateStudentDocuments,
-  useUpdateStudentGuardianInfo,
+  useUpdateStudentGuardianInfo
 } from '../../services/students/apiQuery';
 import {
-  showErrorNotification,
-  showSuccessNotification,
+  useGetAcadDropdown,
+  useGetClasses,
+} from '../../services/utils/apiQuery';
+import { StudentPersonalType } from '../../types/student';
+import {
+  showSuccessNotification
 } from '../../utils/notification';
 
 type StudentFormProps = {

@@ -1,17 +1,14 @@
-import React from 'react';
 import {
+  Document,
+  Image,
   Page,
+  StyleSheet,
   Text,
   View,
-  Document,
-  StyleSheet,
-  Image,
 } from '@react-pdf/renderer';
+import moment from 'moment';
 
-// Create Document Component
 const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
-  console.log('debug-data', data);
-  // Create styles
   const styles = StyleSheet.create({
     page: {
       flexDirection: 'column',
@@ -136,26 +133,15 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
           fontSize: '10px',
         }}
       >
-        No.
+        No. {data.id}
       </Text>
-      {/* <Text
-        style={{
-          width: '600px',
-          fontSize: '13px',
-          fontWeight: 600,
-          textTransform: 'uppercase',
-          textAlign: 'center',
-        }}
-      >
-        Money receipt
-      </Text> */}
       <Text
         style={{
           width: '100px',
           fontSize: '10px',
         }}
       >
-        Date:
+        Date: {moment(data.createdAt).format('DD-MMM-YYYY')}
       </Text>
     </View>
   );
@@ -220,10 +206,9 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               borderTopWidth: '0px',
               textAlign: 'left',
               paddingLeft: '10px',
-              textTransform: 'uppercase',
             }}
           >
-            {rec.academicFeeName || ''}
+            {rec.academicFeeName}
           </Text>
           <Text
             style={{
@@ -233,7 +218,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               textAlign: 'left',
             }}
           >
-            {rec.paid || ''}
+            {Number(rec.paid).toLocaleString('en-IN')}
           </Text>
         </View>
       ))}
@@ -260,7 +245,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             textAlign: 'left',
           }}
         >
-          {data.totalAmount || ''}
+          {Number(data.totalAmount).toLocaleString('en-IN')}
         </Text>
       </View>
     </View>
@@ -269,18 +254,20 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
   const FormSection = () => (
     <View style={styles.flexCol}>
       <View style={styles.flexRow}>
-        <Text style={styles.defaultText}>Name of Student:</Text>
-        <Text style={styles.defaultText}>{data.name || ''}</Text>
+        <Text style={styles.defaultText}>Student Name:</Text>
+        <Text style={styles.defaultText}>
+          {data.studentName} ({data.isEnrolled ? data.enrolledNo : data.regId})
+        </Text>
       </View>
       <View style={styles.flexRow}>
         <Text style={styles.defaultText}>Guardian Name:</Text>
-        <Text style={styles.defaultText}>{data.guardianName || ''}</Text>
+        <Text style={styles.defaultText}>{data.guardianName}</Text>
       </View>
       <View style={styles.flexRow}>
         <View style={styles.flex1}>
           <View style={styles.flexRow}>
             <Text style={styles.defaultText}>Class:</Text>
-            <Text style={styles.defaultText}>{data.className || ''}</Text>
+            <Text style={styles.defaultText}>{data.className}</Text>
           </View>
         </View>
         <View style={styles.flex1}>
@@ -294,15 +281,15 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       <InvoiceTable />
 
       <View style={styles.flexRow}>
-        <Text style={styles.defaultText}>Ruppes In Words</Text>
-        <Text style={styles.defaultText}>{data.totalInWords} Only</Text>
+        <Text style={styles.defaultText}>Ruppes In Words:</Text>
+        <Text style={styles.defaultText}>{data.totalInWords}</Text>
       </View>
       <View style={styles.flexRow}>
         <View style={styles.dashedLine}></View>
       </View>
       <View style={{ ...styles.flexRow, marginTop: '5px' }}>
-        <Text style={styles.defaultText}>Paid by:</Text>
-        <Text style={styles.defaultText}>{data.mode || ''}</Text>
+        <Text style={styles.defaultText}>Paid By:</Text>
+        <Text style={styles.defaultText}>{data.mode}</Text>
       </View>
     </View>
   );

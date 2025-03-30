@@ -16,6 +16,7 @@ import { join } from 'path';
 import writtenNumber from 'written-number';
 import TransactionReceipt from '../templates/transactions/recept';
 import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
+import { titleCase } from '@school-console/utils';
 
 @Injectable()
 export class TransactionsService {
@@ -272,6 +273,8 @@ export class TransactionsService {
     const paid = dto.items.reduce((sum, item) => sum + item.paid, 0);
     const due = payable - paid;
 
+    let id: number | null = null;
+
     await this.db.transaction(async (trx) => {
       const [{ id: transactionId }] = await trx
         .insert(transactionTable)
@@ -288,6 +291,8 @@ export class TransactionsService {
           mode: dto.mode,
         })
         .$returningId();
+
+      id = transactionId;
 
       const items = dto.items.map((item) => {
         const fee = fees.find((fee) => fee.id === item.academicFeeId);
@@ -315,13 +320,18 @@ export class TransactionsService {
       await trx.insert(transactionItemTable).values(items);
     });
 
-    return { message: 'Transaction saved successfully' };
+    return { id, message: 'Transaction saved successfully' };
   }
 
-  async getReceipt(id: string, studentId: string) {
-    const studentData = await this.db
+  async getReceipt(id: string) {
+    const transaction = await this.db
       .select({
-        name: studentsTable.name,
+        id: transactionTable.id,
+        date: transactionTable.createdAt,
+        studentName: studentsTable.name,
+        isEnrolled: studentsTable.isEnrolled,
+        enrolledNo: studentsTable.enrolledNo,
+        regId: studentsTable.regId,
         guardianName: studentsTable.fathersName,
         className: classesTable.name,
         session: academicYearsTable.name,
@@ -372,21 +382,19 @@ export class TransactionsService {
       0
     );
 
-    const studentRes: any = {
-      ...studentData,
+    const data: any = {
+      ...transaction,
       items: transactionItems,
       totalAmount: totalAmount,
-      totalInWords: writtenNumber(totalAmount),
+      totalInWords: titleCase(writtenNumber(totalAmount).replace(/-/g, ' ')),
     };
-
-    console.log('debug-id', studentData, transactionItems);
 
     const logo = readFileSync(
       join(__dirname, '../../../', 'storage/logo-circle.png')
     );
     console.log('debug-logo', logo);
     return await ReactPDF.renderToStream(
-      <TransactionReceipt logo={logo.toString('base64')} data={studentRes} />
+      <TransactionReceipt logo={logo.toString('base64')} data={data} />
     );
   }
 }

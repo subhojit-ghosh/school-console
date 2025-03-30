@@ -55,8 +55,7 @@ const endpoints = {
     list: () => api(`transactions`),
     items: (id: number) => api(`transactions/${id}/items`),
     saveTransaction: () => api(`transactions`),
-    receiptById: (id: string, studentId: string) =>
-      api(`transactions/receipt/${id}/${studentId}`),
+    receiptById: (id: string) => api(`transactions/receipt/${id}`),
   },
 };
 

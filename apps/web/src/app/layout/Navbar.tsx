@@ -6,8 +6,8 @@ import {
   Text,
   UnstyledButton,
 } from '@mantine/core';
+import { titleCase } from '@school-console/utils';
 import {
-  IconBus,
   IconCalendar,
   IconCash,
   IconChalkboard,
@@ -16,14 +16,13 @@ import {
   IconLogout,
   IconPasswordUser,
   IconReceipt,
-  IconUsers,
+  IconUsers
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import endpoints from '../api/endpoints';
 import httpClient from '../api/http-client';
 import { useAuthStore } from '../stores/authStore';
-import { titleCase } from '../utils/text-formating';
 import classes from './Navbar.module.scss';
 
 const data = [

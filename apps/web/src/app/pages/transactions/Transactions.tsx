@@ -7,12 +7,9 @@ import {
   Tabs,
   TextInput,
   Title,
-  Tooltip,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import {
-  IconChevronDown,
-  IconChevronRight,
   IconPlus,
   IconPrinter,
   IconSearch,
@@ -21,13 +18,13 @@ import {
 } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import tabStyles from '../../styles/Tab.module.scss';
-import { useGetTrasnsactionReceiptById } from '../../services/transactions/apiQuery';
 import Currency from '../../components/Currency';
+import { useGetTrasnsactionReceiptById } from '../../services/transactions/apiQuery';
+import tabStyles from '../../styles/Tab.module.scss';
 import TransactionItemsTable from './TransactionItemsTable';
 
 export default function TransactionsPage() {
@@ -55,7 +52,8 @@ export default function TransactionsPage() {
   const [academicYears, setAcademicYears] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const receptTransaction = useGetTrasnsactionReceiptById();
-  const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [receiptLoadingId, setReceiptLoadingId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!filters.academicYearId) {
@@ -126,11 +124,22 @@ export default function TransactionsPage() {
   };
 
   function getReceiptById(row: any) {
+    setReceiptLoadingId(row.id);
     receptTransaction.mutate(
-      { id: row.id, studentId: row.studentId },
+      { id: row.id },
       {
-        onSuccess: (dt) => {
-          console.log('debug-dt', dt);
+        onSuccess: (pdfUrl) => {
+          if (iframeRef.current) {
+            iframeRef.current.src = pdfUrl;
+
+            iframeRef.current.onload = () => {
+              iframeRef.current?.contentWindow?.print();
+            };
+          }
+          setReceiptLoadingId(null);
+        },
+        onError: () => {
+          setReceiptLoadingId(null);
         },
       }
     );
@@ -296,15 +305,17 @@ export default function TransactionsPage() {
             textAlign: 'center',
             render: (row: any) => (
               <Group gap={4} justify="center" wrap="nowrap">
-                <Tooltip label="Print Receipt" withArrow>
-                  <ActionIcon
-                    size="sm"
-                    variant="subtle"
-                    onClick={() => getReceiptById(row)}
-                  >
-                    <IconPrinter size={16} />
-                  </ActionIcon>
-                </Tooltip>
+                <ActionIcon
+                  size="sm"
+                  variant="subtle"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    getReceiptById(row);
+                  }}
+                  loading={receiptLoadingId === row.id}
+                >
+                  <IconPrinter size={16} />
+                </ActionIcon>
               </Group>
             ),
           },
@@ -315,6 +326,7 @@ export default function TransactionsPage() {
           ),
         }}
       />
+      <iframe title="Receipt" ref={iframeRef} style={{ display: 'none' }} />
     </>
   );
 }

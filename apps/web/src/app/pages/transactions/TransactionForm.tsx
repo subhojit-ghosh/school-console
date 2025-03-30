@@ -15,19 +15,21 @@ import {
 } from '@mantine/core';
 import { useForm, yupResolver } from '@mantine/form';
 import { IconArrowBack } from '@tabler/icons-react';
-import { useEffect, useState } from 'react';
+import moment from 'moment';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import * as yup from 'yup';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import { useSaveTransactionFee } from '../../services/transactions/apiQuery';
+import Currency from '../../components/Currency';
+import {
+  useGetTrasnsactionReceiptById,
+  useSaveTransactionFee,
+} from '../../services/transactions/apiQuery';
 import {
   showInfoNotification,
   showSuccessNotification,
 } from '../../utils/notification';
-import { titleCase } from '../../utils/text-formating';
-import moment from 'moment';
-import Currency from '../../components/Currency';
 
 export default function TransactionForm() {
   const [academicYears, setAcademicYears] = useState<any[]>([]);
@@ -38,6 +40,8 @@ export default function TransactionForm() {
   const [feesRight, setFeesRight] = useState<any>([]);
   const [feesLoading, setFeesLoading] = useState<any>(false);
   const [saving, setSaving] = useState<any>(false);
+  const receptTransaction = useGetTrasnsactionReceiptById();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const form = useForm<{
     academicYearId: any;
@@ -204,10 +208,24 @@ export default function TransactionForm() {
         ...payload,
       },
       {
-        onSuccess: () => {
+        onSuccess: (response) => {
           showSuccessNotification('Transaction saved successfully');
-          resetForm();
-          setSaving(false);
+          receptTransaction.mutate(
+            { id: response.id },
+            {
+              onSuccess: (pdfUrl) => {
+                if (iframeRef.current) {
+                  iframeRef.current.src = pdfUrl;
+
+                  iframeRef.current.onload = () => {
+                    iframeRef.current?.contentWindow?.print();
+                    resetForm();
+                    setSaving(false);
+                  };
+                }
+              },
+            }
+          );
         },
       }
     );
@@ -518,6 +536,7 @@ export default function TransactionForm() {
           </Grid>
         </Paper>
       </form>
+      <iframe title="Receipt" ref={iframeRef} style={{ display: 'none' }} />
     </>
   );
 }

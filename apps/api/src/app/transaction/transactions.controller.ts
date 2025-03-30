@@ -45,15 +45,14 @@ export class TransactionsController {
     return this.transactionsService.create(dto);
   }
 
-  @Post('/receipt/:id/:studentId')
+  @Post('/receipt/:id')
   async fetchRecepit(
     @Param('id') id: string,
-    @Param('studentId') studentId: string,
     @Res({ passthrough: true }) res: Response
   ) {
     res.header('Content-Type', 'application/pdf');
     return new StreamableFile(
-      (await this.transactionsService.getReceipt(id, studentId)) as any
+      (await this.transactionsService.getReceipt(id)) as any
     );
   }
 }

@@ -13,7 +13,7 @@ export async function saveTransactionFee(payload: any) {
 
 export async function getTrasnsactionReceiptById(payload: any) {
   const { data } = await httpClient.post(
-    endpoints.transactions.receiptById(payload.id, payload.studentId),
+    endpoints.transactions.receiptById(payload.id),
     {},
     {
       responseType: 'blob',
@@ -22,7 +22,7 @@ export async function getTrasnsactionReceiptById(payload: any) {
 
   const pdfBlob = new Blob([data], { type: 'application/pdf' });
   const objectUrl = window.URL.createObjectURL(pdfBlob);
-  window.open(objectUrl);
+  // window.open(objectUrl);
   // const anchor = document.createElement('a');
   // anchor.href = objectUrl;
   // anchor.download = `p.pdf`;
@@ -30,5 +30,5 @@ export async function getTrasnsactionReceiptById(payload: any) {
   // anchor.click();
   // anchor.remove();
   // window.URL.revokeObjectURL(objectUrl);
-  return data;
+  return objectUrl;
 }
