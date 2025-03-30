@@ -1,10 +1,11 @@
-import { createTheme, LoadingOverlay, MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import '@mantine/core/styles.layer.css';
 import '@mantine/dates/styles.css';
-import { Notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
 import 'mantine-datatable/styles.layer.css';
+
+import { createTheme, LoadingOverlay, MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import endpoints from './api/endpoints';

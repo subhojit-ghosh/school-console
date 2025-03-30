@@ -20,6 +20,8 @@ export const transactionItemTable = mysqlTable(
       .notNull()
       .references(() => academicFeeTable.id),
     amount: int().notNull(),
+    lateFine: int().notNull(),
+    lateDays: int().notNull(),
     concession: int().notNull(),
     payable: int().notNull(),
     paid: int().notNull(),

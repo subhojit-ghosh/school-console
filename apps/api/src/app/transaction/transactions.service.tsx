@@ -60,6 +60,7 @@ export class TransactionsService {
           studentId: transactionTable.studentId,
           classId: transactionTable.classId,
           totalAmount: transactionTable.totalAmount,
+          lateFine: transactionTable.lateFine,
           payable: transactionTable.payable,
           concession: transactionTable.concession,
           paid: transactionTable.paid,
@@ -106,6 +107,30 @@ export class TransactionsService {
       totalRecords,
       data: transactions,
     };
+  }
+
+  async findItems(id: number) {
+    const items = await this.db
+      .select({
+        id: transactionItemTable.id,
+        academicFeeId: transactionItemTable.academicFeeId,
+        amount: transactionItemTable.amount,
+        lateFine: transactionItemTable.lateFine,
+        lateDays: transactionItemTable.lateDays,
+        concession: transactionItemTable.concession,
+        payable: transactionItemTable.payable,
+        paid: transactionItemTable.paid,
+        due: transactionItemTable.due,
+        academicFeeName: academicFeeTable.name,
+      })
+      .from(transactionItemTable)
+      .innerJoin(
+        academicFeeTable,
+        eq(transactionItemTable.academicFeeId, academicFeeTable.id)
+      )
+      .where(eq(transactionItemTable.transactionId, id));
+
+    return items;
   }
 
   async getStudentFeeSummary(
@@ -225,25 +250,25 @@ export class TransactionsService {
   }
 
   async create(dto: CreateTransactionDto) {
-    const fees = await this.db
-      .select()
-      .from(academicFeeTable)
-      .where(
-        and(
-          inArray(
-            academicFeeTable.id,
-            dto.items.map((item) => item.academicFeeId)
-          ),
-          eq(academicFeeTable.academicYearId, dto.academicYearId)
-        )
-      );
+    const { feesWithDue } = await this.getStudentFeeSummary(
+      dto.academicYearId,
+      dto.classId,
+      dto.studentId
+    );
+
+    const fees = feesWithDue.filter(
+      (fee) =>
+        dto.items.find((item) => item.academicFeeId === fee.id) &&
+        fee.totalDue > 0
+    );
 
     const totalAmount = fees.reduce((sum, fee) => sum + fee.amount, 0);
+    const lateFine = fees.reduce((sum, fee) => sum + fee.lateFine, 0);
     const concession = dto.items.reduce(
       (sum, item) => sum + item.concession,
       0
     );
-    const payable = totalAmount - concession;
+    const payable = totalAmount + lateFine - concession;
     const paid = dto.items.reduce((sum, item) => sum + item.paid, 0);
     const due = payable - paid;
 
@@ -255,6 +280,7 @@ export class TransactionsService {
           studentId: dto.studentId,
           classId: dto.classId,
           totalAmount,
+          lateFine,
           payable,
           concession,
           paid,
@@ -270,14 +296,19 @@ export class TransactionsService {
             `Fee with ID ${item.academicFeeId} not found`
           );
         }
+
+        const payable = fee.amount + fee.lateFine - item.concession;
+
         return {
           transactionId,
           academicFeeId: item.academicFeeId,
           amount: fee.amount,
+          lateFine: fee.lateFine,
+          lateDays: fee.lateDays,
           concession: item.concession,
-          payable: fee.amount - item.concession,
+          payable,
           paid: item.paid,
-          due: fee.amount - item.concession - item.paid,
+          due: payable - item.paid,
         };
       });
 

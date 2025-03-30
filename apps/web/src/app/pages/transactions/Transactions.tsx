@@ -11,6 +11,8 @@ import {
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import {
+  IconChevronDown,
+  IconChevronRight,
   IconPlus,
   IconPrinter,
   IconSearch,
@@ -25,6 +27,8 @@ import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import tabStyles from '../../styles/Tab.module.scss';
 import { useGetTrasnsactionReceiptById } from '../../services/transactions/apiQuery';
+import Currency from '../../components/Currency';
+import TransactionItemsTable from './TransactionItemsTable';
 
 export default function TransactionsPage() {
   const [type, setType] = useState<string | null>('enrolled');
@@ -51,6 +55,7 @@ export default function TransactionsPage() {
   const [academicYears, setAcademicYears] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
   const receptTransaction = useGetTrasnsactionReceiptById();
+  const [expandedRecordIds, setExpandedRecordIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!filters.academicYearId) {
@@ -243,19 +248,34 @@ export default function TransactionsPage() {
             filtering: !!filters.classId,
           },
           {
+            accessor: 'totalAmount',
+            title: 'Total Amount',
+            render: (row: any) => <Currency value={row.totalAmount} />,
+          },
+          {
+            accessor: 'lateFine',
+            title: 'Late Fine',
+            render: (row: any) => <Currency value={row.lateFine} />,
+          },
+          {
+            accessor: 'concession',
+            title: 'Concession',
+            render: (row: any) => <Currency value={row.concession} />,
+          },
+          {
             accessor: 'payable',
             title: 'Payable',
-            render: (row: any) => `₹${row.payable}`,
+            render: (row: any) => <Currency value={row.payable} />,
           },
           {
             accessor: 'paid',
             title: 'Paid',
-            render: (row: any) => `₹${row.paid}`,
+            render: (row: any) => <Currency value={row.paid} />,
           },
           {
             accessor: 'due',
             title: 'Due',
-            render: (row: any) => `₹${row.due}`,
+            render: (row: any) => <Currency value={row.due} />,
           },
           {
             accessor: 'mode',
@@ -289,6 +309,11 @@ export default function TransactionsPage() {
             ),
           },
         ]}
+        rowExpansion={{
+          content: ({ record }: any) => (
+            <TransactionItemsTable id={record.id} />
+          ),
+        }}
       />
     </>
   );

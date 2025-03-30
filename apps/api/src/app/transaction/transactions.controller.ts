@@ -22,6 +22,11 @@ export class TransactionsController {
     return this.transactionsService.findAll(query);
   }
 
+  @Get(':id/items')
+  async findItems(@Param('id') id: string) {
+    return this.transactionsService.findItems(Number(id));
+  }
+
   @Get('/fees/:academicYearId/:classId/:studentId')
   async getStudentFeeSummary(
     @Param('academicYearId', ParseIntPipe) academicYearId: number,
