@@ -189,7 +189,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       </View>
 
       {(data.items || []).map((rec, index) => (
-        <View style={styles.flexTableRow}>
+        <View style={styles.flexTableRow} key={index}>
           <Text
             style={{
               ...styles.defaultText,
