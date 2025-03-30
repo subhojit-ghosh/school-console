@@ -16,7 +16,8 @@ import {
   IconLogout,
   IconPasswordUser,
   IconReceipt,
-  IconUsers
+  IconReport,
+  IconUsers,
 } from '@tabler/icons-react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../../assets/logo.png';
@@ -33,6 +34,7 @@ const data = [
   { link: '/academic-fees', label: 'Academic Fees', icon: IconReceipt },
   // { link: '/transport', label: 'Transport', icon: IconBus },
   { link: '/transactions', label: 'Transactions', icon: IconCash },
+  { link: '/reports', label: 'Reports', icon: IconReport },
   { link: '/users', label: 'Users', icon: IconPasswordUser },
 ];
 

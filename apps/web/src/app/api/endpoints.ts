@@ -57,6 +57,9 @@ const endpoints = {
     saveTransaction: () => api(`transactions`),
     receiptById: (id: string) => api(`transactions/receipt/${id}`),
   },
+  reports: {
+    dues: () => api('reports/dues'),
+  },
 };
 
 export default endpoints;

@@ -5,6 +5,7 @@ import '@mantine/notifications/styles.css';
 import 'mantine-datatable/styles.layer.css';
 
 import { createTheme, LoadingOverlay, MantineProvider } from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -17,6 +18,7 @@ import ClassesPage from './pages/classes/Classes';
 import DashboardPage from './pages/dashboard/Dashboard';
 import LoginPage from './pages/Login';
 import { PageNotFound } from './pages/page-not-found/PageNotFound';
+import ReportsPage from './pages/reports/Reports';
 import StudentForm from './pages/students/StudentForm';
 import StudentsPage from './pages/students/Students';
 import TransactionForm from './pages/transactions/TransactionForm';
@@ -25,7 +27,6 @@ import UsersPage from './pages/users/Users';
 import AuthenticatedRoutes from './route-guards/authenticated';
 import RedirectIfAuthenticatedRoutes from './route-guards/redirect-if-authenticated';
 import { useAuthStore } from './stores/authStore';
-import { ModalsProvider } from '@mantine/modals';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -91,6 +92,7 @@ export function App() {
                   <Route index element={<TransactionsPage />} />
                   <Route path="add/:type" element={<TransactionForm />} />
                 </Route>
+                <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="*" element={<PageNotFound />} />
               </Route>
