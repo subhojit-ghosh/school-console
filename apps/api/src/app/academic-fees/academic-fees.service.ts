@@ -15,10 +15,9 @@ export class AcademicFeeService {
     const {
       page = 1,
       size = 10,
-      sortBy = 'createdAt',
+      sortBy = 'id',
       sortOrder = 'asc',
       name,
-      category,
       academicYearId,
       classId,
     } = query;
@@ -27,9 +26,6 @@ export class AcademicFeeService {
     const whereConditions: any = [];
     if (name) {
       whereConditions.push(like(academicFeeTable.name, `%${name}%`));
-    }
-    if (category) {
-      whereConditions.push(eq(academicFeeTable.category, category));
     }
     if (academicYearId) {
       whereConditions.push(eq(academicFeeTable.academicYearId, academicYearId));
@@ -45,7 +41,6 @@ export class AcademicFeeService {
           academicYearId: academicFeeTable.academicYearId,
           classId: academicFeeTable.classId,
           name: academicFeeTable.name,
-          category: academicFeeTable.category,
           amount: academicFeeTable.amount,
           dueDate: academicFeeTable.dueDate,
         })
@@ -83,7 +78,6 @@ export class AcademicFeeService {
       .where(
       and(
         eq(academicFeeTable.name, fee.name),
-        eq(academicFeeTable.category, fee.category),
         eq(academicFeeTable.academicYearId, fee.academicYearId),
         eq(academicFeeTable.classId, fee.classId)
       )
@@ -92,7 +86,7 @@ export class AcademicFeeService {
 
     if (isFeeNameExists) {
       throw new BadRequestException(
-      'Name already exists for this academic year, category, and class'
+      'Name already exists for this academic year and class'
       );
     }
 
@@ -106,7 +100,6 @@ export class AcademicFeeService {
       .where(
       and(
         eq(academicFeeTable.name, fee.name),
-        eq(academicFeeTable.category, fee.category),
         eq(academicFeeTable.academicYearId, fee.academicYearId),
         eq(academicFeeTable.classId, fee.classId),
         ne(academicFeeTable.id, id)
@@ -116,7 +109,7 @@ export class AcademicFeeService {
 
     if (isFeeNameExists) {
       throw new BadRequestException(
-      'Name already exists for this academic year, category, and class'
+      'Name already exists for this academic year and class'
       );
     }
 

@@ -27,6 +27,7 @@ import {
 } from '../../utils/notification';
 import { titleCase } from '../../utils/text-formating';
 import moment from 'moment';
+import Currency from '../../components/Currency';
 
 export default function TransactionForm() {
   const [academicYears, setAcademicYears] = useState<any[]>([]);
@@ -177,9 +178,7 @@ export default function TransactionForm() {
         showInfoNotification(
           `Sum of concession & paid can not be greater than total due which is ${
             item.totalDue
-          } for item ${item.name} and type ${titleCase(item.category)} at row ${
-            index + 1
-          }`
+          } for item ${item.name} at row ${index + 1}`
         );
         return false;
       }
@@ -320,20 +319,20 @@ export default function TransactionForm() {
                   <Grid>
                     <Grid.Col span={4}>
                       <Text>Total Paid</Text>
-                      <Badge leftSection="₹" color="green">
-                        {fees.stats.totalPaid}
-                      </Badge>
-                    </Grid.Col>
-                    <Grid.Col span={4}>
-                      <Text>Current Due</Text>
-                      <Badge leftSection="₹" color="red">
-                        {fees.stats.currentDue}
+                      <Badge color="green">
+                        <Currency value={fees.stats.totalPaid} />
                       </Badge>
                     </Grid.Col>
                     <Grid.Col span={4}>
                       <Text>Total Due</Text>
-                      <Badge leftSection="₹" color="orange">
-                        {fees.stats.totalDue}
+                      <Badge color="orange">
+                        <Currency value={fees.stats.totalDue} />
+                      </Badge>
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <Text>Over Due</Text>
+                      <Badge color="red">
+                        <Currency value={fees.stats.overDue} />
                       </Badge>
                     </Grid.Col>
                     <Grid.Col span={12}>
@@ -346,62 +345,45 @@ export default function TransactionForm() {
                       >
                         <Table.Thead>
                           <Table.Tr>
-                            <Table.Th>Type</Table.Th>
                             <Table.Th>Name</Table.Th>
                             <Table.Th>Amount</Table.Th>
                             <Table.Th>Due</Table.Th>
                           </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
-                          {Object.keys(
-                            fees.feesWithDue.reduce((acc: any, fee: any) => {
-                              if (!acc[fee.category]) {
-                                acc[fee.category] = [];
-                              }
-                              acc[fee.category].push(fee);
-                              return acc;
-                            }, {})
-                          ).map((category: any) => {
-                            const items = fees.feesWithDue.filter(
-                              (fee: any) => fee.category === category
-                            );
-                            return items.map((item: any, index: number) => (
-                              <Table.Tr key={index}>
-                                {index === 0 && (
-                                  <Table.Td rowSpan={items.length}>
-                                    {titleCase(category)}
-                                  </Table.Td>
-                                )}
-                                <Table.Td>
-                                  <Checkbox
-                                    size="sm"
-                                    label={item.name}
-                                    disabled={item.disabled}
-                                    onChange={(e) =>
-                                      onChangeChekbox(e.target.checked, item)
-                                    }
-                                  />
-                                </Table.Td>
-                                <Table.Td>₹{item.amount}</Table.Td>
-                                <Table.Td
-                                  style={{
-                                    color:
-                                      item.totalDue === 0
-                                        ? 'green'
-                                        : item.isOverdue
-                                        ? 'red'
-                                        : 'black',
-                                  }}
-                                >
-                                  ₹{item.totalDue}{' '}
-                                  {!!(item.dueDate && item.totalDue) &&
-                                    `(${moment(item.dueDate).format(
-                                      'DD-MMM-YYYY'
-                                    )})`}
-                                </Table.Td>
-                              </Table.Tr>
-                            ));
-                          })}
+                          {fees.feesWithDue.map((item: any) => (
+                            <Table.Tr key={item.id}>
+                              <Table.Td>
+                                <Checkbox
+                                  size="sm"
+                                  label={item.name}
+                                  disabled={item.disabled}
+                                  onChange={(e) =>
+                                    onChangeChekbox(e.target.checked, item)
+                                  }
+                                />
+                              </Table.Td>
+                              <Table.Td>
+                                <Currency value={item.amount} />
+                              </Table.Td>
+                              <Table.Td
+                                style={{
+                                  color:
+                                    item.totalDue === 0
+                                      ? 'green'
+                                      : item.isOverdue
+                                      ? 'red'
+                                      : 'black',
+                                }}
+                              >
+                                <Currency value={item.totalDue} />{' '}
+                                {!!(item.dueDate && item.totalDue) &&
+                                  `(${moment(item.dueDate).format(
+                                    'DD-MMM-YYYY'
+                                  )})`}
+                              </Table.Td>
+                            </Table.Tr>
+                          ))}
                         </Table.Tbody>
                       </Table>
                     </Grid.Col>
@@ -420,70 +402,89 @@ export default function TransactionForm() {
                         >
                           <Table.Thead>
                             <Table.Tr>
-                              <Table.Th>Type</Table.Th>
                               <Table.Th>Name</Table.Th>
-                              <Table.Th>Amount</Table.Th>
-                              <Table.Th>Concession</Table.Th>
-                              <Table.Th>Paid</Table.Th>
+                              <Table.Th>Due</Table.Th>
+                              <Table.Th style={{ width: 110 }}>
+                                Concession
+                              </Table.Th>
+                              <Table.Th style={{ width: 110 }}>Paid</Table.Th>
                             </Table.Tr>
                           </Table.Thead>
 
                           <Table.Tbody>
-                            {feesRight
-                              .reduce(
-                                (acc: any, item: any) => [
-                                  ...new Set([...acc, item.category]),
-                                ],
-                                []
-                              )
-                              .map((category: any, pIndex: number) => {
-                                const items = feesRight.filter(
-                                  (fee: any) => fee.category === category
-                                );
-                                return items.map((item: any, index: number) => (
-                                  <Table.Tr key={index}>
-                                    {index === 0 && (
-                                      <Table.Td rowSpan={items.length}>
-                                        {titleCase(category)}
-                                      </Table.Td>
-                                    )}
-                                    <Table.Td>
-                                      <Text size="xs">{item.name}</Text>
-                                    </Table.Td>
-                                    <Table.Td>
-                                      <p>₹{item.totalDue}</p>
-                                      {!!item.lateFine && (
-                                        <p style={{ color: 'red' }}>
-                                          ₹{item.lateFine} ({item.lateDays}d)
-                                        </p>
-                                      )}
-                                    </Table.Td>
+                            {feesRight.map((item: any, index: number) => (
+                              <Table.Tr key={item.id}>
+                                <Table.Td>
+                                  <Text size="sm">{item.name}</Text>
+                                </Table.Td>
+                                <Table.Td>
+                                  <p>
+                                    <Currency value={item.totalDue} />
+                                  </p>
+                                  {!!item.lateFine && (
+                                    <p style={{ color: 'red' }}>
+                                      <Currency value={item.lateFine} /> (
+                                      {item.lateDays}d)
+                                    </p>
+                                  )}
+                                </Table.Td>
 
-                                    <Table.Td>
-                                      <NumberInput
-                                        hideControls
-                                        min={0}
-                                        value={item.concession}
-                                        onChange={(e) =>
-                                          onConcessionChange(Number(e), pIndex)
-                                        }
-                                        leftSection={<Text size="sm">₹</Text>}
-                                      />
-                                    </Table.Td>
-                                    <Table.Td>
-                                      <NumberInput
-                                        hideControls
-                                        min={0}
-                                        value={item.paid}
-                                        onChange={(e) =>
-                                          onPaidChange(Number(e), pIndex)
-                                        }
-                                        leftSection={<Text size="sm">₹</Text>}
-                                      />
-                                    </Table.Td>
-                                  </Table.Tr>
-                                ));
-                              })}
+                                <Table.Td>
+                                  <NumberInput
+                                    hideControls
+                                    min={0}
+                                    value={item.concession}
+                                    onChange={(e) =>
+                                      onConcessionChange(Number(e), index)
+                                    }
+                                    prefix="₹"
+                                    thousandSeparator=","
+                                  />
+                                </Table.Td>
+                                <Table.Td>
+                                  <NumberInput
+                                    hideControls
+                                    min={0}
+                                    value={item.paid}
+                                    onChange={(e) =>
+                                      onPaidChange(Number(e), index)
+                                    }
+                                    prefix="₹"
+                                    thousandSeparator=","
+                                  />
+                                </Table.Td>
+                              </Table.Tr>
+                            ))}
+                            <Table.Tr className="font-bold">
+                              <Table.Td>Total</Table.Td>
+                              <Table.Td>
+                                <Currency
+                                  value={feesRight.reduce(
+                                    (acc: number, item: any) =>
+                                      acc + Number(item.totalDue),
+                                    0
+                                  )}
+                                />
+                              </Table.Td>
+                              <Table.Td>
+                                <Currency
+                                  value={feesRight.reduce(
+                                    (acc: number, item: any) =>
+                                      acc + Number(item.concession),
+                                    0
+                                  )}
+                                />
+                              </Table.Td>
+                              <Table.Td>
+                                <Currency
+                                  value={feesRight.reduce(
+                                    (acc: number, item: any) =>
+                                      acc + Number(item.paid),
+                                    0
+                                  )}
+                                />
+                              </Table.Td>
+                            </Table.Tr>
                           </Table.Tbody>
                         </Table>
                       </Grid.Col>

@@ -12,13 +12,6 @@ import {
 import { academicYearsTable } from './academic-year.schema';
 import { classesTable } from './class.schema';
 
-export enum FeeCategory {
-  Enrollment = 'enrollment',
-  Tuition = 'tuition',
-  Material = 'material',
-  Miscellaneous = 'miscellaneous',
-}
-
 export const academicFeeTable = mysqlTable(
   'academic_fees',
   {
@@ -27,9 +20,6 @@ export const academicFeeTable = mysqlTable(
       .notNull()
       .references(() => academicYearsTable.id),
     name: varchar({ length: 100 }).notNull(),
-    category: mysqlEnum(
-      Object.values(FeeCategory) as [string, ...string[]]
-    ).notNull(),
     classId: bigint({ mode: 'number', unsigned: true }).references(
       () => classesTable.id
     ),
@@ -39,9 +29,9 @@ export const academicFeeTable = mysqlTable(
     updatedAt: timestamp().onUpdateNow(),
   },
   (table) => [
-    index('academic_year_id_category_idx').on(
+    index('academic_year_id_class_id_idx').on(
       table.academicYearId,
-      table.category
+      table.classId
     ),
   ]
 );

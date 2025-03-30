@@ -1,4 +1,3 @@
-import { FeeCategory } from '@school-console/utils';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
@@ -27,10 +26,6 @@ export class CreateAcademicFeeDto {
   @IsNotEmpty()
   name: string;
 
-  @IsEnum(FeeCategory)
-  @IsNotEmpty()
-  category: string;
-
   @IsNumber()
   @IsPositive()
   @IsNotEmpty()
@@ -38,7 +33,6 @@ export class CreateAcademicFeeDto {
 
   @IsDateString()
   @IsOptional()
-  @ValidateIf((o) => o.category !== FeeCategory.Enrollment)
   dueDate: Date;
 }
 
@@ -68,10 +62,6 @@ export class FeeQueryDto {
   @IsOptional()
   @IsString()
   name?: string;
-
-  @IsOptional()
-  @IsString()
-  category?: string;
 
   @IsOptional()
   @Type(() => Number)

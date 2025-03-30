@@ -1,4 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import ReactPDF from '@react-pdf/renderer';
 import {
   academicFeeTable,
   academicYearsTable,
@@ -10,12 +11,11 @@ import {
   transactionTable,
 } from '@school-console/drizzle';
 import { and, asc, count, desc, eq, inArray, like, or } from 'drizzle-orm';
-import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
-import ReactPDF from '@react-pdf/renderer';
-import TransactionReceipt from '../templates/transactions/recept';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-var writtenNumber = require('written-number');
+import writtenNumber from 'written-number';
+import TransactionReceipt from '../templates/transactions/recept';
+import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -118,7 +118,6 @@ export class TransactionsService {
       .select({
         id: academicFeeTable.id,
         name: academicFeeTable.name,
-        category: academicFeeTable.category,
         amount: academicFeeTable.amount,
         dueDate: academicFeeTable.dueDate,
       })
@@ -128,8 +127,7 @@ export class TransactionsService {
           eq(academicFeeTable.academicYearId, academicYearId),
           eq(academicFeeTable.classId, classId)
         )
-      )
-      .orderBy(academicFeeTable.category);
+      );
 
     const transactions = await this.db
       .select()
@@ -201,7 +199,7 @@ export class TransactionsService {
       (sum, fee) => sum + fee.lateFine,
       0
     );
-    const currentDue = feesWithDue.reduce((sum, fee) => {
+    const overDue = feesWithDue.reduce((sum, fee) => {
       if (fee.isOverdue) {
         return sum + fee.totalDue;
       }
@@ -214,7 +212,7 @@ export class TransactionsService {
         totalPaid,
         totalDue,
         totalLateFine,
-        currentDue,
+        overDue,
       },
     };
   }
@@ -336,7 +334,7 @@ export class TransactionsService {
       0
     );
 
-    let studentRes: any = {
+    const studentRes: any = {
       ...studentData,
       items: transactionItems,
       totalAmount: totalAmount,
@@ -345,7 +343,6 @@ export class TransactionsService {
 
     console.log('debug-id', studentData, transactionItems);
 
-    //@ts-ignore
     const logo = readFileSync(
       join(__dirname, '../../../', 'storage/logo-circle.png')
     );

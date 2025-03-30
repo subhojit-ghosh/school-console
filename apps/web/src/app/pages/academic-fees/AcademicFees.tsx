@@ -14,7 +14,7 @@ import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import { titleCase } from '../../utils/text-formating';
+import Currency from '../../components/Currency';
 import AcademicFeeForm from './AcademicFeeForm';
 
 export default function AcademicFeesPage() {
@@ -23,7 +23,7 @@ export default function AcademicFeesPage() {
     data: [],
     totalRecords: 0,
     totalPages: 0,
-    size: 10,
+    size: 20,
     page: 1,
   });
   const [filters, setFilters] = useDebouncedState(
@@ -34,7 +34,7 @@ export default function AcademicFeesPage() {
     200
   );
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-    columnAccessor: 'category',
+    columnAccessor: '',
     direction: 'asc',
   });
   const [formOpened, setFormOpened] = useState(false);
@@ -185,12 +185,6 @@ export default function AcademicFeesPage() {
         onSortStatusChange={setSortStatus}
         columns={[
           {
-            accessor: 'category',
-            title: 'Category',
-            render: (row: any) => titleCase(row.category),
-            sortable: true,
-          },
-          {
             accessor: 'name',
             title: 'Name',
             sortable: true,
@@ -198,7 +192,7 @@ export default function AcademicFeesPage() {
           {
             accessor: 'amount',
             title: 'Amount',
-            render: (row: any) => `₹${row.amount}`,
+            render: (row: any) => <Currency value={row.amount} />,
             sortable: true,
           },
           {

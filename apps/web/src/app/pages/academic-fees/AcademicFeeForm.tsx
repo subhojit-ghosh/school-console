@@ -15,7 +15,6 @@ import { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
-import { FeeCategories } from '../../data/fee-categories';
 import { showSuccessNotification } from '../../utils/notification';
 
 export default function AcademicFeeForm({
@@ -32,7 +31,6 @@ export default function AcademicFeeForm({
   const form = useForm({
     validateInputOnChange: true,
     initialValues: {
-      category: '',
       academicYearId: '',
       classId: '',
       name: '',
@@ -41,7 +39,6 @@ export default function AcademicFeeForm({
     },
     validate: yupResolver(
       yup.object().shape({
-        category: yup.string().trim().required('Category is required'),
         academicYearId: yup
           .string()
           .trim()
@@ -58,8 +55,7 @@ export default function AcademicFeeForm({
   });
 
   useEffect(() => {
-    form.setFieldValue('academicYearId', filters.academicYearId || '');
-    form.setFieldValue('classId', filters.classId || '');
+    populatePreselectedValues();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
@@ -73,13 +69,17 @@ export default function AcademicFeeForm({
         name: data.name || '',
         academicYearId: String(data.academicYearId) || '',
         classId: data.classId ? String(data.classId) : '',
-        category: data.category || '',
         amount: data.amount || '',
         dueDate: data.dueDate ? (new Date(data.dueDate) as any) : '',
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, mode]);
+
+  const populatePreselectedValues = () => {
+    form.setFieldValue('academicYearId', filters.academicYearId || '');
+    form.setFieldValue('classId', filters.classId || '');
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -106,6 +106,7 @@ export default function AcademicFeeForm({
 
       fetchList();
       form.reset();
+      populatePreselectedValues();
       close();
     } catch (error) {
       console.error(error);
@@ -152,15 +153,6 @@ export default function AcademicFeeForm({
             />
           </Grid.Col>
           <Grid.Col span={12}>
-            <Select
-              label="Category"
-              placeholder="Select"
-              data={FeeCategories}
-              withAsterisk
-              {...form.getInputProps('category')}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
             <TextInput
               label="Name"
               withAsterisk
@@ -173,6 +165,7 @@ export default function AcademicFeeForm({
               withAsterisk
               allowDecimal={false}
               prefix="₹"
+              thousandSeparator=","
               {...form.getInputProps('amount')}
             />
           </Grid.Col>
