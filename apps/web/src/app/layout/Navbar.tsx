@@ -8,6 +8,7 @@ import {
 } from '@mantine/core';
 import { titleCase } from '@school-console/utils';
 import {
+  IconBus,
   IconCalendar,
   IconCash,
   IconChalkboard,
@@ -32,9 +33,9 @@ const data = [
   { link: '/students', label: 'Students', icon: IconUsers },
   { link: '/classes', label: 'Classes', icon: IconChalkboard },
   { link: '/academic-fees', label: 'Academic Fees', icon: IconReceipt },
-  // { link: '/transport', label: 'Transport', icon: IconBus },
   { link: '/transactions', label: 'Transactions', icon: IconCash },
   { link: '/reports', label: 'Reports', icon: IconReport },
+  { link: '/transport', label: 'Transport', icon: IconBus },
   { link: '/users', label: 'Users', icon: IconPasswordUser },
 ];
 
