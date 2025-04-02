@@ -6,3 +6,6 @@ export * from './student.schema';
 export * from './transaction.schema';
 export * from './user.schema';
 export * from './transaction-item.schema';
+export * from './transport.schema';
+export * from './transport-fees.schema';
+export * from './transport-fee-items.schema';

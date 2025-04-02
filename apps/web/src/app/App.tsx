@@ -27,6 +27,7 @@ import UsersPage from './pages/users/Users';
 import AuthenticatedRoutes from './route-guards/authenticated';
 import RedirectIfAuthenticatedRoutes from './route-guards/redirect-if-authenticated';
 import { useAuthStore } from './stores/authStore';
+import TransportPage from './pages/transports/transport';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -93,6 +94,7 @@ export function App() {
                   <Route path="add/:type" element={<TransactionForm />} />
                 </Route>
                 <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/transport" element={<TransportPage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="*" element={<PageNotFound />} />
               </Route>

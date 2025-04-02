@@ -30,6 +30,8 @@ import { TransactionsController } from './transaction/transactions.controller';
 import { TransactionsService } from './transaction/transactions.service';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
+import { TransportController } from './transport/transport.controller';
+import { TransportService } from './transport/transport.service';
 
 @Module({
   imports: [
@@ -84,6 +86,7 @@ import { UsersService } from './users/users.service';
     AcademicFeeController,
     TransactionsController,
     ReportsController,
+    TransportController,
   ],
   providers: [
     AppService,
@@ -97,6 +100,7 @@ import { UsersService } from './users/users.service';
     AcademicFeeService,
     TransactionsService,
     ReportsService,
+    TransportService,
   ],
 })
 export class AppModule {}

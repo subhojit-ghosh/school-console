@@ -35,7 +35,7 @@ import {
   IconPlus,
   IconTrash,
   IconUpload,
-  IconX
+  IconX,
 } from '@tabler/icons-react';
 import moment from 'moment';
 import { Fragment, useEffect, useState } from 'react';
@@ -45,16 +45,14 @@ import {
   useDeleteDocumentById,
   useGetStudentById,
   useUpdateStudentDocuments,
-  useUpdateStudentGuardianInfo
+  useUpdateStudentGuardianInfo,
 } from '../../services/students/apiQuery';
 import {
   useGetAcadDropdown,
   useGetClasses,
 } from '../../services/utils/apiQuery';
 import { StudentPersonalType } from '../../types/student';
-import {
-  showSuccessNotification
-} from '../../utils/notification';
+import { showSuccessNotification } from '../../utils/notification';
 
 type StudentFormProps = {
   action: 'add' | 'edit';
@@ -426,6 +424,10 @@ export default function StudentForm({ action }: StudentFormProps) {
           ? new Date(studentDetailsById.dob)
           : undefined,
         isBothAddressSame: !!studentDetailsById.isBothAddressSame,
+        isTransportTaken: !!studentDetailsById.isTransportTaken,
+        transportKm: studentDetailsById.isTransportTaken
+          ? studentDetailsById.transportKm
+          : undefined,
         previousSchoolDetails: JSON.parse(
           studentDetailsById.previousSchoolDetails
         ).map((rec: any) => ({
@@ -496,6 +498,7 @@ export default function StudentForm({ action }: StudentFormProps) {
             ? v.siblingDetails
             : []
         ),
+        transportKm: v.isTransportTaken ? Number(v.transportKm) : 0,
       },
       {
         onSuccess: (dt) => {
@@ -788,6 +791,38 @@ export default function StudentForm({ action }: StudentFormProps) {
                       hideControls={true}
                     />
                   </Grid.Col>
+                  <Grid.Col span={3}>
+                    <Checkbox
+                      mt="23px"
+                      defaultChecked
+                      label="Is Transport Taken"
+                      checked={studentPersonalForm.getValues().isTransportTaken}
+                      key={studentPersonalForm.key('isTransportTaken')}
+                      {...studentPersonalForm.getInputProps('isTransportTaken')}
+                      onChange={(e) => {
+                        studentPersonalForm.setValues({
+                          isTransportTaken: e.currentTarget.checked,
+                          transportKm: undefined,
+                        });
+                      }}
+                    />
+                  </Grid.Col>
+
+                  {studentPersonalForm.getValues().isTransportTaken && (
+                    <Grid.Col span={3}>
+                      <NumberInput
+                        label="Transport K.M"
+                        minLength={0}
+                        withAsterisk={
+                          studentPersonalForm.getValues().isTransportTaken
+                        }
+                        key={studentPersonalForm.key('transportKm')}
+                        {...studentPersonalForm.getInputProps('transportKm')}
+                        leftSection={<Text size="sm">Km.</Text>}
+                        hideControls={true}
+                      />
+                    </Grid.Col>
+                  )}
 
                   <Grid.Col span={12}>
                     <Textarea

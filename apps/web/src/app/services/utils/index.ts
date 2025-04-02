@@ -18,3 +18,16 @@ export async function getAcadDropdown() {
     label: rec.name,
   }));
 }
+
+export async function getStudentsByClassId(classId: string) {
+  const { data } = await httpClient.get(endpoints.students.list(), {
+    params: {
+      size: 9999,
+      classId: classId,
+    },
+  });
+  return data.data.map((item: any) => ({
+    label: `${item.name} (${item.isEnrolled ? item.enrolledNo : item.regId})`,
+    value: String(item.id),
+  }));
+}
