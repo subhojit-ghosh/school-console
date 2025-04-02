@@ -302,6 +302,14 @@ export class CreateStudentPersonalInfoDto {
   @IsNotEmpty()
   mothersPhone: string;
 
+  @IsBoolean()
+  @IsOptional()
+  isTransportTaken: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  transportKm: number;
+
   @IsString()
   @IsNotEmpty()
   presentAddess: string;

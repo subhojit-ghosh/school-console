@@ -60,6 +60,18 @@ const endpoints = {
   reports: {
     dues: () => api('reports/dues'),
   },
+  transports: {
+    saveSettings: (id?: string) => api(`transport/settings`),
+    getSettingsByAcadId: (id?: string) => api(`transport/settings/${id}/`),
+    saveTransportFee: () => api(`transport/fees`),
+    getFeeDropDownItemByStudentAcadId: (
+      academicYearId: string,
+      studentId: string
+    ) => api(`transport/fee-items/dropdown/${academicYearId}/${studentId}`),
+    getListByAcadId: (academicYearId: string) =>
+      api(`transport/list/${academicYearId}`),
+    getTransportItemById: (id: string) => api(`transport/fee-item/${id}`),
+  },
 };
 
 export default endpoints;

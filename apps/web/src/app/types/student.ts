@@ -20,6 +20,9 @@ export type StudentPersonalType = {
   mothersName: string;
   mothersPhone: string;
 
+  isTransportTaken?: boolean;
+  transportKm?: number;
+
   presentAddess: string;
   presentPo: string;
   presentPs: string;

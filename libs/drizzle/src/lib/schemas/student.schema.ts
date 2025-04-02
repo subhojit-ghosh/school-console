@@ -4,6 +4,7 @@ import {
   char,
   date,
   index,
+  int,
   json,
   mysqlTable,
   serial,
@@ -119,6 +120,9 @@ export const studentsTable = mysqlTable(
     fatherSignature: text(),
     motherSignature: text(),
     guardainSignature: text(),
+
+    isTransportTaken: boolean().default(false),
+    transportKm: int().default(0),
 
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp().onUpdateNow(),

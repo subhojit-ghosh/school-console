@@ -77,9 +77,9 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
+      classnames:
+        specifier: ^2.5.1
+        version: 2.5.1
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -4600,6 +4600,9 @@ packages:
 
   class-validator@0.14.1:
     resolution: {integrity: sha512-2VEG9JICxIqTpoK1eMzZqaV+u/EiwEJkMGzTrZf6sU/fwsnOITVgYJ8yojSy6CaXtO9V0Cc6ZQZ8h8m4UBuLwQ==}
+
+  classnames@2.5.1:
+    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
   cli-boxes@3.0.0:
     resolution: {integrity: sha512-/lzGpEWL/8PfI0BmBOPRwp0c/wFNX1RdUML3jK/RcSBA9T8mZDdQpqYBKtCFTOfQbwPqWEOpjqW+Fnayc0969g==}
@@ -15147,6 +15150,8 @@ snapshots:
       '@types/validator': 13.12.3
       libphonenumber-js: 1.12.6
       validator: 13.15.0
+
+  classnames@2.5.1: {}
 
   cli-boxes@3.0.0: {}
 
