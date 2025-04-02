@@ -234,7 +234,7 @@ export default function TransactionForm() {
   function onChangeChekbox(checked: boolean, item: any) {
     let items: any = feesRight || [];
     if (checked) {
-      items.push({ ...item, concession: '', paid: '' });
+      items.push({ ...item, concession: '', paid: String(item.totalDue) });
     } else {
       items = items.filter((rec: any) => rec.id !== item.id);
     }
