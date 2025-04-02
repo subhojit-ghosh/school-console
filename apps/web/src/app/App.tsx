@@ -23,11 +23,11 @@ import StudentForm from './pages/students/StudentForm';
 import StudentsPage from './pages/students/Students';
 import TransactionForm from './pages/transactions/TransactionForm';
 import TransactionsPage from './pages/transactions/Transactions';
+import TransportPage from './pages/transports/Transport';
 import UsersPage from './pages/users/Users';
 import AuthenticatedRoutes from './route-guards/authenticated';
 import RedirectIfAuthenticatedRoutes from './route-guards/redirect-if-authenticated';
 import { useAuthStore } from './stores/authStore';
-import TransportPage from './pages/transports/transport';
 
 const theme = createTheme({
   primaryColor: 'indigo',
