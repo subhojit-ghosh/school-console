@@ -9,6 +9,7 @@ import {
   NumberInput,
   Select,
   Skeleton,
+  Text,
   TextInput,
   ThemeIcon,
   Title,
@@ -17,11 +18,13 @@ import {
   IconChevronDown,
   IconChevronLeft,
   IconSettings,
+  IconX,
 } from '@tabler/icons-react';
 import {
   useGetAcadDropdown,
   useGetClasses,
   useGetStudentsByClassIdDropwdown,
+  useGetTransportTakenStudentsByClassIdDropwdown,
 } from '../../services/utils/apiQuery';
 import { useEffect, useState } from 'react';
 import {
@@ -41,6 +44,7 @@ import classNames from 'classnames';
 import moment from 'moment';
 
 export default function TransportPage() {
+  const [acadId, setAcadId] = useState<string | null>(null);
   const [months, setMonths] = useState<any>([
     {
       value: '1',
@@ -143,6 +147,7 @@ export default function TransportPage() {
     initialValues: transportFeeInitialValue,
     validate: {
       academicYearId: (v) => (!v ? 'Field is required' : null),
+      months: (v) => (!v?.length ? 'Field is required' : null),
       classId: (v) => (!v ? 'Field is required' : null),
       studentId: (v) => (!v ? 'Field is required' : null),
       baseAmount: (v) => (!v ? 'Field is required' : null),
@@ -151,16 +156,17 @@ export default function TransportPage() {
     },
   });
 
-  const [acadId, setAcadId] = useState<string | null>(null);
   const { data: academicYears = [] } = useGetAcadDropdown();
   const { data: classLists = [] } = useGetClasses();
-  const { data: studentsList = [] } = useGetStudentsByClassIdDropwdown(
-    transportFeeForm.getValues().classId as string
-  );
+  const { data: studentsList = [] } =
+    useGetTransportTakenStudentsByClassIdDropwdown(
+      transportFeeForm.getValues().classId as string
+    );
   const { data: transportSettingByAcadId = {}, refetch } =
     useGetTransportSettingByAcadId(acadId as any);
+
   const {
-    data: feeItemsList = [],
+    data: feeItemsList = {},
     isFetching: feeItemIsFetching,
     isFetched: feeItemIsFetched,
   } = useGetTransportFeeDropdownItemsByStudentAcadId(
@@ -172,9 +178,7 @@ export default function TransportPage() {
     data: tableList = [],
     isFetching: tableIsFetching,
     refetch: tableListRefetch,
-  } = useGetTransportListByAcadId(
-    transportFeeForm.getValues().academicYearId || ''
-  );
+  } = useGetTransportListByAcadId(acadId || '');
 
   const {
     data: tableDetailList = [],
@@ -186,17 +190,12 @@ export default function TransportPage() {
   const saveTransportSetting = useSaveTransportSetting();
   const saveTransportFee = useSaveTransportFee();
 
-  useEffect(
-    () => console.log(`debug-eff-expandedTransportIds`, expandedTransportIds),
-    [expandedTransportIds]
-  );
-
   useEffect(() => {
     if (feeItemIsFetched) {
       setMonths((pState: any) => {
         return (pState || []).map((item: any) => ({
           ...item,
-          disabled: (feeItemsList || [])
+          disabled: (feeItemsList.feeItems || [])
             .map((rItem: { month: number }) => rItem.month.toString())
             .includes(item.value.toString()),
         }));
@@ -367,8 +366,10 @@ export default function TransportPage() {
                     classId: dt,
                     studentId: null,
                     months: [],
+                    amount: 0,
                   });
                 }}
+                allowDeselect={false}
                 nothingFoundMessage="No record(s) found"
               />
             </Grid.Col>
@@ -380,6 +381,7 @@ export default function TransportPage() {
                 {...transportFeeForm.getInputProps('studentId')}
                 key={transportFeeForm.key('studentId')}
                 nothingFoundMessage="No record(s) found"
+                allowDeselect={false}
               />
             </Grid.Col>
             <Grid.Col span={3}>
@@ -392,9 +394,16 @@ export default function TransportPage() {
                   transportFeeForm.setValues({
                     months: [...dt],
                     amount:
-                      (transportFeeForm.values.baseAmount || 0) +
-                      Number(transportFeeForm.values.perKmCharge || 0) *
-                        dt.length,
+                      dt.length === 0
+                        ? 0
+                        : (transportFeeForm.values.baseAmount || 0) +
+                          Number(
+                            (transportFeeForm.values.perKmCharge || 0) *
+                              (feeItemsList.studentRecord.isTransportTaken
+                                ? feeItemsList.studentRecord.transportKm * 2
+                                : 1)
+                          ) *
+                            dt.length,
                   });
                 }}
                 disabled={!transportFeeForm.getValues().studentId}
@@ -412,14 +421,28 @@ export default function TransportPage() {
               />
             </Grid.Col>
             <Grid.Col span={4}>
-              <NumberInput
+              <Group align="center" justify="flex-start" gap={2} mt="lg">
+                <Text size="sm">Charge</Text>
+                <Text fw="bold" fs="italic" size="sm">
+                  @ ₹{transportFeeForm.values.perKmCharge}/-
+                </Text>
+                <IconX size="15" />
+                <Text size="md" fw="bold">
+                  {(feeItemsList.studentRecord &&
+                    feeItemsList.studentRecord.transportKm * 2) ||
+                    ''}{' '}
+                  Km.
+                </Text>
+              </Group>
+              <Text></Text>
+              {/* <NumberInput
                 label="Per Km Charge"
                 withAsterisk
                 min={1}
                 hideControls={true}
                 disabled={true}
                 {...transportFeeForm.getInputProps('perKmCharge')}
-              />
+              /> */}
             </Grid.Col>
             <Grid.Col span={4}>
               <NumberInput
@@ -497,7 +520,11 @@ export default function TransportPage() {
         striped
         highlightOnHover
         columns={[
-          { accessor: 'id' },
+          {
+            accessor: 'id',
+            title: '#',
+            render: (record) => tableList?.indexOf(record) + 1,
+          },
           { accessor: 'studentName' },
           { accessor: 'baseAmount' },
           { accessor: 'perKmCharge' },
@@ -539,7 +566,11 @@ export default function TransportPage() {
                 striped
                 highlightOnHover
                 columns={[
-                  { accessor: 'id' },
+                  {
+                    accessor: 'id',
+                    title: '#',
+                    render: (record) => tableDetailList?.indexOf(record) + 1,
+                  },
                   {
                     accessor: 'month',
                     render: (dt) => {

@@ -558,6 +558,12 @@ export class StudentQueryDto {
   @IsInt()
   @IsPositive()
   classId?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  isTransportTaken?: number;
 }
 
 export class StudentDocumentDto {

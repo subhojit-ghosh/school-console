@@ -65,7 +65,7 @@ export class TransportService {
   }
 
   async findTransportFeeItems(academicYearId: string, studentId: string) {
-    return await this.db
+    const feeItems = await this.db
       .select({
         month: transportFeeItemsTable.month,
       })
@@ -76,6 +76,20 @@ export class TransportService {
           eq(transportFeeItemsTable.studentId, Number(studentId))
         )
       );
+
+    const studentRecord = await this.db
+      .select({
+        isTransportTaken: studentsTable.isTransportTaken,
+        transportKm: studentsTable.transportKm,
+      })
+      .from(studentsTable)
+      .where(and(eq(studentsTable.id, Number(studentId))))
+      .then((res) => (res.length > 0 ? res[0] : {}));
+
+    return {
+      feeItems,
+      studentRecord,
+    };
   }
 
   async findAll(academicYearId: string) {

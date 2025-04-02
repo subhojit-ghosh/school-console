@@ -41,9 +41,16 @@ export class StudentsService {
       fathersName,
       isEnrolled,
       classId,
+      isTransportTaken,
     } = query;
     const offset = (page - 1) * size;
     const whereConditions: any = [];
+
+    if (isTransportTaken) {
+      whereConditions.push(
+        eq(studentsTable.isTransportTaken, Boolean(isTransportTaken))
+      );
+    }
     if (enrolledNo) {
       whereConditions.push(like(studentsTable.enrolledNo, `%${enrolledNo}%`));
     }
