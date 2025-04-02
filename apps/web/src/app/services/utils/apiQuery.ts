@@ -1,5 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAcadDropdown, getClasses, getStudentsByClassId } from '.';
+import {
+  getAcadDropdown,
+  getClasses,
+  getStudentsByClassId,
+  getTransportTakenStudentsByClassId,
+} from '.';
 
 export function useGetClasses() {
   return useQuery({
@@ -19,6 +24,16 @@ export function useGetStudentsByClassIdDropwdown(classId: string) {
   return useQuery({
     queryKey: ['students-dropdown', classId],
     queryFn: () => getStudentsByClassId(classId),
+    enabled: !!classId,
+  });
+}
+
+export function useGetTransportTakenStudentsByClassIdDropwdown(
+  classId: string
+) {
+  return useQuery({
+    queryKey: ['students-dropdown', classId],
+    queryFn: () => getTransportTakenStudentsByClassId(classId),
     enabled: !!classId,
   });
 }
