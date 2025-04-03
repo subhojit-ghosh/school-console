@@ -17,6 +17,7 @@ import writtenNumber from 'written-number';
 import TransactionReceipt from '../templates/transactions/recept';
 import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
 import { titleCase } from '@school-console/utils';
+import * as qrcode from 'qrcode';
 
 @Injectable()
 export class TransactionsService {
@@ -324,7 +325,7 @@ export class TransactionsService {
   }
 
   async getReceipt(id: string) {
-    const transaction = await this.db
+    const transaction: any = await this.db
       .select({
         id: transactionTable.id,
         date: transactionTable.createdAt,
@@ -388,6 +389,11 @@ export class TransactionsService {
       totalAmount: totalAmount,
       totalInWords: titleCase(writtenNumber(totalAmount).replace(/-/g, ' ')),
     };
+
+    const qrCodeDataURL = await qrcode.toDataURL(
+      `Transaction ID #${transaction.id} | JDS Public School`
+    );
+    data.qrCodeDataURL = qrCodeDataURL;
 
     const logo = readFileSync(
       join(__dirname, '../../../', 'storage/logo-circle.png')

@@ -311,6 +311,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
           {moneyReceiptTitle}
         </Text>
       </View>
+      <Image style={styles.logo} src={data.qrCodeDataURL} />
     </View>
   );
 
