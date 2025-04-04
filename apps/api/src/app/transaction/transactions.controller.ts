@@ -8,10 +8,13 @@ import {
   Query,
   Res,
   StreamableFile,
+  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
 import { TransactionsService } from './transactions.service';
+import { AuthUser, IAuthUser } from '../auth/auth-user.decorator';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -45,14 +48,16 @@ export class TransactionsController {
     return this.transactionsService.create(dto);
   }
 
+  @UseGuards(AuthGuard)
   @Post('/receipt/:id')
   async fetchRecepit(
     @Param('id') id: string,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
+    @AuthUser() user: IAuthUser
   ) {
     res.header('Content-Type', 'application/pdf');
     return new StreamableFile(
-      (await this.transactionsService.getReceipt(id)) as any
+      (await this.transactionsService.getReceipt(id, user)) as any
     );
   }
 }

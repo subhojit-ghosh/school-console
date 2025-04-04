@@ -370,7 +370,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         </Text>
       </View>
 
-      {paymentArr.map((rec, index) => (
+      {(data.items || []).map((rec, index) => (
         <View style={styles.flexRowNoMargin} key={index}>
           <Text
             style={{
@@ -382,7 +382,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               borderBottomWidth: '0px',
             }}
           >
-            {rec.label}
+            {rec.academicFeeName}
           </Text>
           <Text
             style={{
@@ -404,7 +404,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               borderBottomWidth: '0px',
             }}
           >
-            {rec.payableAmount}
+            {Number(rec.payable).toLocaleString('en-IN')}
           </Text>
           <Text
             style={{
@@ -416,7 +416,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               borderBottomWidth: '0px',
             }}
           >
-            {rec.paidAmount}
+            {Number(rec.paid).toLocaleString('en-IN')}
           </Text>
         </View>
       ))}
@@ -451,10 +451,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             paddingRight: '5px',
           }}
         >
-          {paymentArr.reduce(
-            (acc, item) => acc + Number(item.payableAmount),
-            0
-          )}
+          {Number(data.totalPayableAmount).toLocaleString('en-IN')}
         </Text>
         <Text
           style={{
@@ -465,7 +462,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             paddingRight: '5px',
           }}
         >
-          {paymentArr.reduce((acc, item) => acc + Number(item.paidAmount), 0)}
+          {Number(data.totalAmount).toLocaleString('en-IN')}
         </Text>
       </View>
       <View style={styles.flexRowNoMargin}>
@@ -511,7 +508,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             borderTopWidth: '0px',
           }}
         >
-          {paymentArr.reduce((acc, item) => acc + Number(item.paidAmount), 0)}
+          {Number(data.totalAmount).toLocaleString('en-IN')}
         </Text>
       </View>
       <View style={styles.flexRowNoMargin}>
@@ -557,11 +554,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             borderTopWidth: '0px',
           }}
         >
-          {paymentArr.reduce(
-            (acc, item) => acc + Number(item.payableAmount),
-            0
-          ) -
-            paymentArr.reduce((acc, item) => acc + Number(item.paidAmount), 0)}
+          {Number(data.totalDueAmount).toLocaleString('en-IN')}
         </Text>
       </View>
       <View style={styles.flexRowNoMargin}>
@@ -591,41 +584,6 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
           {data.totalInWords}
         </Text>
       </View>
-
-      {/* {(data.items || []).map((rec, index) => (
-        <View style={styles.flexRowNoMargin} key={index}>
-          <Text
-            style={{
-              ...styles.defaultText,
-              ...styles.flexRowNoMarginFirstCell,
-              borderTopWidth: '0px',
-            }}
-          >
-            {index + 1}
-          </Text>
-          <Text
-            style={{
-              ...styles.defaultText,
-              ...styles.flexRowNoMarginSecondCell,
-              borderTopWidth: '0px',
-              textAlign: 'left',
-              paddingLeft: '10px',
-            }}
-          >
-            {rec.academicFeeName}
-          </Text>
-          <Text
-            style={{
-              ...styles.defaultText,
-              ...styles.flexRowNoMarginThirdCell,
-              borderTopWidth: '0px',
-              textAlign: 'left',
-            }}
-          >
-            {Number(rec.paid).toLocaleString('en-IN')}
-          </Text>
-        </View>
-      ))} */}
     </View>
   );
 
@@ -634,7 +592,9 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       <View style={styles.flexRowNoMargin}>
         <View style={styles.flexRowNoMargin}>
           <Text style={styles.infoLabel}>Registration No.:</Text>
-          <Text style={{ ...styles.infoText, fontWeight: 500 }}>J-11002</Text>
+          <Text style={{ ...styles.infoText, fontWeight: 500 }}>
+            {data.regNo}
+          </Text>
         </View>
         <View style={styles.flexRowNoMargin}>
           <Text style={styles.infoLabel}>Regn. Year:</Text>
@@ -644,7 +604,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               width: '120px',
             }}
           >
-            2023-2024
+            {data.session}
           </Text>
         </View>
         <View style={styles.flexRowNoMargin}>
@@ -656,18 +616,22 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               paddingRight: '10px',
             }}
           >
-            1317
+            {data.receiptNo}
           </Text>
         </View>
       </View>
       <View style={styles.flexRowNoMargin}>
         <View style={styles.flexRowNoMargin}>
           <Text style={styles.infoLabel}>Student's Name</Text>
-          <Text style={{ ...styles.infoText, fontWeight: 500 }}>J-11002</Text>
+          <Text style={{ ...styles.infoText, fontWeight: 500 }}>
+            {data.studentName}
+          </Text>
         </View>
         <View style={styles.flexRowNoMargin}>
           <Text style={styles.infoLabel}>Class & Roll No</Text>
-          <Text style={{ ...styles.infoText, width: '120px' }}>2023-2024</Text>
+          <Text style={{ ...styles.infoText, width: '120px' }}>
+            {data.className}
+          </Text>
         </View>
         <View style={styles.flexRowNoMargin}>
           <Text style={{ ...styles.infoLabel }}>Date</Text>
@@ -678,14 +642,16 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               paddingRight: '10px',
             }}
           >
-            1317
+            {moment(data.date).format('DD MMM YY')}
           </Text>
         </View>
       </View>
       <View style={styles.flexRowNoMargin}>
         <View style={styles.flexRowNoMargin}>
           <Text style={styles.infoLabel}>Father's Name</Text>
-          <Text style={{ ...styles.infoText, fontWeight: 500 }}>J-11002</Text>
+          <Text style={{ ...styles.infoText, fontWeight: 500 }}>
+            {data.fathersName}
+          </Text>
         </View>
         <View style={styles.flexRowNoMargin}>
           <Text style={styles.infoLabel}>Payment Mode</Text>
@@ -695,7 +661,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               width: '200px',
             }}
           >
-            UPI - TXN ID 123456789012
+            {data.mode} - {data.note}
           </Text>
         </View>
         <View style={styles.flexRowNoMargin}>
@@ -715,11 +681,11 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               paddingRight: '6px',
             }}
           >
-            16 Nov 23
+            {moment(data.date).format('DD MMM YY')}
           </Text>
         </View>
       </View>
-      <View style={styles.flexRowNoMargin}>
+      {/* <View style={styles.flexRowNoMargin}>
         <View style={styles.flexRowNoMargin}>
           <Text style={styles.infoLabel}>Payment For</Text>
           <Text style={{ ...styles.infoText, fontWeight: 500, width: '320px' }}>
@@ -738,7 +704,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             1317
           </Text>
         </View>
-      </View>
+      </View> */}
       <View
         style={{
           marginBottom: '10px',
@@ -756,7 +722,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
           <Text
             style={{
               ...styles.defaultText,
-              marginTop: '10px',
+              marginTop: '8px',
               textAlign: 'center',
               fontWeight: 500,
             }}
@@ -771,7 +737,16 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
           <Text
             style={{
               ...styles.defaultText,
-              marginTop: '10px',
+              textAlign: 'center',
+              fontSize: 10,
+              fontWeight: 500,
+            }}
+          >
+            {data.user.username}
+          </Text>
+          <Text
+            style={{
+              ...styles.defaultText,
               textAlign: 'center',
               fontWeight: 500,
             }}
