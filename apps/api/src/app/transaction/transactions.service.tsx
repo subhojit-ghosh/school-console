@@ -415,7 +415,6 @@ export class TransactionsService {
     const logo = readFileSync(
       join(__dirname, '../../../', 'storage/logo-circle.png')
     );
-    console.log('debug-logo', logo);
     return await ReactPDF.renderToStream(
       <TransactionReceipt logo={logo.toString('base64')} data={data} />
     );

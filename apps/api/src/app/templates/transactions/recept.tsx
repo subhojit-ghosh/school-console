@@ -65,49 +65,6 @@ Font.register({
   ],
 });
 
-const paymentArr = [
-  {
-    label: 'Registration Fees',
-    payableAmount: 5000,
-    paidAmount: 5000,
-  },
-  {
-    label: 'Admission Fees',
-    payableAmount: 15000,
-    paidAmount: 8000,
-  },
-  {
-    label: 'Sessional Fees',
-    payableAmount: 15000,
-    paidAmount: 10000,
-  },
-  {
-    label: 'Tuition Fees',
-    payableAmount: 8400,
-    paidAmount: 2800,
-  },
-  {
-    label: 'Books',
-    payableAmount: 6700,
-    paidAmount: 6700,
-  },
-  {
-    label: 'Uniform',
-    payableAmount: 6500,
-    paidAmount: 6500,
-  },
-  {
-    label: 'Late Fine',
-    payableAmount: '',
-    paidAmount: '',
-  },
-  {
-    label: 'Less Fees',
-    payableAmount: 17600,
-    paidAmount: '',
-  },
-];
-
 const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
   const styles = StyleSheet.create({
     page: {
@@ -239,6 +196,11 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       width: '100px',
       fontSize: '11px',
       flexGrow: 1,
+      // backgroundColor: 'green',
+    },
+    infoTextNoWidth: {
+      // fontSize: '11px',
+      // flexGrow: 1,
       // backgroundColor: 'green',
     },
     boldText: {
@@ -590,24 +552,39 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
   const FormSection = () => (
     <View style={styles.flexCol}>
       <View style={styles.flexRowNoMargin}>
-        <View style={styles.flexRowNoMargin}>
+        <View
+          style={{
+            ...styles.flexRowNoMargin,
+            width: '40%',
+          }}
+        >
           <Text style={styles.infoLabel}>Registration No.:</Text>
           <Text style={{ ...styles.infoText, fontWeight: 500 }}>
             {data.regNo}
           </Text>
         </View>
-        <View style={styles.flexRowNoMargin}>
+        <View
+          style={{
+            ...styles.flexRowNoMargin,
+            width: '37%',
+          }}
+        >
           <Text style={styles.infoLabel}>Regn. Year:</Text>
           <Text
             style={{
               ...styles.infoText,
-              width: '120px',
+              width: '100px',
             }}
           >
             {data.session}
           </Text>
         </View>
-        <View style={styles.flexRowNoMargin}>
+        <View
+          style={{
+            ...styles.flexRowNoMargin,
+            width: '23%',
+          }}
+        >
           <Text style={{ ...styles.infoLabel }}>Receipt No.</Text>
           <Text
             style={{
@@ -621,19 +598,19 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         </View>
       </View>
       <View style={styles.flexRowNoMargin}>
-        <View style={styles.flexRowNoMargin}>
+        <View style={{ ...styles.flexRowNoMargin, width: '40%' }}>
           <Text style={styles.infoLabel}>Student's Name</Text>
           <Text style={{ ...styles.infoText, fontWeight: 500 }}>
             {data.studentName}
           </Text>
         </View>
-        <View style={styles.flexRowNoMargin}>
+        <View style={{ ...styles.flexRowNoMargin, width: '37%' }}>
           <Text style={styles.infoLabel}>Class & Roll No</Text>
-          <Text style={{ ...styles.infoText, width: '120px' }}>
+          <Text style={{ ...styles.infoText, width: '100px' }}>
             {data.className}
           </Text>
         </View>
-        <View style={styles.flexRowNoMargin}>
+        <View style={{ ...styles.flexRowNoMargin, width: '23%' }}>
           <Text style={{ ...styles.infoLabel }}>Date</Text>
           <Text
             style={{
@@ -647,42 +624,60 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         </View>
       </View>
       <View style={styles.flexRowNoMargin}>
-        <View style={styles.flexRowNoMargin}>
+        <View style={{ ...styles.flexRowNoMargin, width: '40%' }}>
           <Text style={styles.infoLabel}>Father's Name</Text>
           <Text style={{ ...styles.infoText, fontWeight: 500 }}>
             {data.fathersName}
           </Text>
         </View>
-        <View style={styles.flexRowNoMargin}>
-          <Text style={styles.infoLabel}>Payment Mode</Text>
-          <Text
+        <View
+          style={{
+            ...styles.flexRowNoMargin,
+            width: '60%',
+            paddingRight: '10px',
+          }}
+        >
+          <View
             style={{
-              ...styles.infoText,
-              width: '200px',
+              ...styles.flexRowNoMargin,
+              justifyContent: 'space-between',
             }}
           >
-            {data.mode} - {data.note}
-          </Text>
-        </View>
-        <View style={styles.flexRowNoMargin}>
-          <Text
-            style={{
-              ...styles.infoLabel,
-              width: '60px',
-            }}
-          >
-            TXN Date
-          </Text>
-          <Text
-            style={{
-              ...styles.infoText,
-              textAlign: 'right',
-              width: '60px',
-              paddingRight: '6px',
-            }}
-          >
-            {moment(data.date).format('DD MMM YY')}
-          </Text>
+            <Text
+              style={{
+                ...styles.infoLabel,
+                width: '134px',
+              }}
+            >
+              Payment Mode
+            </Text>
+            <View style={{ width: '146px' }}>
+              <Text
+                style={{
+                  width: '110px',
+                  paddingRight: '1px',
+                }}
+              >
+                {data.mode} - {data.note}
+              </Text>
+            </View>
+            <Text
+              style={{
+                ...styles.infoLabel,
+                width: '100px',
+              }}
+            >
+              TXN Date
+            </Text>
+            <Text
+              style={{
+                ...styles.infoText,
+                width: '60px',
+              }}
+            >
+              {moment(data.date).format('DD MMM YY')}
+            </Text>
+          </View>
         </View>
       </View>
       {/* <View style={styles.flexRowNoMargin}>
@@ -725,6 +720,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               marginTop: '8px',
               textAlign: 'center',
               fontWeight: 500,
+              fontSize: '10px',
             }}
           >
             Guardian Signature
@@ -749,6 +745,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               ...styles.defaultText,
               textAlign: 'center',
               fontWeight: 500,
+              fontSize: '10px',
             }}
           >
             Received By
