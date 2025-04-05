@@ -2,7 +2,7 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { UserRoleEnum } from '../users/users.dto';
 
 export interface IAuthUser {
-  id: string;
+  id: number;
   name: string;
   username: string;
   role: UserRoleEnum;

@@ -1,11 +1,11 @@
 import {
   Document,
+  Font,
   Image,
   Page,
   StyleSheet,
   Text,
   View,
-  Font,
 } from '@react-pdf/renderer';
 import moment from 'moment';
 import { join } from 'path';
@@ -102,7 +102,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       lineHeight: 1,
     },
     defaultText: {
-      fontSize: 7,
+      fontSize: 10,
       lineHeight: 1,
       paddingRight: '3px',
       paddingLeft: '3px',
@@ -121,7 +121,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       height: '0px',
       backgroundColor: '#fff',
       borderBottom: '2px dashed #ccc',
-      marginTop: '10px',
+      marginTop: '5px',
       marginBottom: '5px',
     },
     moneyReceipt: {
@@ -299,16 +299,6 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         <Text
           style={{
             ...styles.boldText,
-            ...styles.textRight,
-            ...styles.flexRowNoMarginFirstCell,
-            borderLeftWidth: '0px',
-            flex: '1',
-            borderBottomWidth: '0px',
-          }}
-        ></Text>
-        <Text
-          style={{
-            ...styles.boldText,
             ...styles.flexRowNoMarginSecondCell,
             ...styles.textRight,
             flex: '1',
@@ -346,16 +336,6 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
           >
             {rec.academicFeeName}
           </Text>
-          <Text
-            style={{
-              ...styles.boldText,
-              ...styles.textRight,
-              ...styles.flexRowNoMarginFirstCell,
-              borderLeftWidth: '0px',
-              flex: '1',
-              borderBottomWidth: '0px',
-            }}
-          ></Text>
           <Text
             style={{
               ...styles.boldText,
@@ -398,15 +378,6 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         <Text
           style={{
             ...styles.boldText,
-            ...styles.textRight,
-            ...styles.flexRowNoMarginFirstCell,
-            borderLeftWidth: '0px',
-            flex: '1',
-          }}
-        ></Text>
-        <Text
-          style={{
-            ...styles.boldText,
             ...styles.flexRowNoMarginSecondCell,
             ...styles.textRight,
             flex: '1',
@@ -423,9 +394,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             flex: '1',
             paddingRight: '5px',
           }}
-        >
-          {Number(data.totalAmount).toLocaleString('en-IN')}
-        </Text>
+        ></Text>
       </View>
       <View style={styles.flexRowNoMargin}>
         <Text
@@ -443,16 +412,6 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         <Text
           style={{
             ...styles.boldText,
-            ...styles.textRight,
-            ...styles.flexRowNoMarginFirstCell,
-            borderLeftWidth: '0px',
-            flex: '1',
-            borderTopWidth: '0px',
-          }}
-        ></Text>
-        <Text
-          style={{
-            ...styles.boldText,
             ...styles.flexRowNoMarginSecondCell,
             ...styles.textRight,
             flex: '1',
@@ -470,7 +429,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             borderTopWidth: '0px',
           }}
         >
-          {Number(data.totalAmount).toLocaleString('en-IN')}
+          {Number(data.totalPaidAmount).toLocaleString('en-IN')}
         </Text>
       </View>
       <View style={styles.flexRowNoMargin}>
@@ -486,16 +445,6 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         >
           Due Amount
         </Text>
-        <Text
-          style={{
-            ...styles.boldText,
-            ...styles.textRight,
-            ...styles.flexRowNoMarginFirstCell,
-            borderLeftWidth: '0px',
-            flex: '1',
-            borderTopWidth: '0px',
-          }}
-        ></Text>
         <Text
           style={{
             ...styles.boldText,
@@ -525,14 +474,15 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             ...styles.boldText,
             ...styles.flexRowNoMarginFirstCell,
             ...styles.textLeft,
+            flexBasis: '192.5px',
+            flexShrink: 0,
             paddingLeft: '5px',
-            width: '146px',
             borderTopWidth: '0px',
           }}
         >
           Amount in Words
         </Text>
-        <Text
+        {/* <Text
           style={{
             ...styles.boldText,
             ...styles.flexRowNoMarginFirstCell,
@@ -541,6 +491,18 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             borderLeftWidth: '0px',
             borderTopWidth: '0px',
             flex: '1',
+          }}
+        >
+          {data.totalInWords}
+        </Text> */}
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginSecondCell,
+            ...styles.textLeft,
+            flex: '2',
+            paddingLeft: '5px',
+            borderTopWidth: '0px',
           }}
         >
           {data.totalInWords}
@@ -569,7 +531,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             width: '37%',
           }}
         >
-          <Text style={styles.infoLabel}>Regn. Year:</Text>
+          <Text style={styles.infoLabel}>Session:</Text>
           <Text
             style={{
               ...styles.infoText,
@@ -585,7 +547,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             width: '23%',
           }}
         >
-          <Text style={{ ...styles.infoLabel }}>Receipt No.</Text>
+          <Text style={{ ...styles.infoLabel }}>Receipt No.:</Text>
           <Text
             style={{
               ...styles.infoText,
@@ -593,25 +555,25 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
               paddingRight: '10px',
             }}
           >
-            {data.receiptNo}
+            {data.id}
           </Text>
         </View>
       </View>
       <View style={styles.flexRowNoMargin}>
         <View style={{ ...styles.flexRowNoMargin, width: '40%' }}>
-          <Text style={styles.infoLabel}>Student's Name</Text>
+          <Text style={styles.infoLabel}>Student's Name:</Text>
           <Text style={{ ...styles.infoText, fontWeight: 500 }}>
             {data.studentName}
           </Text>
         </View>
         <View style={{ ...styles.flexRowNoMargin, width: '37%' }}>
-          <Text style={styles.infoLabel}>Class & Roll No</Text>
+          <Text style={styles.infoLabel}>Class:</Text>
           <Text style={{ ...styles.infoText, width: '100px' }}>
             {data.className}
           </Text>
         </View>
         <View style={{ ...styles.flexRowNoMargin, width: '23%' }}>
-          <Text style={{ ...styles.infoLabel }}>Date</Text>
+          <Text style={{ ...styles.infoLabel }}>Date:</Text>
           <Text
             style={{
               ...styles.infoText,
@@ -625,7 +587,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       </View>
       <View style={styles.flexRowNoMargin}>
         <View style={{ ...styles.flexRowNoMargin, width: '40%' }}>
-          <Text style={styles.infoLabel}>Father's Name</Text>
+          <Text style={styles.infoLabel}>Father's Name:</Text>
           <Text style={{ ...styles.infoText, fontWeight: 500 }}>
             {data.fathersName}
           </Text>
@@ -649,7 +611,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
                 width: '134px',
               }}
             >
-              Payment Mode
+              Payment Mode:
             </Text>
             <View style={{ width: '146px' }}>
               <Text
@@ -667,7 +629,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
                 width: '100px',
               }}
             >
-              TXN Date
+              TXN Date:
             </Text>
             <Text
               style={{
@@ -711,7 +673,13 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
   );
 
   const SignatureSection = () => (
-    <View style={{ ...styles.flexRow, justifyContent: 'space-between' }}>
+    <View
+      style={{
+        ...styles.flexRow,
+        justifyContent: 'space-between',
+        width: '100%',
+      }}
+    >
       <View style={{ ...styles.flexCol }}>
         <View style={{ ...styles.flexCol, alignItems: 'center' }}>
           <Text
@@ -732,17 +700,18 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         <View style={{ ...styles.flexCol, alignItems: 'center' }}>
           <Text
             style={{
-              ...styles.defaultText,
+              ...styles.infoText,
               textAlign: 'center',
               fontSize: 10,
               fontWeight: 500,
             }}
           >
-            {data.user.username}
+            {data.receivedBy}
           </Text>
           <Text
             style={{
               ...styles.defaultText,
+              ...styles.boldText,
               textAlign: 'center',
               fontWeight: 500,
               fontSize: '10px',
@@ -762,12 +731,20 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
   }) => {
     return (
       <>
-        <View>
-          <InvoiceTitle moneyReceiptTitle={moneyReceiptTitle} />
-          <HrRuler />
-          <FormSection />
-          <View style={{ marginTop: '10px' }}></View>
-          <SignatureSection />
+        <View style={{ height: '100%' }}>
+          <View style={{ flexGrow: 1 }}>
+            <InvoiceTitle moneyReceiptTitle={moneyReceiptTitle} />
+            <HrRuler />
+            <FormSection />
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}
+          >
+            <SignatureSection />
+          </View>
         </View>
       </>
     );
@@ -779,13 +756,19 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         size="A4"
         style={{
           ...styles.page,
-          // justifyContent: 'space-between',
+          justifyContent: 'space-between',
           marginBottom: '10px',
         }}
       >
-        <PrintComponents moneyReceiptTitle={`Fees Receipt (Student's Copy)`} />
-        <CrossLine />
-        <PrintComponents moneyReceiptTitle={`Fees Receipt (Office Copy)`} />
+        <View>
+          <PrintComponents
+            moneyReceiptTitle={`Fees Receipt (Student's Copy)`}
+          />
+          <CrossLine />
+        </View>
+        <View style={{ marginTop: '10px' }}>
+          <PrintComponents moneyReceiptTitle={`Fees Receipt (Office Copy)`} />
+        </View>
       </Page>
     </Document>
   );
