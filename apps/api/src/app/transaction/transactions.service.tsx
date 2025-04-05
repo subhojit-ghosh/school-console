@@ -17,6 +17,9 @@ import writtenNumber from 'written-number';
 import TransactionReceipt from '../templates/transactions/recept';
 import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
 import { titleCase } from '@school-console/utils';
+import * as qrcode from 'qrcode';
+import moment from 'moment';
+import { IAuthUser } from '../auth/auth-user.decorator';
 
 @Injectable()
 export class TransactionsService {
@@ -323,20 +326,24 @@ export class TransactionsService {
     return { id, message: 'Transaction saved successfully' };
   }
 
-  async getReceipt(id: string) {
-    const transaction = await this.db
+  async getReceipt(id: string, user: IAuthUser) {
+    const transaction: any = await this.db
       .select({
         id: transactionTable.id,
-        date: transactionTable.createdAt,
-        studentName: studentsTable.name,
-        isEnrolled: studentsTable.isEnrolled,
-        enrolledNo: studentsTable.enrolledNo,
-        regId: studentsTable.regId,
-        guardianName: studentsTable.fathersName,
-        className: classesTable.name,
+        regNo: studentsTable.isEnrolled
+          ? studentsTable.enrolledNo
+          : studentsTable.regId,
         session: academicYearsTable.name,
-        totalAmount: transactionTable.totalAmount,
+        receiptNo: transactionItemTable.id,
+        studentName: studentsTable.name,
+        className: classesTable.name,
+        date: transactionTable.createdAt,
+        fathersName: studentsTable.fathersName,
         mode: transactionTable.mode,
+        note: transactionTable.note,
+
+        isEnrolled: studentsTable.isEnrolled,
+        totalAmount: transactionTable.totalAmount,
       })
       .from(transactionTable)
       .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
@@ -381,18 +388,33 @@ export class TransactionsService {
       (acc, item) => acc + item.paid,
       0
     );
+    const totalPayableAmount = transactionItems.reduce(
+      (acc, item) => acc + item.payable,
+      0
+    );
+    const totalDueAmount = transactionItems.reduce(
+      (acc, item) => acc + item.due,
+      0
+    );
 
     const data: any = {
       ...transaction,
       items: transactionItems,
+      totalPayableAmount: totalPayableAmount,
       totalAmount: totalAmount,
+      totalDueAmount: totalDueAmount,
+      user: user,
       totalInWords: titleCase(writtenNumber(totalAmount).replace(/-/g, ' ')),
     };
+
+    const qrCodeDataURL = await qrcode.toDataURL(
+      `Transaction ID #${transaction.id} | JDS Public School`
+    );
+    data.qrCodeDataURL = qrCodeDataURL;
 
     const logo = readFileSync(
       join(__dirname, '../../../', 'storage/logo-circle.png')
     );
-    console.log('debug-logo', logo);
     return await ReactPDF.renderToStream(
       <TransactionReceipt logo={logo.toString('base64')} data={data} />
     );

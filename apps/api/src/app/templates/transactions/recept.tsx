@@ -5,8 +5,65 @@ import {
   StyleSheet,
   Text,
   View,
+  Font,
 } from '@react-pdf/renderer';
 import moment from 'moment';
+import { join } from 'path';
+
+// Register font
+Font.register({
+  family: 'Roboto',
+  fonts: [
+    {
+      src: join(
+        __dirname,
+        '../../../',
+        'storage//fonts/static/Roboto-Regular.ttf'
+      ),
+      fontWeight: 400,
+    },
+    {
+      src: join(
+        __dirname,
+        '../../../',
+        'storage//fonts/static/Roboto-Medium.ttf'
+      ),
+      fontWeight: 500,
+    },
+    {
+      src: join(
+        __dirname,
+        '../../../',
+        'storage//fonts/static/Roboto-SemiBold.ttf'
+      ),
+      fontWeight: 600,
+    },
+    {
+      src: join(
+        __dirname,
+        '../../../',
+        'storage//fonts/static/Roboto-Bold.ttf'
+      ),
+      fontWeight: 700,
+    },
+    {
+      src: join(
+        __dirname,
+        '../../../',
+        'storage//fonts/static/Roboto-ExtraBold.ttf'
+      ),
+      fontWeight: 800,
+    },
+    {
+      src: join(
+        __dirname,
+        '../../../',
+        'storage//fonts/static/Roboto-Black.ttf'
+      ),
+      fontWeight: 900,
+    },
+  ],
+});
 
 const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
   const styles = StyleSheet.create({
@@ -14,10 +71,11 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       flexDirection: 'column',
       backgroundColor: '#fff',
       fontSize: 11,
-      paddingTop: 10,
-      paddingLeft: 20,
-      paddingRight: 20,
-      lineHeight: 1.5,
+      paddingTop: 2,
+      paddingLeft: 10,
+      paddingRight: 10,
+      lineHeight: 0,
+      fontFamily: 'Roboto',
     },
     section: {
       margin: 10,
@@ -36,16 +94,16 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       color: '#3E3E3E',
       gap: '1px',
     },
-    logo: { width: 80, height: 80 },
+    logo: { width: 50, height: 50 },
     reportTitle: {
-      fontSize: 20,
+      fontSize: 15,
       textAlign: 'center',
       fontWeight: 900,
-      lineHeight: 1.3,
+      lineHeight: 1,
     },
     defaultText: {
-      fontSize: 10,
-      lineHeight: 1.4,
+      fontSize: 7,
+      lineHeight: 1,
       paddingRight: '3px',
       paddingLeft: '3px',
     },
@@ -57,14 +115,23 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       marginTop: '10px',
       marginBottom: '10px',
     },
+    hrCrossLine: {
+      display: 'flex',
+      width: '100%',
+      height: '0px',
+      backgroundColor: '#fff',
+      borderBottom: '2px dashed #ccc',
+      marginTop: '10px',
+      marginBottom: '5px',
+    },
     moneyReceipt: {
       textAlign: 'center',
       backgroundColor: '#3E3E3E',
       color: '#fff',
-      width: '100px',
+      width: '200px',
       padding: '5px',
       borderRadius: '10px',
-      textTransform: 'uppercase',
+      textTransform: 'capitalize',
       margin: '0 auto',
       fontSize: '10px',
       lineHeight: 0,
@@ -75,34 +142,36 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       flexDirection: 'row',
       marginBottom: '10px',
     },
-    flexTableRow: {
+    flexRowNoMargin: {
       display: 'flex',
       flexDirection: 'row',
+      padding: 0,
+      margin: 0,
     },
-    flexTableRowFirstCell: {
+    flexRowNoMarginFirstCell: {
       width: '100px',
       border: '1px solid #000',
       display: 'flex',
       justifyContent: 'center',
       textAlign: 'center',
-      paddingTop: '5px',
+      paddingTop: '2px',
     },
-    flexTableRowSecondCell: {
+    flexRowNoMarginSecondCell: {
       width: '400px',
       border: '1px solid #000',
       display: 'flex',
       justifyContent: 'center',
       textAlign: 'center',
-      paddingTop: '5px',
       borderLeftWidth: '0px',
+      paddingTop: '2px',
     },
-    flexTableRowThirdCell: {
+    flexRowNoMarginThirdCell: {
       width: '200px',
       border: '1px solid #000',
       display: 'flex',
       justifyContent: 'center',
       textAlign: 'center',
-      paddingTop: '5px',
+      paddingTop: '2px',
       borderLeftWidth: '0px',
     },
     flex1: {
@@ -116,6 +185,37 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       flexGrow: '1',
       height: '13px',
       borderBottom: '1px dashed #000',
+    },
+    infoLabel: {
+      width: '100px',
+      fontSize: '11px',
+      fontWeight: 500,
+      // backgroundColor: 'red',
+    },
+    infoText: {
+      width: '100px',
+      fontSize: '11px',
+      flexGrow: 1,
+      // backgroundColor: 'green',
+    },
+    infoTextNoWidth: {
+      // fontSize: '11px',
+      // flexGrow: 1,
+      // backgroundColor: 'green',
+    },
+    boldText: {
+      fontSize: '10px',
+      fontWeight: 500,
+      lineHeight: 0,
+    },
+    textLeft: {
+      textAlign: 'left',
+    },
+    textCenter: {
+      textAlign: 'center',
+    },
+    textRight: {
+      textAlign: 'right',
     },
   });
 
@@ -146,76 +246,136 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
     </View>
   );
 
-  const InvoiceTitle = () => (
+  const InvoiceTitle = ({
+    moneyReceiptTitle,
+  }: {
+    moneyReceiptTitle: string;
+  }) => (
     <View style={styles.titleContainer}>
       <Image style={styles.logo} src={`data:image/png;base64, ${logo}`} />
       <View style={styles.titleTextContainer}>
         <Text style={styles.reportTitle}>JDS PUBLIC SCHOOL</Text>
         <Text style={styles.defaultText}>
-          Panpur, P.O. Narayanpur, P.S. Basudevpur,
+          Panpur, PO - Narayanpur, PS - Basudevpur, 24 Pgs. (N), W.B-743126
         </Text>
         <Text style={styles.defaultText}>
-          Dist - 24Pgs.(N), Pin -743126, W.B.
+          Tel: 6292298909 , 9330445581. Email: accounts@jdsschool.in
         </Text>
         <Text style={styles.defaultText}>Phone: 9062281887 / 9062281890</Text>
+        <Text
+          style={{
+            ...styles.defaultText,
+            fontSize: '11px',
+            fontWeight: 600,
+            marginTop: '3px',
+          }}
+        >
+          {moneyReceiptTitle}
+        </Text>
       </View>
+      <Image style={styles.logo} src={data.qrCodeDataURL} />
     </View>
   );
 
   const HrRuler = () => <View style={styles.hrRuler}></View>;
 
-  const MoneyReceiptHead = () => (
-    <Text style={styles.moneyReceipt}>Money Receipt</Text>
-  );
+  const CrossLine = () => <View style={styles.hrCrossLine}></View>;
 
   const InvoiceTable = () => (
-    <View style={{ ...styles.flexCol, marginBottom: '20px' }}>
-      <View style={styles.flexTableRow}>
+    <View style={{ ...styles.flexCol, marginBottom: '5px' }}>
+      <View style={styles.flexRowNoMargin}>
         <Text
-          style={{ ...styles.defaultText, ...styles.flexTableRowFirstCell }}
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginFirstCell,
+            ...styles.textLeft,
+            flex: '1',
+            paddingLeft: '5px',
+            borderBottomWidth: '0px',
+          }}
         >
-          Sl.No.
+          Fees Type
         </Text>
         <Text
-          style={{ ...styles.defaultText, ...styles.flexTableRowSecondCell }}
+          style={{
+            ...styles.boldText,
+            ...styles.textRight,
+            ...styles.flexRowNoMarginFirstCell,
+            borderLeftWidth: '0px',
+            flex: '1',
+            borderBottomWidth: '0px',
+          }}
+        ></Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginSecondCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
+            borderBottomWidth: '0px',
+          }}
         >
-          Description
+          Payable Amount (Rs.)
         </Text>
         <Text
-          style={{ ...styles.defaultText, ...styles.flexTableRowThirdCell }}
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginThirdCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
+            borderBottomWidth: '0px',
+          }}
         >
-          Amount
+          Paid Amount (Rs.)
         </Text>
       </View>
 
       {(data.items || []).map((rec, index) => (
-        <View style={styles.flexTableRow} key={index}>
+        <View style={styles.flexRowNoMargin} key={index}>
           <Text
             style={{
-              ...styles.defaultText,
-              ...styles.flexTableRowFirstCell,
-              borderTopWidth: '0px',
-            }}
-          >
-            {index + 1}
-          </Text>
-          <Text
-            style={{
-              ...styles.defaultText,
-              ...styles.flexTableRowSecondCell,
-              borderTopWidth: '0px',
-              textAlign: 'left',
-              paddingLeft: '10px',
+              ...styles.boldText,
+              ...styles.flexRowNoMarginFirstCell,
+              ...styles.textLeft,
+              flex: '1',
+              paddingLeft: '5px',
+              borderBottomWidth: '0px',
             }}
           >
             {rec.academicFeeName}
           </Text>
           <Text
             style={{
-              ...styles.defaultText,
-              ...styles.flexTableRowThirdCell,
-              borderTopWidth: '0px',
-              textAlign: 'left',
+              ...styles.boldText,
+              ...styles.textRight,
+              ...styles.flexRowNoMarginFirstCell,
+              borderLeftWidth: '0px',
+              flex: '1',
+              borderBottomWidth: '0px',
+            }}
+          ></Text>
+          <Text
+            style={{
+              ...styles.boldText,
+              ...styles.flexRowNoMarginSecondCell,
+              ...styles.textRight,
+              flex: '1',
+              paddingRight: '5px',
+              borderBottomWidth: '0px',
+            }}
+          >
+            {Number(rec.payable).toLocaleString('en-IN')}
+          </Text>
+          <Text
+            style={{
+              ...styles.boldText,
+              ...styles.flexRowNoMarginThirdCell,
+              ...styles.textRight,
+              flex: '1',
+              paddingRight: '5px',
+              borderBottomWidth: '0px',
             }}
           >
             {Number(rec.paid).toLocaleString('en-IN')}
@@ -223,29 +383,167 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         </View>
       ))}
 
-      <View style={styles.flexTableRow}>
+      <View style={styles.flexRowNoMargin}>
         <Text
           style={{
-            ...styles.defaultText,
-            ...styles.flexTableRowFirstCell,
-            borderTopWidth: '0px',
-            textTransform: 'uppercase',
-            textAlign: 'right',
-            width: '500px',
-            fontWeight: 700,
+            ...styles.boldText,
+            ...styles.flexRowNoMarginFirstCell,
+            ...styles.textLeft,
+            flex: '1',
+            paddingLeft: '5px',
           }}
         >
-          total
+          Total Amount
         </Text>
         <Text
           style={{
-            ...styles.defaultText,
-            ...styles.flexTableRowThirdCell,
-            borderTopWidth: '0px',
-            textAlign: 'left',
+            ...styles.boldText,
+            ...styles.textRight,
+            ...styles.flexRowNoMarginFirstCell,
+            borderLeftWidth: '0px',
+            flex: '1',
+          }}
+        ></Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginSecondCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
+          }}
+        >
+          {Number(data.totalPayableAmount).toLocaleString('en-IN')}
+        </Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginThirdCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
           }}
         >
           {Number(data.totalAmount).toLocaleString('en-IN')}
+        </Text>
+      </View>
+      <View style={styles.flexRowNoMargin}>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginFirstCell,
+            ...styles.textLeft,
+            flex: '1',
+            paddingLeft: '5px',
+            borderTopWidth: '0px',
+          }}
+        >
+          Received Amount
+        </Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.textRight,
+            ...styles.flexRowNoMarginFirstCell,
+            borderLeftWidth: '0px',
+            flex: '1',
+            borderTopWidth: '0px',
+          }}
+        ></Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginSecondCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
+            borderTopWidth: '0px',
+          }}
+        ></Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginThirdCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
+            borderTopWidth: '0px',
+          }}
+        >
+          {Number(data.totalAmount).toLocaleString('en-IN')}
+        </Text>
+      </View>
+      <View style={styles.flexRowNoMargin}>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginFirstCell,
+            ...styles.textLeft,
+            flex: '1',
+            paddingLeft: '5px',
+            borderTopWidth: '0px',
+          }}
+        >
+          Due Amount
+        </Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.textRight,
+            ...styles.flexRowNoMarginFirstCell,
+            borderLeftWidth: '0px',
+            flex: '1',
+            borderTopWidth: '0px',
+          }}
+        ></Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginSecondCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
+            borderTopWidth: '0px',
+          }}
+        ></Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginThirdCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
+            borderTopWidth: '0px',
+          }}
+        >
+          {Number(data.totalDueAmount).toLocaleString('en-IN')}
+        </Text>
+      </View>
+      <View style={styles.flexRowNoMargin}>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginFirstCell,
+            ...styles.textLeft,
+            paddingLeft: '5px',
+            width: '146px',
+            borderTopWidth: '0px',
+          }}
+        >
+          Amount in Words
+        </Text>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginFirstCell,
+            ...styles.textLeft,
+            paddingLeft: '5px',
+            borderLeftWidth: '0px',
+            borderTopWidth: '0px',
+            flex: '1',
+          }}
+        >
+          {data.totalInWords}
         </Text>
       </View>
     </View>
@@ -253,101 +551,241 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
 
   const FormSection = () => (
     <View style={styles.flexCol}>
-      <View style={styles.flexRow}>
-        <Text style={styles.defaultText}>Student Name:</Text>
-        <Text style={styles.defaultText}>
-          {data.studentName} ({data.isEnrolled ? data.enrolledNo : data.regId})
-        </Text>
+      <View style={styles.flexRowNoMargin}>
+        <View
+          style={{
+            ...styles.flexRowNoMargin,
+            width: '40%',
+          }}
+        >
+          <Text style={styles.infoLabel}>Registration No.:</Text>
+          <Text style={{ ...styles.infoText, fontWeight: 500 }}>
+            {data.regNo}
+          </Text>
+        </View>
+        <View
+          style={{
+            ...styles.flexRowNoMargin,
+            width: '37%',
+          }}
+        >
+          <Text style={styles.infoLabel}>Regn. Year:</Text>
+          <Text
+            style={{
+              ...styles.infoText,
+              width: '100px',
+            }}
+          >
+            {data.session}
+          </Text>
+        </View>
+        <View
+          style={{
+            ...styles.flexRowNoMargin,
+            width: '23%',
+          }}
+        >
+          <Text style={{ ...styles.infoLabel }}>Receipt No.</Text>
+          <Text
+            style={{
+              ...styles.infoText,
+              textAlign: 'right',
+              paddingRight: '10px',
+            }}
+          >
+            {data.receiptNo}
+          </Text>
+        </View>
       </View>
-      <View style={styles.flexRow}>
-        <Text style={styles.defaultText}>Guardian Name:</Text>
-        <Text style={styles.defaultText}>{data.guardianName}</Text>
+      <View style={styles.flexRowNoMargin}>
+        <View style={{ ...styles.flexRowNoMargin, width: '40%' }}>
+          <Text style={styles.infoLabel}>Student's Name</Text>
+          <Text style={{ ...styles.infoText, fontWeight: 500 }}>
+            {data.studentName}
+          </Text>
+        </View>
+        <View style={{ ...styles.flexRowNoMargin, width: '37%' }}>
+          <Text style={styles.infoLabel}>Class & Roll No</Text>
+          <Text style={{ ...styles.infoText, width: '100px' }}>
+            {data.className}
+          </Text>
+        </View>
+        <View style={{ ...styles.flexRowNoMargin, width: '23%' }}>
+          <Text style={{ ...styles.infoLabel }}>Date</Text>
+          <Text
+            style={{
+              ...styles.infoText,
+              textAlign: 'right',
+              paddingRight: '10px',
+            }}
+          >
+            {moment(data.date).format('DD MMM YY')}
+          </Text>
+        </View>
       </View>
-      <View style={styles.flexRow}>
-        <View style={styles.flex1}>
-          <View style={styles.flexRow}>
-            <Text style={styles.defaultText}>Class:</Text>
-            <Text style={styles.defaultText}>{data.className}</Text>
+      <View style={styles.flexRowNoMargin}>
+        <View style={{ ...styles.flexRowNoMargin, width: '40%' }}>
+          <Text style={styles.infoLabel}>Father's Name</Text>
+          <Text style={{ ...styles.infoText, fontWeight: 500 }}>
+            {data.fathersName}
+          </Text>
+        </View>
+        <View
+          style={{
+            ...styles.flexRowNoMargin,
+            width: '60%',
+            paddingRight: '10px',
+          }}
+        >
+          <View
+            style={{
+              ...styles.flexRowNoMargin,
+              justifyContent: 'space-between',
+            }}
+          >
+            <Text
+              style={{
+                ...styles.infoLabel,
+                width: '134px',
+              }}
+            >
+              Payment Mode
+            </Text>
+            <View style={{ width: '146px' }}>
+              <Text
+                style={{
+                  width: '110px',
+                  paddingRight: '1px',
+                }}
+              >
+                {data.mode} - {data.note}
+              </Text>
+            </View>
+            <Text
+              style={{
+                ...styles.infoLabel,
+                width: '100px',
+              }}
+            >
+              TXN Date
+            </Text>
+            <Text
+              style={{
+                ...styles.infoText,
+                width: '60px',
+              }}
+            >
+              {moment(data.date).format('DD MMM YY')}
+            </Text>
           </View>
         </View>
-        <View style={styles.flex1}>
-          <View style={styles.flexRow}>
-            <Text style={styles.defaultText}>Session:</Text>
-            <Text style={styles.defaultText}>{data.session}</Text>
-          </View>
-        </View>
       </View>
+      {/* <View style={styles.flexRowNoMargin}>
+        <View style={styles.flexRowNoMargin}>
+          <Text style={styles.infoLabel}>Payment For</Text>
+          <Text style={{ ...styles.infoText, fontWeight: 500, width: '320px' }}>
+            Admission / June Month / Books-H / Uniform
+          </Text>
+        </View>
+        <View style={styles.flexRowNoMargin}>
+          <Text style={{ ...styles.infoLabel }}>Bank Name</Text>
+          <Text
+            style={{
+              ...styles.infoText,
+              textAlign: 'right',
+              paddingRight: '10px',
+            }}
+          >
+            1317
+          </Text>
+        </View>
+      </View> */}
+      <View
+        style={{
+          marginBottom: '10px',
+        }}
+      ></View>
 
       <InvoiceTable />
-
-      <View style={styles.flexRow}>
-        <Text style={styles.defaultText}>Ruppes In Words:</Text>
-        <Text style={styles.defaultText}>{data.totalInWords}</Text>
-      </View>
-      <View style={styles.flexRow}>
-        <View style={styles.dashedLine}></View>
-      </View>
-      <View style={{ ...styles.flexRow, marginTop: '5px' }}>
-        <Text style={styles.defaultText}>Paid By:</Text>
-        <Text style={styles.defaultText}>{data.mode}</Text>
-      </View>
     </View>
   );
 
   const SignatureSection = () => (
     <View style={{ ...styles.flexRow, justifyContent: 'space-between' }}>
       <View style={{ ...styles.flexCol }}>
-        <View style={styles.dashedLine}></View>
         <View style={{ ...styles.flexCol, alignItems: 'center' }}>
           <Text
             style={{
               ...styles.defaultText,
-              marginTop: '10px',
+              marginTop: '8px',
               textAlign: 'center',
+              fontWeight: 500,
+              fontSize: '10px',
             }}
           >
-            Signature of
+            Guardian Signature
           </Text>
-          <Text style={{ ...styles.defaultText }}>Student / Guardian</Text>
         </View>
       </View>
 
       <View style={{ ...styles.flexCol }}>
-        <View style={styles.dashedLine}></View>
         <View style={{ ...styles.flexCol, alignItems: 'center' }}>
           <Text
             style={{
               ...styles.defaultText,
-              marginTop: '10px',
               textAlign: 'center',
+              fontSize: 10,
+              fontWeight: 500,
             }}
           >
-            Signature of
+            {data.user.username}
           </Text>
-          <Text style={{ ...styles.defaultText }}>Cashier / Receiver</Text>
+          <Text
+            style={{
+              ...styles.defaultText,
+              textAlign: 'center',
+              fontWeight: 500,
+              fontSize: '10px',
+            }}
+          >
+            Received By
+          </Text>
         </View>
       </View>
     </View>
   );
 
+  const PrintComponents = ({
+    moneyReceiptTitle,
+  }: {
+    moneyReceiptTitle: string;
+  }) => {
+    return (
+      <>
+        <View>
+          <InvoiceTitle moneyReceiptTitle={moneyReceiptTitle} />
+          <HrRuler />
+          <FormSection />
+          <View style={{ marginTop: '10px' }}></View>
+          <SignatureSection />
+        </View>
+      </>
+    );
+  };
+
   return (
     <Document>
       <Page
-        size="A5"
+        size="A4"
         style={{
           ...styles.page,
-          justifyContent: 'space-between',
+          // justifyContent: 'space-between',
           marginBottom: '10px',
         }}
       >
-        <View>
-          <InvoiceHead />
-          <InvoiceTitle />
-          <HrRuler />
-          <MoneyReceiptHead />
-          <FormSection />
-        </View>
-        <SignatureSection />
+        <PrintComponents moneyReceiptTitle={`Fees Receipt (Student's Copy)`} />
+        <CrossLine />
+        <PrintComponents moneyReceiptTitle={`Fees Receipt (Office Copy)`} />
       </Page>
     </Document>
   );
