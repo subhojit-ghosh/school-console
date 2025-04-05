@@ -292,6 +292,7 @@ export class TransactionsService {
           paid,
           due,
           mode: dto.mode,
+          note: dto.note,
         })
         .$returningId();
 
