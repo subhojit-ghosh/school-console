@@ -42,6 +42,7 @@ import { DataTable } from 'mantine-datatable';
 import classes from './NestedTable.module.css';
 import classNames from 'classnames';
 import moment from 'moment';
+import { modals } from '@mantine/modals';
 
 export default function TransportPage() {
   const [acadId, setAcadId] = useState<string | null>(null);
@@ -251,25 +252,38 @@ export default function TransportPage() {
   }
 
   function onSaveTransportFee(e: any) {
-    saveTransportFee.mutate(
-      {
-        ...e,
-        academicYearId: Number(e.academicYearId),
-        baseAmount: Number(e.baseAmount),
-        perKmCharge: Number(e.perKmCharge),
-        amount: Number(e.amount),
-        studentId: Number(e.studentId),
+    modals.openConfirmModal({
+      title: 'Confirmation',
+      children: (
+        <Text size="sm">
+          Are you sure you want to save this transaction? This action cannot be
+          undone.
+        </Text>
+      ),
+      centered: true,
+      labels: { confirm: 'Save', cancel: 'Cancel' },
+      onConfirm: () => {
+        saveTransportFee.mutate(
+          {
+            ...e,
+            academicYearId: Number(e.academicYearId),
+            baseAmount: Number(e.baseAmount),
+            perKmCharge: Number(e.perKmCharge),
+            amount: Number(e.amount),
+            studentId: Number(e.studentId),
+          },
+          {
+            onSuccess: () => {
+              showSuccessNotification('Record Created');
+              handlers.close();
+              resetTransportFeeForm();
+              tableListRefetch();
+              setExpandedTransportIds([]);
+            },
+          }
+        );
       },
-      {
-        onSuccess: () => {
-          showSuccessNotification('Record Created');
-          handlers.close();
-          resetTransportFeeForm();
-          tableListRefetch();
-          setExpandedTransportIds([]);
-        },
-      }
-    );
+    });
   }
 
   return (
@@ -277,7 +291,7 @@ export default function TransportPage() {
       <Modal
         opened={opened}
         onClose={close}
-        title="Manage Transport Setting(s)"
+        title="Manage Transport Settings"
         size="lg"
         centered={true}
       >
@@ -304,6 +318,7 @@ export default function TransportPage() {
                 withAsterisk
                 min={1}
                 hideControls={true}
+                prefix="₹"
                 {...form.getInputProps('baseAmount')}
               />
             </Grid.Col>
@@ -313,6 +328,7 @@ export default function TransportPage() {
                 withAsterisk
                 min={1}
                 hideControls={true}
+                prefix="₹"
                 {...form.getInputProps('perKmCharge')}
               />
             </Grid.Col>
