@@ -13,10 +13,12 @@ import {
   TextInput,
   ThemeIcon,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconChevronDown,
   IconChevronLeft,
+  IconPrinter,
   IconSettings,
   IconX,
 } from '@tabler/icons-react';
@@ -26,11 +28,12 @@ import {
   useGetStudentsByClassIdDropwdown,
   useGetTransportTakenStudentsByClassIdDropwdown,
 } from '../../services/utils/apiQuery';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   useGetTransportFeeDropdownItemsByStudentAcadId,
   useGetTransportFeeItemById,
   useGetTransportListByAcadId,
+  useGetTransportReceiptById,
   useGetTransportSettingByAcadId,
   useSaveTransportFee,
   useSaveTransportSetting,
@@ -46,6 +49,9 @@ import { modals } from '@mantine/modals';
 
 export default function TransportPage() {
   const [acadId, setAcadId] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [receiptLoadingId, setReceiptLoadingId] = useState<number | null>(null);
+
   const [months, setMonths] = useState<any>([
     {
       value: '1',
@@ -190,6 +196,7 @@ export default function TransportPage() {
   );
   const saveTransportSetting = useSaveTransportSetting();
   const saveTransportFee = useSaveTransportFee();
+  const receptTransport = useGetTransportReceiptById();
 
   useEffect(() => {
     if (feeItemIsFetched) {
@@ -240,6 +247,19 @@ export default function TransportPage() {
     );
   }
 
+  function calculateAmount(monthArr: any) {
+    return monthArr.length === 0
+      ? 0
+      : (transportFeeForm.values.baseAmount || 0) +
+          Number(
+            (transportFeeForm.values.perKmCharge || 0) *
+              (feeItemsList.studentRecord.isTransportTaken
+                ? feeItemsList.studentRecord.transportKm * 2
+                : 1)
+          ) *
+            monthArr.length;
+  }
+
   function resetTransportFeeForm() {
     transportFeeForm.setValues({
       classId: '',
@@ -270,6 +290,7 @@ export default function TransportPage() {
             baseAmount: Number(e.baseAmount),
             perKmCharge: Number(e.perKmCharge),
             amount: Number(e.amount),
+            payableAmount: calculateAmount(transportFeeForm.values.months),
             studentId: Number(e.studentId),
           },
           {
@@ -286,12 +307,33 @@ export default function TransportPage() {
     });
   }
 
+  function getReceiptById(id: any) {
+    setReceiptLoadingId(id);
+    receptTransport.mutate(
+      { id },
+      {
+        onSuccess: (pdfUrl) => {
+          if (iframeRef.current) {
+            iframeRef.current.src = pdfUrl;
+            iframeRef.current.onload = () => {
+              iframeRef.current?.contentWindow?.print();
+            };
+          }
+          setReceiptLoadingId(null);
+        },
+        onError: () => {
+          setReceiptLoadingId(null);
+        },
+      }
+    );
+  }
+
   return (
     <>
       <Modal
         opened={opened}
         onClose={close}
-        title="Manage Transport Settings"
+        title="Manage Transport Setting(s)"
         size="lg"
         centered={true}
       >
@@ -318,7 +360,6 @@ export default function TransportPage() {
                 withAsterisk
                 min={1}
                 hideControls={true}
-                prefix="₹"
                 {...form.getInputProps('baseAmount')}
               />
             </Grid.Col>
@@ -328,7 +369,6 @@ export default function TransportPage() {
                 withAsterisk
                 min={1}
                 hideControls={true}
-                prefix="₹"
                 {...form.getInputProps('perKmCharge')}
               />
             </Grid.Col>
@@ -409,17 +449,7 @@ export default function TransportPage() {
                 onChange={(dt) => {
                   transportFeeForm.setValues({
                     months: [...dt],
-                    amount:
-                      dt.length === 0
-                        ? 0
-                        : (transportFeeForm.values.baseAmount || 0) +
-                          Number(
-                            (transportFeeForm.values.perKmCharge || 0) *
-                              (feeItemsList.studentRecord.isTransportTaken
-                                ? feeItemsList.studentRecord.transportKm * 2
-                                : 1)
-                          ) *
-                            dt.length,
+                    amount: calculateAmount(dt),
                   });
                 }}
                 disabled={!transportFeeForm.getValues().studentId}
@@ -466,7 +496,7 @@ export default function TransportPage() {
                 withAsterisk
                 min={1}
                 hideControls={true}
-                disabled={true}
+                // disabled={true}
                 {...transportFeeForm.getInputProps('amount')}
               />
             </Grid.Col>
@@ -555,12 +585,27 @@ export default function TransportPage() {
             accessor: 'actions',
             render: ({ id }) => (
               <>
-                <IconChevronLeft
-                  className={classNames(classes.icon, classes.expandIcon, {
-                    [classes.expandIconRotated]:
-                      expandedTransportIds.includes(id),
-                  })}
-                />
+                <Group gap={4} wrap="nowrap">
+                  <IconChevronLeft
+                    className={classNames(classes.icon, classes.expandIcon, {
+                      [classes.expandIconRotated]:
+                        expandedTransportIds.includes(id),
+                    })}
+                  />
+                  <Tooltip label="Print">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        getReceiptById(id);
+                      }}
+                      loading={receiptLoadingId === id}
+                    >
+                      <IconPrinter size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
               </>
             ),
           },
@@ -615,6 +660,7 @@ export default function TransportPage() {
           ),
         }}
       />
+      <iframe title="Receipt" ref={iframeRef} style={{ display: 'none' }} />
     </>
   );
 }

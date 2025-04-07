@@ -47,6 +47,10 @@ export class CreateTransportFeeDto {
 
   @IsInt()
   @IsNotEmpty()
+  payableAmount: number;
+
+  @IsInt()
+  @IsNotEmpty()
   amount: number;
 
   @IsString()

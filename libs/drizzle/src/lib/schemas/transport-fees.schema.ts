@@ -31,6 +31,7 @@ export const transportFeesTable = mysqlTable('transport-fees', {
   baseAmount: int().notNull(),
   perKmCharge: int().notNull(),
   amount: int().notNull(),
+  payableAmount: int().default(0),
   mode: varchar({
     length: 255,
   }).notNull(),

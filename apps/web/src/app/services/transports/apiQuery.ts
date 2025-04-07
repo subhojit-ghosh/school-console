@@ -4,6 +4,7 @@ import {
   getTransportFeeItemById,
   getTransportListByAcadId,
   getTransportSettingByAcadId,
+  getTrasnsportReceiptById,
   saveTransportFee,
   saveTrasnportSetting,
 } from '.';
@@ -57,5 +58,11 @@ export function useGetTransportFeeItemById(id: string) {
     queryFn: () => getTransportFeeItemById(id),
     queryKey: ['transport-fee-item-by-id', id],
     enabled: !!id,
+  });
+}
+
+export function useGetTransportReceiptById() {
+  return useMutation({
+    mutationFn: getTrasnsportReceiptById,
   });
 }

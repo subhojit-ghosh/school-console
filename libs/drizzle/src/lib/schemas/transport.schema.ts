@@ -6,6 +6,7 @@ import {
   timestamp,
 } from 'drizzle-orm/mysql-core';
 import { academicYearsTable } from './academic-year.schema';
+import { usersTable } from './user.schema';
 
 export const transportTable = mysqlTable('transport', {
   id: serial().primaryKey(),
@@ -15,6 +16,9 @@ export const transportTable = mysqlTable('transport', {
   })
     .notNull()
     .references(() => academicYearsTable.id),
+  userId: bigint({ mode: 'number', unsigned: true }).references(
+    () => usersTable.id
+  ),
   baseAmount: bigint({ mode: 'number' }),
   perKmCharge: bigint({ mode: 'number' }),
 
