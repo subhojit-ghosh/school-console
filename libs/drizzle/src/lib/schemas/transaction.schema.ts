@@ -10,6 +10,7 @@ import {
 import { academicYearsTable } from './academic-year.schema';
 import { classesTable } from './class.schema';
 import { studentsTable } from './student.schema';
+import { usersTable } from './user.schema';
 
 export const transactionTable = mysqlTable(
   'transactions',
@@ -23,6 +24,9 @@ export const transactionTable = mysqlTable(
       .references(() => studentsTable.id),
     classId: bigint({ mode: 'number', unsigned: true }).references(
       () => classesTable.id
+    ),
+    userId: bigint({ mode: 'number', unsigned: true }).references(
+      () => usersTable.id
     ),
     totalAmount: int().notNull(),
     lateFine: int().notNull(),

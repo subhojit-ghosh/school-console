@@ -811,14 +811,14 @@ export default function StudentForm({ action }: StudentFormProps) {
                   {studentPersonalForm.getValues().isTransportTaken && (
                     <Grid.Col span={3}>
                       <NumberInput
-                        label="Transport K.M"
+                        label="Distance (Km)"
                         minLength={0}
                         withAsterisk={
                           studentPersonalForm.getValues().isTransportTaken
                         }
                         key={studentPersonalForm.key('transportKm')}
                         {...studentPersonalForm.getInputProps('transportKm')}
-                        leftSection={<Text size="sm">Km.</Text>}
+                        rightSection={<Text size="sm">Km</Text>}
                         hideControls={true}
                       />
                     </Grid.Col>

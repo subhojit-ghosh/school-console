@@ -9,17 +9,16 @@ import {
   studentsTable,
   transactionItemTable,
   transactionTable,
+  usersTable,
 } from '@school-console/drizzle';
+import { titleCase } from '@school-console/utils';
 import { and, asc, count, desc, eq, inArray, like, or } from 'drizzle-orm';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import * as qrcode from 'qrcode';
 import writtenNumber from 'written-number';
 import TransactionReceipt from '../templates/transactions/recept';
 import { CreateTransactionDto, TransactionQueryDto } from './transactions.dto';
-import { titleCase } from '@school-console/utils';
-import * as qrcode from 'qrcode';
-import moment from 'moment';
-import { IAuthUser } from '../auth/auth-user.decorator';
 
 @Injectable()
 export class TransactionsService {
@@ -253,7 +252,7 @@ export class TransactionsService {
     };
   }
 
-  async create(dto: CreateTransactionDto) {
+  async create(dto: CreateTransactionDto, userId: number) {
     const { feesWithDue } = await this.getStudentFeeSummary(
       dto.academicYearId,
       dto.classId,
@@ -285,6 +284,7 @@ export class TransactionsService {
           academicYearId: dto.academicYearId,
           studentId: dto.studentId,
           classId: dto.classId,
+          userId,
           totalAmount,
           lateFine,
           payable,
@@ -292,6 +292,7 @@ export class TransactionsService {
           paid,
           due,
           mode: dto.mode,
+          note: dto.note,
         })
         .$returningId();
 
@@ -326,7 +327,7 @@ export class TransactionsService {
     return { id, message: 'Transaction saved successfully' };
   }
 
-  async getReceipt(id: string, user: IAuthUser) {
+  async getReceipt(id: string) {
     const transaction: any = await this.db
       .select({
         id: transactionTable.id,
@@ -334,16 +335,15 @@ export class TransactionsService {
           ? studentsTable.enrolledNo
           : studentsTable.regId,
         session: academicYearsTable.name,
-        receiptNo: transactionItemTable.id,
         studentName: studentsTable.name,
         className: classesTable.name,
         date: transactionTable.createdAt,
         fathersName: studentsTable.fathersName,
         mode: transactionTable.mode,
         note: transactionTable.note,
-
         isEnrolled: studentsTable.isEnrolled,
         totalAmount: transactionTable.totalAmount,
+        receivedBy: usersTable.name,
       })
       .from(transactionTable)
       .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
@@ -355,10 +355,7 @@ export class TransactionsService {
         studentsTable,
         eq(transactionTable.studentId, studentsTable.id)
       )
-      .innerJoin(
-        transactionItemTable,
-        eq(transactionTable.id, transactionItemTable.transactionId)
-      )
+      .innerJoin(usersTable, eq(transactionTable.userId, usersTable.id))
       .where(eq(transactionTable.id, Number(id)))
       .then((res) => {
         let obj = {};
@@ -384,7 +381,7 @@ export class TransactionsService {
       )
       .where(eq(transactionItemTable.transactionId, Number(id)));
 
-    const totalAmount = transactionItems.reduce(
+    const totalPaidAmount = transactionItems.reduce(
       (acc, item) => acc + item.paid,
       0
     );
@@ -400,11 +397,12 @@ export class TransactionsService {
     const data: any = {
       ...transaction,
       items: transactionItems,
-      totalPayableAmount: totalPayableAmount,
-      totalAmount: totalAmount,
-      totalDueAmount: totalDueAmount,
-      user: user,
-      totalInWords: titleCase(writtenNumber(totalAmount).replace(/-/g, ' ')),
+      totalPayableAmount,
+      totalPaidAmount,
+      totalDueAmount,
+      totalInWords: titleCase(
+        writtenNumber(totalPaidAmount).replace(/-/g, ' ')
+      ),
     };
 
     const qrCodeDataURL = await qrcode.toDataURL(

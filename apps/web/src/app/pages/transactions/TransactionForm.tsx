@@ -30,6 +30,7 @@ import {
   showInfoNotification,
   showSuccessNotification,
 } from '../../utils/notification';
+import { modals } from '@mantine/modals';
 
 export default function TransactionForm() {
   const [academicYears, setAcademicYears] = useState<any[]>([]);
@@ -202,39 +203,53 @@ export default function TransactionForm() {
       })),
     };
 
-    setSaving(true);
-    saveTransacriotnFee.mutate(
-      {
-        ...payload,
-      },
-      {
-        onSuccess: (response) => {
-          showSuccessNotification('Transaction saved successfully');
-          receptTransaction.mutate(
-            { id: response.id },
-            {
-              onSuccess: (pdfUrl) => {
-                if (iframeRef.current) {
-                  iframeRef.current.src = pdfUrl;
+    modals.openConfirmModal({
+      title: 'Confirmation',
+      children: (
+        <Text size="sm">
+          Are you sure you want to save this transaction? This action cannot be
+          undone.
+        </Text>
+      ),
+      centered: true,
+      labels: { confirm: 'Save', cancel: 'Cancel' },
+      onConfirm: () => {
+        setSaving(true);
+        setSaving(true);
+        saveTransacriotnFee.mutate(
+          {
+            ...payload,
+          },
+          {
+            onSuccess: (response) => {
+              showSuccessNotification('Transaction saved successfully');
+              receptTransaction.mutate(
+                { id: response.id },
+                {
+                  onSuccess: (pdfUrl) => {
+                    if (iframeRef.current) {
+                      iframeRef.current.src = pdfUrl;
 
-                  iframeRef.current.onload = () => {
-                    iframeRef.current?.contentWindow?.print();
-                    resetForm();
-                    setSaving(false);
-                  };
+                      iframeRef.current.onload = () => {
+                        iframeRef.current?.contentWindow?.print();
+                        resetForm();
+                        setSaving(false);
+                      };
+                    }
+                  },
                 }
-              },
-            }
-          );
-        },
-      }
-    );
+              );
+            },
+          }
+        );
+      },
+    });
   };
 
   function onChangeChekbox(checked: boolean, item: any) {
     let items: any = feesRight || [];
     if (checked) {
-      items.push({ ...item, concession: '', paid: '' });
+      items.push({ ...item, concession: '', paid: String(item.totalDue) });
     } else {
       items = items.filter((rec: any) => rec.id !== item.id);
     }

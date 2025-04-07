@@ -8,41 +8,34 @@ import {
   varchar,
 } from 'drizzle-orm/mysql-core';
 import { academicYearsTable } from './academic-year.schema';
-import { transactionTable } from './transaction.schema';
 import { studentsTable } from './student.schema';
+import { usersTable } from './user.schema';
 
 export const transportFeesTable = mysqlTable('transport-fees', {
   id: serial().primaryKey(),
-  studentId: bigint({
-    mode: 'number',
-    unsigned: true,
-  })
-    .notNull()
-    .references(() => studentsTable.id),
-
   academicYearId: bigint({
     mode: 'number',
     unsigned: true,
   })
     .notNull()
     .references(() => academicYearsTable.id),
-
-  baseAmount: bigint({ mode: 'number' }),
-  perKmCharge: bigint({ mode: 'number' }),
-  payableAmount: bigint({
+  studentId: bigint({
     mode: 'number',
     unsigned: true,
-  }).default(0),
-  amount: bigint({
-    mode: 'number',
-    unsigned: true,
-  }),
-
+  })
+    .notNull()
+    .references(() => studentsTable.id),
+  userId: bigint({ mode: 'number', unsigned: true }).references(
+    () => usersTable.id
+  ),
+  baseAmount: int().notNull(),
+  perKmCharge: int().notNull(),
+  amount: int().notNull(),
+  payableAmount: int().default(0),
   mode: varchar({
     length: 255,
-  }),
+  }).notNull(),
   note: text(),
-
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().onUpdateNow(),
 });

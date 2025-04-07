@@ -45,6 +45,7 @@ import { DataTable } from 'mantine-datatable';
 import classes from './NestedTable.module.css';
 import classNames from 'classnames';
 import moment from 'moment';
+import { modals } from '@mantine/modals';
 
 export default function TransportPage() {
   const [acadId, setAcadId] = useState<string | null>(null);
@@ -271,24 +272,37 @@ export default function TransportPage() {
   }
 
   function onSaveTransportFee(e: any) {
-    const payload = {
-      ...e,
-      academicYearId: Number(e.academicYearId),
-      baseAmount: Number(e.baseAmount),
-      perKmCharge: Number(e.perKmCharge),
-      payableAmount: calculateAmount(transportFeeForm.values.months),
-      amount: Number(e.amount),
-      studentId: Number(e.studentId),
-    };
-    // console.log('debug-payload', payload);
-    // return;
-    saveTransportFee.mutate(payload, {
-      onSuccess: () => {
-        showSuccessNotification('Record Created');
-        handlers.close();
-        resetTransportFeeForm();
-        tableListRefetch();
-        setExpandedTransportIds([]);
+    modals.openConfirmModal({
+      title: 'Confirmation',
+      children: (
+        <Text size="sm">
+          Are you sure you want to save this transaction? This action cannot be
+          undone.
+        </Text>
+      ),
+      centered: true,
+      labels: { confirm: 'Save', cancel: 'Cancel' },
+      onConfirm: () => {
+        saveTransportFee.mutate(
+          {
+            ...e,
+            academicYearId: Number(e.academicYearId),
+            baseAmount: Number(e.baseAmount),
+            perKmCharge: Number(e.perKmCharge),
+            amount: Number(e.amount),
+            payableAmount: calculateAmount(transportFeeForm.values.months),
+            studentId: Number(e.studentId),
+          },
+          {
+            onSuccess: () => {
+              showSuccessNotification('Record Created');
+              handlers.close();
+              resetTransportFeeForm();
+              tableListRefetch();
+              setExpandedTransportIds([]);
+            },
+          }
+        );
       },
     });
   }
