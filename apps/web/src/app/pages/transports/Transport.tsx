@@ -239,6 +239,19 @@ export default function TransportPage() {
     );
   }
 
+  function calculateAmount(monthArr: any) {
+    return monthArr.length === 0
+      ? 0
+      : (transportFeeForm.values.baseAmount || 0) +
+          Number(
+            (transportFeeForm.values.perKmCharge || 0) *
+              (feeItemsList.studentRecord.isTransportTaken
+                ? feeItemsList.studentRecord.transportKm * 2
+                : 1)
+          ) *
+            monthArr.length;
+  }
+
   function resetTransportFeeForm() {
     transportFeeForm.setValues({
       classId: '',
@@ -251,25 +264,26 @@ export default function TransportPage() {
   }
 
   function onSaveTransportFee(e: any) {
-    saveTransportFee.mutate(
-      {
-        ...e,
-        academicYearId: Number(e.academicYearId),
-        baseAmount: Number(e.baseAmount),
-        perKmCharge: Number(e.perKmCharge),
-        amount: Number(e.amount),
-        studentId: Number(e.studentId),
+    const payload = {
+      ...e,
+      academicYearId: Number(e.academicYearId),
+      baseAmount: Number(e.baseAmount),
+      perKmCharge: Number(e.perKmCharge),
+      payableAmount: calculateAmount(transportFeeForm.values.months),
+      amount: Number(e.amount),
+      studentId: Number(e.studentId),
+    };
+    // console.log('debug-payload', payload);
+    // return;
+    saveTransportFee.mutate(payload, {
+      onSuccess: () => {
+        showSuccessNotification('Record Created');
+        handlers.close();
+        resetTransportFeeForm();
+        tableListRefetch();
+        setExpandedTransportIds([]);
       },
-      {
-        onSuccess: () => {
-          showSuccessNotification('Record Created');
-          handlers.close();
-          resetTransportFeeForm();
-          tableListRefetch();
-          setExpandedTransportIds([]);
-        },
-      }
-    );
+    });
   }
 
   return (
@@ -393,17 +407,7 @@ export default function TransportPage() {
                 onChange={(dt) => {
                   transportFeeForm.setValues({
                     months: [...dt],
-                    amount:
-                      dt.length === 0
-                        ? 0
-                        : (transportFeeForm.values.baseAmount || 0) +
-                          Number(
-                            (transportFeeForm.values.perKmCharge || 0) *
-                              (feeItemsList.studentRecord.isTransportTaken
-                                ? feeItemsList.studentRecord.transportKm * 2
-                                : 1)
-                          ) *
-                            dt.length,
+                    amount: calculateAmount(dt),
                   });
                 }}
                 disabled={!transportFeeForm.getValues().studentId}
@@ -450,7 +454,7 @@ export default function TransportPage() {
                 withAsterisk
                 min={1}
                 hideControls={true}
-                disabled={true}
+                // disabled={true}
                 {...transportFeeForm.getInputProps('amount')}
               />
             </Grid.Col>

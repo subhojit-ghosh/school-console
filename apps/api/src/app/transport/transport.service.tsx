@@ -5,15 +5,27 @@ import {
   UpdateTransportDto,
 } from './transport.dto';
 import {
+  academicFeeTable,
+  academicYearsTable,
+  classesTable,
   DRIZZLE,
   DrizzleDB,
   studentsTable,
+  transactionItemTable,
+  transactionTable,
   transportFeeItemsTable,
   transportFeesTable,
   transportTable,
 } from '@school-console/drizzle';
 import { and, count, eq } from 'drizzle-orm';
-import { on } from 'events';
+import ReactPDF from '@react-pdf/renderer';
+import * as qrcode from 'qrcode';
+import writtenNumber from 'written-number';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { IAuthUser } from '../auth/auth-user.decorator';
+import { titleCase } from '@school-console/utils';
+import TransactionReceipt from '../templates/transactions/recept';
 
 @Injectable()
 export class TransportService {
@@ -129,5 +141,99 @@ export class TransportService {
 
   remove(id: number) {
     return `This action removes a #${id} transport`;
+  }
+
+  async getReceipt(id: string, user: IAuthUser) {
+    const transaction: any = await this.db
+      .select({
+        id: transactionTable.id,
+        regNo: studentsTable.isEnrolled
+          ? studentsTable.enrolledNo
+          : studentsTable.regId,
+        session: academicYearsTable.name,
+        receiptNo: transactionItemTable.id,
+        studentName: studentsTable.name,
+        className: classesTable.name,
+        date: transactionTable.createdAt,
+        fathersName: studentsTable.fathersName,
+        mode: transactionTable.mode,
+        note: transactionTable.note,
+
+        isEnrolled: studentsTable.isEnrolled,
+        totalAmount: transactionTable.totalAmount,
+      })
+      .from(transactionTable)
+      .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
+      .innerJoin(
+        academicYearsTable,
+        eq(transactionTable.academicYearId, academicYearsTable.id)
+      )
+      .innerJoin(
+        studentsTable,
+        eq(transactionTable.studentId, studentsTable.id)
+      )
+      .innerJoin(
+        transactionItemTable,
+        eq(transactionTable.id, transactionItemTable.transactionId)
+      )
+      .where(eq(transactionTable.id, Number(id)))
+      .then((res) => {
+        let obj = {};
+        if (res.length > 0) {
+          obj = { ...res[0] };
+        }
+        return obj;
+      });
+
+    const transactionItems = await this.db
+      .select({
+        academicFeeName: academicFeeTable.name,
+        amount: transactionItemTable.amount,
+        concession: transactionItemTable.concession,
+        payable: transactionItemTable.payable,
+        paid: transactionItemTable.paid,
+        due: transactionItemTable.due,
+      })
+      .from(transactionItemTable)
+      .innerJoin(
+        academicFeeTable,
+        eq(transactionItemTable.academicFeeId, academicFeeTable.id)
+      )
+      .where(eq(transactionItemTable.transactionId, Number(id)));
+
+    const totalAmount = transactionItems.reduce(
+      (acc, item) => acc + item.paid,
+      0
+    );
+    const totalPayableAmount = transactionItems.reduce(
+      (acc, item) => acc + item.payable,
+      0
+    );
+    const totalDueAmount = transactionItems.reduce(
+      (acc, item) => acc + item.due,
+      0
+    );
+
+    const data: any = {
+      ...transaction,
+      items: transactionItems,
+      totalPayableAmount: totalPayableAmount,
+      totalAmount: totalAmount,
+      totalDueAmount: totalDueAmount,
+      user: user,
+      totalInWords: titleCase(writtenNumber(totalAmount).replace(/-/g, ' ')),
+    };
+
+    const qrCodeDataURL = await qrcode.toDataURL(
+      `Transaction ID #${transaction.id} | JDS Public School`
+    );
+    data.qrCodeDataURL = qrCodeDataURL;
+
+    const logo = readFileSync(
+      join(__dirname, '../../../', 'storage/logo-circle.png')
+    );
+    return await ReactPDF.renderToStream(
+      <TransactionReceipt logo={logo.toString('base64')} data={data} />
+    );
   }
 }

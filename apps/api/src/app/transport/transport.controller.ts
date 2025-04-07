@@ -1,11 +1,16 @@
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  Res,
+  StreamableFile,
+  UseGuards,
   Delete,
+  Patch,
 } from '@nestjs/common';
 import { TransportService } from './transport.service';
 import {
@@ -13,6 +18,8 @@ import {
   CreateTransportFeeDto,
   UpdateTransportDto,
 } from './transport.dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { AuthUser, IAuthUser } from '../auth/auth-user.decorator';
 
 @Controller('transport')
 export class TransportController {
@@ -70,5 +77,18 @@ export class TransportController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.transportService.remove(+id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/receipt/:id')
+  async fetchRecepit(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+    @AuthUser() user: IAuthUser
+  ) {
+    // res.header('Content-Type', 'application/pdf');
+    // return new StreamableFile(
+    //   (await this.transportService.getReceipt(id, user)) as any
+    // );
   }
 }

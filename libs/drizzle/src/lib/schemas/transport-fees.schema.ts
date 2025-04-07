@@ -29,6 +29,10 @@ export const transportFeesTable = mysqlTable('transport-fees', {
 
   baseAmount: bigint({ mode: 'number' }),
   perKmCharge: bigint({ mode: 'number' }),
+  payableAmount: bigint({
+    mode: 'number',
+    unsigned: true,
+  }).default(0),
   amount: bigint({
     mode: 'number',
     unsigned: true,
