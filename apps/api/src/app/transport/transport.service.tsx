@@ -12,6 +12,7 @@ import {
   transportFeeItemsTable,
   transportFeesTable,
   transportTable,
+  usersTable,
 } from '@school-console/drizzle';
 import { and, count, eq } from 'drizzle-orm';
 import ReactPDF from '@react-pdf/renderer';
@@ -57,10 +58,13 @@ export class TransportService {
       .values({ ...(transport as any) });
   }
 
-  async createTransportFee(createTransportFeeDto: CreateTransportFeeDto) {
+  async createTransportFee(
+    createTransportFeeDto: CreateTransportFeeDto,
+    user: IAuthUser
+  ) {
     const transportFee = await this.db
       .insert(transportFeesTable)
-      .values({ ...createTransportFeeDto, id: undefined })
+      .values({ ...createTransportFeeDto, id: undefined, userId: user.id })
       .$returningId();
     const arrOfInsert: any = createTransportFeeDto.months.map((month) => ({
       ...createTransportFeeDto,
@@ -158,6 +162,7 @@ export class TransportService {
         isEnrolled: studentsTable.isEnrolled,
         totalPayable: transportFeesTable.payableAmount,
         totalAmount: transportFeesTable.amount,
+        receivedBy: usersTable.name,
       })
       .from(transportFeesTable)
       .innerJoin(
@@ -169,6 +174,7 @@ export class TransportService {
         academicYearsTable,
         eq(transportFeesTable.academicYearId, academicYearsTable.id)
       )
+      .innerJoin(usersTable, eq(transportFeesTable.userId, usersTable.id))
       .where(eq(transportFeesTable.id, Number(id)))
       .then((res) => {
         let obj = {};

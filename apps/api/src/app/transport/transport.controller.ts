@@ -36,9 +36,16 @@ export class TransportController {
     return this.transportService.settings(createTransportDto);
   }
 
+  @UseGuards(AuthGuard)
   @Post('fees')
-  create(@Body() createTransportFeeDto: CreateTransportFeeDto) {
-    return this.transportService.createTransportFee(createTransportFeeDto);
+  create(
+    @Body() createTransportFeeDto: CreateTransportFeeDto,
+    @AuthUser() user: IAuthUser
+  ) {
+    return this.transportService.createTransportFee(
+      createTransportFeeDto,
+      user
+    );
   }
 
   @Get('fee-items/dropdown/:academicYearId/:studentId')
