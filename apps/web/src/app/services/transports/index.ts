@@ -58,3 +58,17 @@ export async function getTransportFeeItemById(id: string) {
 
   return data;
 }
+
+export async function getTrasnsportReceiptById(payload: any) {
+  const { data } = await httpClient.post(
+    endpoints.transports.receiptById(payload.id),
+    {},
+    {
+      responseType: 'blob',
+    }
+  );
+
+  const pdfBlob = new Blob([data], { type: 'application/pdf' });
+  const objectUrl = window.URL.createObjectURL(pdfBlob);
+  return objectUrl;
+}

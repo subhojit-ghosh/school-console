@@ -18,6 +18,7 @@ import {
   CreateTransportFeeDto,
   UpdateTransportDto,
 } from './transport.dto';
+import { Response } from 'express';
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthUser, IAuthUser } from '../auth/auth-user.decorator';
 
@@ -86,9 +87,10 @@ export class TransportController {
     @Res({ passthrough: true }) res: Response,
     @AuthUser() user: IAuthUser
   ) {
-    // res.header('Content-Type', 'application/pdf');
-    // return new StreamableFile(
-    //   (await this.transportService.getReceipt(id, user)) as any
-    // );
+    // return await this.transportService.getReceipt(id, user);
+    res.header('Content-Type', 'application/pdf');
+    return new StreamableFile(
+      (await this.transportService.getReceipt(id, user)) as any
+    );
   }
 }

@@ -1,9 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  CreateTransportDto,
-  CreateTransportFeeDto,
-  UpdateTransportDto,
-} from './transport.dto';
+import { CreateTransportFeeDto, UpdateTransportDto } from './transport.dto';
 import {
   academicFeeTable,
   academicYearsTable,
@@ -25,7 +21,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { IAuthUser } from '../auth/auth-user.decorator';
 import { titleCase } from '@school-console/utils';
-import TransactionReceipt from '../templates/transactions/recept';
+import TransportReceipt from '../templates/transports/recept';
 
 @Injectable()
 export class TransportService {
@@ -144,39 +140,36 @@ export class TransportService {
   }
 
   async getReceipt(id: string, user: IAuthUser) {
-    const transaction: any = await this.db
+    const transportFees: any = await this.db
       .select({
-        id: transactionTable.id,
+        id: transportFeesTable.id,
         regNo: studentsTable.isEnrolled
           ? studentsTable.enrolledNo
           : studentsTable.regId,
         session: academicYearsTable.name,
-        receiptNo: transactionItemTable.id,
+        // receiptNo: 1,
         studentName: studentsTable.name,
         className: classesTable.name,
-        date: transactionTable.createdAt,
+        date: transportFeesTable.createdAt,
         fathersName: studentsTable.fathersName,
-        mode: transactionTable.mode,
-        note: transactionTable.note,
+        mode: transportFeesTable.mode,
+        note: transportFeesTable.note,
 
         isEnrolled: studentsTable.isEnrolled,
-        totalAmount: transactionTable.totalAmount,
+        totalPayable: transportFeesTable.payableAmount,
+        totalAmount: transportFeesTable.amount,
       })
-      .from(transactionTable)
-      .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
-      .innerJoin(
-        academicYearsTable,
-        eq(transactionTable.academicYearId, academicYearsTable.id)
-      )
+      .from(transportFeesTable)
       .innerJoin(
         studentsTable,
-        eq(transactionTable.studentId, studentsTable.id)
+        eq(transportFeesTable.studentId, studentsTable.id)
       )
+      .innerJoin(classesTable, eq(studentsTable.classId, classesTable.id))
       .innerJoin(
-        transactionItemTable,
-        eq(transactionTable.id, transactionItemTable.transactionId)
+        academicYearsTable,
+        eq(transportFeesTable.academicYearId, academicYearsTable.id)
       )
-      .where(eq(transactionTable.id, Number(id)))
+      .where(eq(transportFeesTable.id, Number(id)))
       .then((res) => {
         let obj = {};
         if (res.length > 0) {
@@ -185,55 +178,36 @@ export class TransportService {
         return obj;
       });
 
-    const transactionItems = await this.db
+    const transportFeeItems = await this.db
       .select({
-        academicFeeName: academicFeeTable.name,
-        amount: transactionItemTable.amount,
-        concession: transactionItemTable.concession,
-        payable: transactionItemTable.payable,
-        paid: transactionItemTable.paid,
-        due: transactionItemTable.due,
+        month: transportFeeItemsTable.month,
       })
-      .from(transactionItemTable)
-      .innerJoin(
-        academicFeeTable,
-        eq(transactionItemTable.academicFeeId, academicFeeTable.id)
-      )
-      .where(eq(transactionItemTable.transactionId, Number(id)));
-
-    const totalAmount = transactionItems.reduce(
-      (acc, item) => acc + item.paid,
-      0
-    );
-    const totalPayableAmount = transactionItems.reduce(
-      (acc, item) => acc + item.payable,
-      0
-    );
-    const totalDueAmount = transactionItems.reduce(
-      (acc, item) => acc + item.due,
-      0
-    );
+      .from(transportFeeItemsTable)
+      .where(eq(transportFeeItemsTable.transportFeeId, Number(id)));
 
     const data: any = {
-      ...transaction,
-      items: transactionItems,
-      totalPayableAmount: totalPayableAmount,
-      totalAmount: totalAmount,
-      totalDueAmount: totalDueAmount,
+      ...transportFees,
+      items: transportFeeItems,
+      totalPayableAmount: transportFees.totalPayable,
+      totalAmount: transportFees.totalAmount,
+      totalDueAmount: 0,
       user: user,
-      totalInWords: titleCase(writtenNumber(totalAmount).replace(/-/g, ' ')),
+      totalInWords: titleCase(
+        writtenNumber(transportFees.totalAmount).replace(/-/g, ' ')
+      ),
     };
 
     const qrCodeDataURL = await qrcode.toDataURL(
-      `Transaction ID #${transaction.id} | JDS Public School`
+      `Transport ID #${transportFees.id} | JDS Public School`
     );
     data.qrCodeDataURL = qrCodeDataURL;
+    // return data;
 
     const logo = readFileSync(
       join(__dirname, '../../../', 'storage/logo-circle.png')
     );
     return await ReactPDF.renderToStream(
-      <TransactionReceipt logo={logo.toString('base64')} data={data} />
+      <TransportReceipt logo={logo.toString('base64')} data={data} />
     );
   }
 }

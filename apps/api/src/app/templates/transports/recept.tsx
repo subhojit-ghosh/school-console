@@ -296,7 +296,7 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
         >
           Fees Type
         </Text>
-        <Text
+        {/* <Text
           style={{
             ...styles.boldText,
             ...styles.textRight,
@@ -305,8 +305,8 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
             flex: '1',
             borderBottomWidth: '0px',
           }}
-        ></Text>
-        <Text
+        ></Text> */}
+        {/* <Text
           style={{
             ...styles.boldText,
             ...styles.flexRowNoMarginSecondCell,
@@ -329,11 +329,11 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
           }}
         >
           Paid Amount (Rs.)
-        </Text>
+        </Text> */}
       </View>
 
-      {(data.items || []).map((rec, index) => (
-        <View style={styles.flexRowNoMargin} key={index}>
+      {(data.items || []).length > 0 && (
+        <View style={styles.flexRowNoMargin}>
           <Text
             style={{
               ...styles.boldText,
@@ -344,9 +344,29 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
               borderBottomWidth: '0px',
             }}
           >
-            {rec.academicFeeName}
+            Transport:
+            {(data.items || []).map((rec, index) => (
+              <>
+                {' ' +
+                  [
+                    'January',
+                    'February',
+                    'March',
+                    'April',
+                    'May',
+                    'June',
+                    'July',
+                    'August',
+                    'September',
+                    'October',
+                    'November',
+                    'December',
+                  ][rec.month - 1]}
+                {index < data.items.length - 1 && <>, </>}
+              </>
+            ))}
           </Text>
-          <Text
+          {/* <Text
             style={{
               ...styles.boldText,
               ...styles.textRight,
@@ -355,8 +375,8 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
               flex: '1',
               borderBottomWidth: '0px',
             }}
-          ></Text>
-          <Text
+          ></Text> */}
+          {/* <Text
             style={{
               ...styles.boldText,
               ...styles.flexRowNoMarginSecondCell,
@@ -366,7 +386,7 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
               borderBottomWidth: '0px',
             }}
           >
-            {Number(rec.payable).toLocaleString('en-IN')}
+            {Number(data.totalPayable).toLocaleString('en-IN')}
           </Text>
           <Text
             style={{
@@ -379,9 +399,9 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
             }}
           >
             {Number(rec.paid).toLocaleString('en-IN')}
-          </Text>
+          </Text> */}
         </View>
-      ))}
+      )}
 
       <View style={styles.flexRowNoMargin}>
         <Text
@@ -393,9 +413,35 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
             paddingLeft: '5px',
           }}
         >
-          Total Amount
+          Total Payable
         </Text>
         <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginThirdCell,
+            ...styles.textRight,
+            flex: '1',
+            paddingRight: '5px',
+          }}
+        >
+          {Number(data.totalPayableAmount).toLocaleString('en-IN')}
+        </Text>
+      </View>
+
+      <View style={styles.flexRowNoMargin}>
+        <Text
+          style={{
+            ...styles.boldText,
+            ...styles.flexRowNoMarginFirstCell,
+            ...styles.textLeft,
+            flex: '1',
+            borderTopWidth: '0px',
+            paddingLeft: '5px',
+          }}
+        >
+          Total Amount
+        </Text>
+        {/* <Text
           style={{
             ...styles.boldText,
             ...styles.textRight,
@@ -414,19 +460,21 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
           }}
         >
           {Number(data.totalPayableAmount).toLocaleString('en-IN')}
-        </Text>
+        </Text> */}
         <Text
           style={{
             ...styles.boldText,
             ...styles.flexRowNoMarginThirdCell,
             ...styles.textRight,
             flex: '1',
+            borderTopWidth: '0px',
             paddingRight: '5px',
           }}
         >
           {Number(data.totalAmount).toLocaleString('en-IN')}
         </Text>
       </View>
+
       <View style={styles.flexRowNoMargin}>
         <Text
           style={{
@@ -440,7 +488,7 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
         >
           Received Amount
         </Text>
-        <Text
+        {/* <Text
           style={{
             ...styles.boldText,
             ...styles.textRight,
@@ -459,7 +507,7 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
             paddingRight: '5px',
             borderTopWidth: '0px',
           }}
-        ></Text>
+        ></Text> */}
         <Text
           style={{
             ...styles.boldText,
@@ -473,52 +521,7 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
           {Number(data.totalAmount).toLocaleString('en-IN')}
         </Text>
       </View>
-      <View style={styles.flexRowNoMargin}>
-        <Text
-          style={{
-            ...styles.boldText,
-            ...styles.flexRowNoMarginFirstCell,
-            ...styles.textLeft,
-            flex: '1',
-            paddingLeft: '5px',
-            borderTopWidth: '0px',
-          }}
-        >
-          Due Amount
-        </Text>
-        <Text
-          style={{
-            ...styles.boldText,
-            ...styles.textRight,
-            ...styles.flexRowNoMarginFirstCell,
-            borderLeftWidth: '0px',
-            flex: '1',
-            borderTopWidth: '0px',
-          }}
-        ></Text>
-        <Text
-          style={{
-            ...styles.boldText,
-            ...styles.flexRowNoMarginSecondCell,
-            ...styles.textRight,
-            flex: '1',
-            paddingRight: '5px',
-            borderTopWidth: '0px',
-          }}
-        ></Text>
-        <Text
-          style={{
-            ...styles.boldText,
-            ...styles.flexRowNoMarginThirdCell,
-            ...styles.textRight,
-            flex: '1',
-            paddingRight: '5px',
-            borderTopWidth: '0px',
-          }}
-        >
-          {Number(data.totalDueAmount).toLocaleString('en-IN')}
-        </Text>
-      </View>
+
       <View style={styles.flexRowNoMargin}>
         <Text
           style={{
@@ -593,7 +596,7 @@ const TransportReceipt = ({ logo, data }: { logo: string; data: any }) => {
               paddingRight: '10px',
             }}
           >
-            {data.receiptNo}
+            {data.id}
           </Text>
         </View>
       </View>

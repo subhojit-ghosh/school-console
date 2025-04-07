@@ -13,10 +13,12 @@ import {
   TextInput,
   ThemeIcon,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import {
   IconChevronDown,
   IconChevronLeft,
+  IconPrinter,
   IconSettings,
   IconX,
 } from '@tabler/icons-react';
@@ -26,11 +28,12 @@ import {
   useGetStudentsByClassIdDropwdown,
   useGetTransportTakenStudentsByClassIdDropwdown,
 } from '../../services/utils/apiQuery';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   useGetTransportFeeDropdownItemsByStudentAcadId,
   useGetTransportFeeItemById,
   useGetTransportListByAcadId,
+  useGetTransportReceiptById,
   useGetTransportSettingByAcadId,
   useSaveTransportFee,
   useSaveTransportSetting,
@@ -45,6 +48,9 @@ import moment from 'moment';
 
 export default function TransportPage() {
   const [acadId, setAcadId] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [receiptLoadingId, setReceiptLoadingId] = useState<number | null>(null);
+
   const [months, setMonths] = useState<any>([
     {
       value: '1',
@@ -189,6 +195,7 @@ export default function TransportPage() {
   );
   const saveTransportSetting = useSaveTransportSetting();
   const saveTransportFee = useSaveTransportFee();
+  const receptTransport = useGetTransportReceiptById();
 
   useEffect(() => {
     if (feeItemIsFetched) {
@@ -284,6 +291,27 @@ export default function TransportPage() {
         setExpandedTransportIds([]);
       },
     });
+  }
+
+  function getReceiptById(id: any) {
+    setReceiptLoadingId(id);
+    receptTransport.mutate(
+      { id },
+      {
+        onSuccess: (pdfUrl) => {
+          if (iframeRef.current) {
+            iframeRef.current.src = pdfUrl;
+            iframeRef.current.onload = () => {
+              iframeRef.current?.contentWindow?.print();
+            };
+          }
+          setReceiptLoadingId(null);
+        },
+        onError: () => {
+          setReceiptLoadingId(null);
+        },
+      }
+    );
   }
 
   return (
@@ -543,12 +571,27 @@ export default function TransportPage() {
             accessor: 'actions',
             render: ({ id }) => (
               <>
-                <IconChevronLeft
-                  className={classNames(classes.icon, classes.expandIcon, {
-                    [classes.expandIconRotated]:
-                      expandedTransportIds.includes(id),
-                  })}
-                />
+                <Group gap={4} wrap="nowrap">
+                  <IconChevronLeft
+                    className={classNames(classes.icon, classes.expandIcon, {
+                      [classes.expandIconRotated]:
+                        expandedTransportIds.includes(id),
+                    })}
+                  />
+                  <Tooltip label="Print">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        getReceiptById(id);
+                      }}
+                      loading={receiptLoadingId === id}
+                    >
+                      <IconPrinter size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
               </>
             ),
           },
@@ -603,6 +646,7 @@ export default function TransportPage() {
           ),
         }}
       />
+      <iframe title="Receipt" ref={iframeRef} style={{ display: 'none' }} />
     </>
   );
 }

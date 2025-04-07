@@ -71,6 +71,7 @@ const endpoints = {
     getListByAcadId: (academicYearId: string) =>
       api(`transport/list/${academicYearId}`),
     getTransportItemById: (id: string) => api(`transport/fee-item/${id}`),
+    receiptById: (id: string) => api(`transport/receipt/${id}`),
   },
 };
 
