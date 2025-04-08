@@ -46,6 +46,7 @@ import classes from './NestedTable.module.css';
 import classNames from 'classnames';
 import moment from 'moment';
 import { modals } from '@mantine/modals';
+import IsAccessiable from '../../components/IsAccessiable';
 
 export default function TransportPage() {
   const [acadId, setAcadId] = useState<string | null>(null);
@@ -530,11 +531,13 @@ export default function TransportPage() {
 
       <Group justify="space-between" align="center" mb="md">
         <Title size="lg">Transport</Title>
-        <ActionIcon color="indigo" variant="transparent" onClick={open}>
-          <ThemeIcon variant="transparent">
-            <IconSettings />
-          </ThemeIcon>
-        </ActionIcon>
+        <IsAccessiable>
+          <ActionIcon color="indigo" variant="transparent" onClick={open}>
+            <ThemeIcon variant="transparent">
+              <IconSettings />
+            </ThemeIcon>
+          </ActionIcon>
+        </IsAccessiable>
       </Group>
       <Group justify="space-between" align="center" mb="md">
         {academicYears.length ? (

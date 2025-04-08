@@ -63,10 +63,17 @@ export function Navbar() {
         decodeURIComponent(location.pathname)
           .split('/')
           .filter(Boolean)
-          .join('/') ===
-          item.link.split('?')[0].split('/').filter(Boolean).join('/') ||
+          .includes(item.link.split('?')[0].split('/').filter(Boolean)[0]) ||
         undefined
       }
+      // data-active={
+      //   decodeURIComponent(location.pathname)
+      //     .split('/')
+      //     .filter(Boolean)
+      //     .join('/') ===
+      //     item.link.split('?')[0].split('/').filter(Boolean).join('/') ||
+      //   undefined
+      // }
       to={item.link}
       key={item.label}
     >

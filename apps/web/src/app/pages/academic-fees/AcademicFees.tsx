@@ -16,6 +16,7 @@ import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import Currency from '../../components/Currency';
 import AcademicFeeForm from './AcademicFeeForm';
+import IsAccessiable from '../../components/IsAccessiable';
 
 export default function AcademicFeesPage() {
   const [isListLoading, setIsListLoading] = useState(true);
@@ -156,17 +157,19 @@ export default function AcademicFeesPage() {
             }
           />
         </div>
-        <Button
-          variant="filled"
-          leftSection={<IconPlus size={14} />}
-          onClick={() => {
-            setFormMode('add');
-            setFormData(null);
-            setFormOpened(true);
-          }}
-        >
-          Add
-        </Button>
+        <IsAccessiable>
+          <Button
+            variant="filled"
+            leftSection={<IconPlus size={14} />}
+            onClick={() => {
+              setFormMode('add');
+              setFormData(null);
+              setFormOpened(true);
+            }}
+          >
+            Add
+          </Button>
+        </IsAccessiable>
       </Group>
       <DataTable
         withTableBorder
@@ -208,19 +211,21 @@ export default function AcademicFeesPage() {
             textAlign: 'center',
             render: (row: any) => (
               <Group gap={4} justify="center" wrap="nowrap">
-                <Tooltip label="Edit" withArrow>
-                  <ActionIcon
-                    size="sm"
-                    variant="subtle"
-                    onClick={() => {
-                      setFormMode('edit');
-                      setFormData(row);
-                      setFormOpened(true);
-                    }}
-                  >
-                    <IconEdit size={16} />
-                  </ActionIcon>
-                </Tooltip>
+                <IsAccessiable>
+                  <Tooltip label="Edit" withArrow>
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      onClick={() => {
+                        setFormMode('edit');
+                        setFormData(row);
+                        setFormOpened(true);
+                      }}
+                    >
+                      <IconEdit size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </IsAccessiable>
               </Group>
             ),
           },
