@@ -52,7 +52,11 @@ export function Navbar() {
     }
   };
 
-  const links = data.map((item) => (
+  const links = (
+    authStore.user?.role != 'staff'
+      ? data
+      : data.filter((rec) => rec.label !== 'Users')
+  ).map((item) => (
     <Link
       className={classes.link}
       data-active={
