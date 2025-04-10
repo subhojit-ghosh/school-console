@@ -204,7 +204,7 @@ export class TransportService {
     };
 
     const qrCodeDataURL = await qrcode.toDataURL(
-      `Transport ID #${transportFees.id} | JDS Public School`
+      `Transport ID #${transportFees.id} | ${transportFees.studentName} | JDS Public School | (Transport)`
     );
     data.qrCodeDataURL = qrCodeDataURL;
     // return data;
