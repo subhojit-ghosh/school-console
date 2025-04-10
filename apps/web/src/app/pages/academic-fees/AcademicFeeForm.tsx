@@ -16,6 +16,7 @@ import * as yup from 'yup';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import { showSuccessNotification } from '../../utils/notification';
+import { academicFeeNames } from '../../data/academic-fee-names';
 
 export default function AcademicFeeForm({
   opened,
@@ -36,6 +37,7 @@ export default function AcademicFeeForm({
       name: '',
       amount: '',
       dueDate: '',
+      cname: '',
     },
     validate: yupResolver(
       yup.object().shape({
@@ -50,6 +52,11 @@ export default function AcademicFeeForm({
           .typeError('Amount must be a number')
           .required('Amount is required'),
         dueDate: yup.string(),
+        cname: yup.string().when('name', {
+          is: (val: string) => val === 'Other',
+          then: (s) => s.required('Please specity the Other Name.'),
+          otherwise: (s) => s,
+        }),
       })
     ),
   });
@@ -65,12 +72,21 @@ export default function AcademicFeeForm({
     }
 
     if (mode === 'edit') {
+      let isMatched = false;
+      academicFeeNames.every((rec) => {
+        if (rec.value === data.name) {
+          isMatched = true;
+          return false;
+        }
+        return true;
+      });
       form.setValues({
-        name: data.name || '',
+        name: data.name ? (isMatched ? data.name : 'Other') : '',
         academicYearId: String(data.academicYearId) || '',
         classId: data.classId ? String(data.classId) : '',
         amount: data.amount || '',
         dueDate: data.dueDate ? (new Date(data.dueDate) as any) : '',
+        cname: data.name,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,6 +107,7 @@ export default function AcademicFeeForm({
       dueDate: form.values.dueDate
         ? moment(form.values.dueDate).format('YYYY-MM-DD')
         : null,
+      name: form.values.name === 'Other' ? form.values.cname : form.values.name,
     };
 
     try {
@@ -153,12 +170,31 @@ export default function AcademicFeeForm({
             />
           </Grid.Col>
           <Grid.Col span={12}>
-            <TextInput
-              label="Name"
+            <Select
+              label="Fee Name"
+              placeholder="Select"
+              data={academicFeeNames}
+              searchable
               withAsterisk
               {...form.getInputProps('name')}
+              onChange={(e) => {
+                form.setValues({
+                  name: e || '',
+                  cname: '',
+                });
+              }}
             />
           </Grid.Col>
+          {form.values.name === 'Other' && (
+            <Grid.Col span={12}>
+              <TextInput
+                label="Other Name"
+                withAsterisk
+                {...form.getInputProps('cname')}
+              />
+            </Grid.Col>
+          )}
+
           <Grid.Col span={6}>
             <NumberInput
               label="Amount"
