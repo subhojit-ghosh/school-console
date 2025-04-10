@@ -98,7 +98,10 @@ export class UsersService {
 
     if (user.password) {
       user.password = await bcrypt.hash(user.password, 12);
+    } else {
+      delete user.password;
     }
+
     return await this.db
       .update(usersTable)
       .set(user)
