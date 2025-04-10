@@ -133,7 +133,10 @@ export default function TransactionsPage() {
             iframeRef.current.src = pdfUrl;
 
             iframeRef.current.onload = () => {
-              iframeRef.current?.contentWindow?.print();
+              setTimeout(() => {
+                iframeRef.current?.contentWindow?.focus();
+                iframeRef.current?.contentWindow?.print();
+              }, 500);
             };
           }
           setReceiptLoadingId(null);
