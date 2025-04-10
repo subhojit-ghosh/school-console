@@ -406,7 +406,7 @@ export class TransactionsService {
     };
 
     const qrCodeDataURL = await qrcode.toDataURL(
-      `Transaction ID #${transaction.id} | JDS Public School`
+      `Transaction ID #${transaction.id} | ${transaction.studentName} | JDS Public School`
     );
     data.qrCodeDataURL = qrCodeDataURL;
 

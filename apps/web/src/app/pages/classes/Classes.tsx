@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import ClassForm from './ClassForm';
+import IsAccessiable from '../../components/IsAccessiable';
 
 export default function ClassesPage() {
   const [isListLoading, setIsListLoading] = useState(true);
@@ -66,17 +67,19 @@ export default function ClassesPage() {
     <>
       <Group justify="space-between" align="center" mb="md">
         <Title size="lg">Classes</Title>
-        <Button
-          variant="filled"
-          leftSection={<IconPlus size={14} />}
-          onClick={() => {
-            setFormMode('add');
-            setFormData(null);
-            setFormOpened(true);
-          }}
-        >
-          Add
-        </Button>
+        <IsAccessiable>
+          <Button
+            variant="filled"
+            leftSection={<IconPlus size={14} />}
+            onClick={() => {
+              setFormMode('add');
+              setFormData(null);
+              setFormOpened(true);
+            }}
+          >
+            Add
+          </Button>
+        </IsAccessiable>
       </Group>
 
       <Grid>
@@ -87,18 +90,20 @@ export default function ClassesPage() {
                 <Text fw="bold" c="indigo">
                   {cls.name}
                 </Text>
-                <Tooltip label="Edit" withArrow>
-                  <ActionIcon
-                    variant="subtle"
-                    onClick={() => {
-                      setFormMode('edit');
-                      setFormData(cls);
-                      setFormOpened(true);
-                    }}
-                  >
-                    <IconEdit size={18} />
-                  </ActionIcon>
-                </Tooltip>
+                <IsAccessiable>
+                  <Tooltip label="Edit" withArrow>
+                    <ActionIcon
+                      variant="subtle"
+                      onClick={() => {
+                        setFormMode('edit');
+                        setFormData(cls);
+                        setFormOpened(true);
+                      }}
+                    >
+                      <IconEdit size={18} />
+                    </ActionIcon>
+                  </Tooltip>
+                </IsAccessiable>
               </Group>
               <Text size="sm" c="dimmed" mt="xs">
                 Sections: {cls.sections.join(', ')}

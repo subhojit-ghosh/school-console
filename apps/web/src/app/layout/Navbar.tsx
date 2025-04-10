@@ -52,17 +52,28 @@ export function Navbar() {
     }
   };
 
-  const links = data.map((item) => (
+  const links = (
+    authStore.user?.role != 'staff'
+      ? data
+      : data.filter((rec) => rec.label !== 'Users')
+  ).map((item) => (
     <Link
       className={classes.link}
       data-active={
         decodeURIComponent(location.pathname)
           .split('/')
           .filter(Boolean)
-          .join('/') ===
-          item.link.split('?')[0].split('/').filter(Boolean).join('/') ||
+          .includes(item.link.split('?')[0].split('/').filter(Boolean)[0]) ||
         undefined
       }
+      // data-active={
+      //   decodeURIComponent(location.pathname)
+      //     .split('/')
+      //     .filter(Boolean)
+      //     .join('/') ===
+      //     item.link.split('?')[0].split('/').filter(Boolean).join('/') ||
+      //   undefined
+      // }
       to={item.link}
       key={item.label}
     >

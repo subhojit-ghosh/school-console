@@ -18,9 +18,13 @@ import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import AcademicYearForm from './AcademicYearForm';
 import Currency from '../../components/Currency';
+import IsAccessiable from '../../components/IsAccessiable';
+import { useAuthStore } from '../../stores/authStore';
+import { DeniedUserRoles } from '../../data/roles';
 
 export default function AcademicYearsPage() {
   const [isListLoading, setIsListLoading] = useState(true);
+  const authStore = useAuthStore();
   const [listData, setListData] = useState({
     data: [],
     totalRecords: 0,
@@ -93,17 +97,19 @@ export default function AcademicYearsPage() {
     <>
       <Group justify="space-between" align="center" mb="md">
         <Title size="lg">Academic Years</Title>
-        <Button
-          variant="filled"
-          leftSection={<IconPlus size={16} />}
-          onClick={() => {
-            setFormMode('add');
-            setFormData(null);
-            setFormOpened(true);
-          }}
-        >
-          Add
-        </Button>
+        <IsAccessiable>
+          <Button
+            variant="filled"
+            leftSection={<IconPlus size={16} />}
+            onClick={() => {
+              setFormMode('add');
+              setFormData(null);
+              setFormOpened(true);
+            }}
+          >
+            Add
+          </Button>
+        </IsAccessiable>
       </Group>
       <Grid mb="md">
         <Grid.Col span={6}>
@@ -163,6 +169,7 @@ export default function AcademicYearsPage() {
             sortable: true,
             render: (row: any) => (
               <Switch
+                disabled={DeniedUserRoles.includes(authStore.user?.role || '')}
                 checked={row.isActive}
                 color="green"
                 size="xs"
@@ -177,32 +184,36 @@ export default function AcademicYearsPage() {
             textAlign: 'center',
             render: (row: any) => (
               <Group gap={4} justify="center" wrap="nowrap">
-                <Tooltip label="Edit" withArrow>
-                  <ActionIcon
-                    size="sm"
-                    variant="subtle"
-                    onClick={() => {
-                      setFormMode('edit');
-                      setFormData(row);
-                      setFormOpened(true);
-                    }}
-                  >
-                    <IconEdit size={16} />
-                  </ActionIcon>
-                </Tooltip>
+                <IsAccessiable>
+                  <Tooltip label="Edit" withArrow>
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      onClick={() => {
+                        setFormMode('edit');
+                        setFormData(row);
+                        setFormOpened(true);
+                      }}
+                    >
+                      <IconEdit size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </IsAccessiable>
               </Group>
             ),
           },
         ]}
       />
 
-      <AcademicYearForm
-        opened={formOpened}
-        close={() => setFormOpened(false)}
-        mode={formMode}
-        data={formData}
-        fetchList={fetchList}
-      />
+      <IsAccessiable>
+        <AcademicYearForm
+          opened={formOpened}
+          close={() => setFormOpened(false)}
+          mode={formMode}
+          data={formData}
+          fetchList={fetchList}
+        />
+      </IsAccessiable>
     </>
   );
 }

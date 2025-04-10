@@ -211,6 +211,7 @@ export default function TransactionsPage() {
         records={listData.data}
         sortStatus={sortStatus}
         onSortStatusChange={setSortStatus}
+        pinLastColumn
         columns={[
           {
             accessor: 'id',
@@ -306,6 +307,9 @@ export default function TransactionsPage() {
             accessor: 'actions',
             title: <Box mr={6}>Actions</Box>,
             textAlign: 'center',
+            cellsStyle: () => ({
+              background: '#fff',
+            }),
             render: (row: any) => (
               <Group gap={4} justify="center" wrap="nowrap">
                 <ActionIcon

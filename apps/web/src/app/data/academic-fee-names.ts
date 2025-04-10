@@ -17,4 +17,5 @@ export const academicFeeNames = [
   { label: 'Tuition Fees: March', value: 'Tuition Fees: March' },
   { label: 'Books', value: 'Books' },
   { label: 'Uniforms', value: 'Uniforms' },
+  { label: 'Other', value: 'Other' },
 ];
