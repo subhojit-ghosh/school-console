@@ -1,4 +1,13 @@
-import { Grid, Group, Select, Title } from '@mantine/core';
+import {
+  Grid,
+  Group,
+  Paper,
+  Select,
+  SimpleGrid,
+  Skeleton,
+  Text,
+  Title,
+} from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
@@ -185,6 +194,48 @@ export default function ReportsPage() {
           />
         </Grid.Col>
       </Grid>
+
+      <SimpleGrid cols={{ base: 1, sm: 3 }}>
+        <Paper withBorder p="md" key="q" mb="md">
+          <Group justify="apart">
+            <div>
+              <Text tt="uppercase" fw={700} fz="sm" c="indigo">
+                Total student(s)
+              </Text>
+              {isListLoading ? (
+                <Skeleton height={20} mt={10} />
+              ) : (
+                <Text fw={700} fz="xl">
+                  {listData.length}
+                </Text>
+              )}
+            </div>
+          </Group>
+        </Paper>
+
+        <Paper withBorder p="md" key="q" mb="md">
+          <Group justify="apart">
+            <div>
+              <Text tt="uppercase" fw={700} fz="sm" c="indigo">
+                Total Overdue
+              </Text>
+              {isListLoading ? (
+                <Skeleton height={20} mt={10} />
+              ) : (
+                <Text fw={700} fz="xl">
+                  <Currency
+                    value={listData.reduce(
+                      (acc, rec: any) => acc + rec?.totalOverdue,
+                      0
+                    )}
+                  />
+                </Text>
+              )}
+            </div>
+          </Group>
+        </Paper>
+      </SimpleGrid>
+
       <DataTable
         withTableBorder
         withColumnBorders
