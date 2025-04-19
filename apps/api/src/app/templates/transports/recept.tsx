@@ -72,7 +72,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       backgroundColor: '#fff',
       fontSize: 11,
       paddingTop: 2,
-      paddingLeft: 10,
+      paddingLeft: 45,
       paddingRight: 10,
       lineHeight: 0,
       fontFamily: 'Roboto',
@@ -256,12 +256,15 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
       <View style={styles.titleTextContainer}>
         <Text style={styles.reportTitle}>JDS PUBLIC SCHOOL</Text>
         <Text style={styles.defaultText}>
-          Panpur, PO - Narayanpur, PS - Basudevpur, 24 Pgs. (N), W.B-743126
+          Affiliated to CBSE (10+2) | Affiliation No: 2430445
         </Text>
         <Text style={styles.defaultText}>
-          Tel: 6292298909 , 9330445581. Email: accounts@jdsschool.in
+          A B Road, Panpur, PO - Narayanpur, PS - Basudevpur, 24 Pgs. (N), PIN -
+          743126, W.B
         </Text>
-        <Text style={styles.defaultText}>Phone: 9062281887 / 9062281890</Text>
+        <Text style={styles.defaultText}>
+          Phone: 9062281887 | Email: accounts@jdsschool.in
+        </Text>
         <Text
           style={{
             ...styles.defaultText,
@@ -324,7 +327,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
           >
             Transport:
             {(data.items || []).map((rec, index) => (
-              <>
+              <Text key={index}>
                 {' ' +
                   [
                     'January',
@@ -341,7 +344,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
                     'December',
                   ][rec.month - 1]}
                 {index < data.items.length - 1 && <>, </>}
-              </>
+              </Text>
             ))}
           </Text>
           <Text
@@ -415,7 +418,7 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             ...styles.boldText,
             ...styles.flexRowNoMarginFirstCell,
             ...styles.textLeft,
-            flexBasis: '192.5px',
+            flexBasis: '270.5px',
             flexShrink: 0,
             paddingLeft: '5px',
             borderTopWidth: '0px',
@@ -440,9 +443,9 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
           style={{
             ...styles.boldText,
             ...styles.flexRowNoMarginSecondCell,
-            ...styles.textLeft,
+            ...styles.textRight,
             flex: '2',
-            paddingLeft: '5px',
+            paddingRight: '5px',
             borderTopWidth: '0px',
           }}
         >
@@ -519,10 +522,10 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             style={{
               ...styles.infoText,
               textAlign: 'right',
-              paddingRight: '10px',
+              // paddingRight: '10px',
             }}
           >
-            {moment(data.date).format('DD MMM YY')}
+            {moment(data.date).format('DD-MM-2024')}
           </Text>
         </View>
       </View>
@@ -540,47 +543,22 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             paddingRight: '10px',
           }}
         >
-          <View
+          <Text
             style={{
-              ...styles.flexRowNoMargin,
-              justifyContent: 'space-between',
+              ...styles.infoLabel,
+              width: '100px',
             }}
           >
-            <Text
-              style={{
-                ...styles.infoLabel,
-                width: '134px',
-              }}
-            >
-              Payment Mode:
-            </Text>
-            <View style={{ width: '146px' }}>
-              <Text
-                style={{
-                  width: '110px',
-                  paddingRight: '1px',
-                }}
-              >
-                {data.mode} - {data.note}
-              </Text>
-            </View>
-            <Text
-              style={{
-                ...styles.infoLabel,
-                width: '100px',
-              }}
-            >
-              TXN Date:
-            </Text>
-            <Text
-              style={{
-                ...styles.infoText,
-                width: '60px',
-              }}
-            >
-              {moment(data.date).format('DD MMM YY')}
-            </Text>
-          </View>
+            Payment Mode:
+          </Text>
+          <Text
+            style={{
+              paddingRight: '1px',
+            }}
+          >
+            {data.mode}
+            {data.note && ` - ${data.note}`}
+          </Text>
         </View>
       </View>
       <View
