@@ -30,6 +30,7 @@ export class TransactionsService {
       size = 10,
       sortBy = 'createdAt',
       sortOrder = 'asc',
+      academicYearId,
       classId,
       isEnrolled,
       student,
@@ -38,6 +39,9 @@ export class TransactionsService {
     const offset = (page - 1) * size;
 
     const whereConditions: any = [];
+    if (academicYearId) {
+      whereConditions.push(eq(transactionTable.academicYearId, academicYearId));
+    }
     if (classId) {
       whereConditions.push(eq(transactionTable.classId, classId));
     }

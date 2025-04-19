@@ -77,6 +77,11 @@ export class TransactionQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  academicYearId?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
   classId?: number;
 
   @IsOptional()
