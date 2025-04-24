@@ -259,6 +259,7 @@ export default function TransactionForm() {
   function onConcessionChange(v: number, index: number) {
     const items: any = feesRight || [];
     items[index].concession = v;
+    items[index].paid = items[index].totalDue - v;
     setFeesRight([...items]);
   }
 
@@ -440,6 +441,9 @@ export default function TransactionForm() {
                               <Table.Th style={{ width: 110 }}>
                                 Concession
                               </Table.Th>
+                              <Table.Th style={{ width: 110 }}>
+                                Payable
+                              </Table.Th>
                               <Table.Th style={{ width: 110 }}>Paid</Table.Th>
                             </Table.Tr>
                           </Table.Thead>
@@ -475,6 +479,11 @@ export default function TransactionForm() {
                                   />
                                 </Table.Td>
                                 <Table.Td>
+                                  <p>
+                                    <Currency value={item.totalDue} />
+                                  </p>
+                                </Table.Td>
+                                <Table.Td>
                                   <NumberInput
                                     hideControls
                                     min={0}
@@ -504,6 +513,15 @@ export default function TransactionForm() {
                                   value={feesRight.reduce(
                                     (acc: number, item: any) =>
                                       acc + Number(item.concession),
+                                    0
+                                  )}
+                                />
+                              </Table.Td>
+                              <Table.Td>
+                                <Currency
+                                  value={feesRight.reduce(
+                                    (acc: number, item: any) =>
+                                      acc + Number(item.totalDue),
                                     0
                                   )}
                                 />
