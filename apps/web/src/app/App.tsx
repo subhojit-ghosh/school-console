@@ -28,6 +28,7 @@ import UsersPage from './pages/users/Users';
 import AuthenticatedRoutes from './route-guards/authenticated';
 import RedirectIfAuthenticatedRoutes from './route-guards/redirect-if-authenticated';
 import { useAuthStore } from './stores/authStore';
+import AcademicFeesPageNew from './pages/academic-fees/AcademicFees1';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -89,6 +90,10 @@ export function App() {
                 </Route>
                 <Route path="/classes" element={<ClassesPage />} />
                 <Route path="/academic-fees" element={<AcademicFeesPage />} />
+                <Route
+                  path="/academic-fees1"
+                  element={<AcademicFeesPageNew />}
+                />
                 <Route path="/transactions">
                   <Route index element={<TransactionsPage />} />
                   <Route path="add/:type" element={<TransactionForm />} />
