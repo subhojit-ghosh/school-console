@@ -126,16 +126,24 @@ export default function AcademicFeesPageNew() {
             : {}),
         },
       });
+      console.log('debug-data', data);
 
       setListData({
         ...listData,
         ...data,
+        data: data.data.map((rec: any, index: any) => ({ ...rec, index })),
       });
     } catch (error) {
       console.error(error);
     }
 
     setIsListLoading(false);
+  };
+
+  const onChangeInput = (v, key, index) => {
+    const data: any = listData;
+    data.data[index][key] = v;
+    setListData({ ...data });
   };
 
   return (
@@ -206,7 +214,13 @@ export default function AcademicFeesPageNew() {
             sortable: true,
             render: (row: any) =>
               !academicFeeLabelsList.includes(row.name) && toggleEdit ? (
-                <TextInput size="xs" value={row.name} />
+                <TextInput
+                  size="xs"
+                  value={row.name}
+                  onChange={(e) =>
+                    onChangeInput(e.target.value, 'name', row.index)
+                  }
+                />
               ) : (
                 <Text size="xs" lh={0}>
                   {row.name}
@@ -236,6 +250,7 @@ export default function AcademicFeesPageNew() {
                       height: '20px',
                     },
                   }}
+                  onChange={(e) => onChangeInput(e, 'amount', row.index)}
                 />
               ),
             sortable: true,
@@ -255,6 +270,7 @@ export default function AcademicFeesPageNew() {
                       height: '20px',
                     },
                   }}
+                  onChange={(e) => onChangeInput(e, 'dueDate', row.index)}
                 />
               ) : row.dueDate ? (
                 moment(row.dueDate).format('MMMM DD, YYYY')
