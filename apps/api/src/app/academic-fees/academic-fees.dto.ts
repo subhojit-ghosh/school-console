@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsDateString,
   IsIn,
   IsInt,
@@ -7,8 +8,44 @@ import {
   IsNumber,
   IsOptional,
   IsPositive,
-  IsString
+  IsString,
+  ValidateNested,
 } from 'class-validator';
+
+class FeeItem {
+  @IsNumber()
+  @IsOptional()
+  id: number;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  amount: number;
+
+  @IsDateString()
+  @IsOptional()
+  dueDate: Date;
+}
+
+export class AcademicFeeDto {
+  @IsInt()
+  @IsPositive()
+  academicYearId: number;
+
+  @IsInt()
+  @IsPositive()
+  @IsNotEmpty()
+  classId: number;
+
+  @ValidateNested({ each: true })
+  @ArrayMinSize(1)
+  @Type(() => FeeItem)
+  items: FeeItem[];
+}
 
 export class CreateAcademicFeeDto {
   @IsInt()

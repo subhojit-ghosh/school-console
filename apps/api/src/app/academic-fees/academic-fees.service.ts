@@ -2,6 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE, DrizzleDB, academicFeeTable } from '@school-console/drizzle';
 import { and, asc, count, desc, eq, like, ne } from 'drizzle-orm';
 import {
+  AcademicFeeDto,
   CreateAcademicFeeDto,
   FeeQueryDto,
   UpdateAcademicFeeDto,
@@ -76,21 +77,39 @@ export class AcademicFeeService {
       .select({ count: count() })
       .from(academicFeeTable)
       .where(
-      and(
-        eq(academicFeeTable.name, fee.name),
-        eq(academicFeeTable.academicYearId, fee.academicYearId),
-        eq(academicFeeTable.classId, fee.classId)
-      )
+        and(
+          eq(academicFeeTable.name, fee.name),
+          eq(academicFeeTable.academicYearId, fee.academicYearId),
+          eq(academicFeeTable.classId, fee.classId)
+        )
       )
       .then((res) => res[0].count > 0);
 
     if (isFeeNameExists) {
       throw new BadRequestException(
-      'Name already exists for this academic year and class'
+        'Name already exists for this academic year and class'
       );
     }
 
     return await this.db.insert(academicFeeTable).values(fee);
+  }
+
+  async upsert(body: AcademicFeeDto) {
+    // return await this.db
+    //   .insert(academicFeeTable)
+    //   .values(
+    //     body.items.map((fee) => ({
+    //       ...fee,
+    //       academicYearId: body.academicYearId,
+    //       classId: body.classId,
+    //     }))
+    //   )
+    //   .onDuplicateKeyUpdate({
+    //     set: {
+    //       amount: body.items[0].amount,
+    //       dueDate: body.items[0].dueDate,
+    //     },
+    //   });
   }
 
   async update(id: number, fee: UpdateAcademicFeeDto) {
@@ -98,18 +117,18 @@ export class AcademicFeeService {
       .select({ count: count() })
       .from(academicFeeTable)
       .where(
-      and(
-        eq(academicFeeTable.name, fee.name),
-        eq(academicFeeTable.academicYearId, fee.academicYearId),
-        eq(academicFeeTable.classId, fee.classId),
-        ne(academicFeeTable.id, id)
-      )
+        and(
+          eq(academicFeeTable.name, fee.name),
+          eq(academicFeeTable.academicYearId, fee.academicYearId),
+          eq(academicFeeTable.classId, fee.classId),
+          ne(academicFeeTable.id, id)
+        )
       )
       .then((res) => res[0].count > 0);
 
     if (isFeeNameExists) {
       throw new BadRequestException(
-      'Name already exists for this academic year and class'
+        'Name already exists for this academic year and class'
       );
     }
 

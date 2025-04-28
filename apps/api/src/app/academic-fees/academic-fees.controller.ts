@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import {
+  AcademicFeeDto,
   CreateAcademicFeeDto,
   FeeQueryDto,
   UpdateAcademicFeeDto,
@@ -18,6 +19,11 @@ export class AcademicFeeController {
   @Post()
   async create(@Body() body: CreateAcademicFeeDto) {
     return this.academicFeeService.create(body);
+  }
+
+  @Put()
+  async upsert(@Body() body: AcademicFeeDto) {
+    return this.academicFeeService.upsert(body);
   }
 
   @Put(':id')
