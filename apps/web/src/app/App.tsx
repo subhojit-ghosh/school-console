@@ -12,7 +12,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import endpoints from './api/endpoints';
 import httpClient from './api/http-client';
 import Layout from './layout/Layout';
-import AcademicFeesPage from './pages/academic-fees/AcademicFees';
 import AcademicYearsPage from './pages/academic-years/AcademicYears';
 import ClassesPage from './pages/classes/Classes';
 import DashboardPage from './pages/dashboard/Dashboard';
@@ -28,7 +27,7 @@ import UsersPage from './pages/users/Users';
 import AuthenticatedRoutes from './route-guards/authenticated';
 import RedirectIfAuthenticatedRoutes from './route-guards/redirect-if-authenticated';
 import { useAuthStore } from './stores/authStore';
-import AcademicFeesPageNew from './pages/academic-fees/AcademicFees1';
+import AcademicFees from './pages/academic-fees/AcademicFees';
 
 const theme = createTheme({
   primaryColor: 'indigo',
@@ -89,11 +88,7 @@ export function App() {
                   />
                 </Route>
                 <Route path="/classes" element={<ClassesPage />} />
-                <Route path="/academic-fees" element={<AcademicFeesPage />} />
-                <Route
-                  path="/academic-fees1"
-                  element={<AcademicFeesPageNew />}
-                />
+                <Route path="/academic-fees" element={<AcademicFees />} />
                 <Route path="/transactions">
                   <Route index element={<TransactionsPage />} />
                   <Route path="add/:type" element={<TransactionForm />} />

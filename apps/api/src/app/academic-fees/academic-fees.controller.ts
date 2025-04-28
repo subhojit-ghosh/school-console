@@ -24,4 +24,14 @@ export class AcademicFeeController {
   async update(@Body() body: UpdateAcademicFeeDto, @Param('id') id: number) {
     return this.academicFeeService.update(id, body);
   }
+
+  @Post('bulk-add-edit')
+  async bulkAddEdit(@Body() body: UpdateAcademicFeeDto[]) {
+    return this.academicFeeService.bulkAddEdit(body);
+  }
+
+  @Post('delete/:id')
+  async deleteByid(@Param('id') id: string) {
+    return this.academicFeeService.deleteById(id);
+  }
 }

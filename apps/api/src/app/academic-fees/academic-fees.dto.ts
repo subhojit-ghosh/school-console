@@ -36,7 +36,11 @@ export class CreateAcademicFeeDto {
   dueDate: Date;
 }
 
-export class UpdateAcademicFeeDto extends CreateAcademicFeeDto {}
+export class UpdateAcademicFeeDto extends CreateAcademicFeeDto {
+  @IsInt()
+  @IsOptional()
+  id: number;
+}
 
 export class FeeQueryDto {
   @IsOptional()
