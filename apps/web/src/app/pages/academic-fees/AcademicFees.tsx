@@ -1,26 +1,21 @@
 import {
-  ActionIcon,
-  Box,
   Button,
   Group,
   NumberInput,
   Select,
   Text,
   TextInput,
-  ThemeIcon,
-  Title,
-  Tooltip,
+  Title
 } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
 import { randomId, useDebouncedState } from '@mantine/hooks';
 import {
   IconCalendarStats,
   IconCurrencyRupee,
   IconDeviceFloppy,
-  IconEdit,
   IconPencil,
   IconPlus,
-  IconTrash,
-  IconX,
+  IconX
 } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import moment from 'moment';
@@ -30,7 +25,6 @@ import httpClient from '../../api/http-client';
 import Currency from '../../components/Currency';
 import IsAccessiable from '../../components/IsAccessiable';
 import { academicFeeNames } from '../../data/academic-fee-names';
-import { DateInput } from '@mantine/dates';
 import { AcademicFeesRecord } from '../../types/academicFees';
 import {
   showErrorNotification,
@@ -211,7 +205,7 @@ export default function AcademicFees() {
   };
 
   function addNewRow() {
-    let { data }: { data: any } = listData;
+    const { data }: { data: any } = listData;
     data.push({
       index: listData.data.length,
       id: null,
@@ -229,7 +223,7 @@ export default function AcademicFees() {
   }
 
   function handleSubmit() {
-    let isError: boolean = false;
+    let isError = false;
     listData.data.every((rec: AcademicFeesRecord, index) => {
       if (!rec.name) {
         isError = true;
@@ -316,7 +310,7 @@ export default function AcademicFees() {
           <Button
             variant="filled"
             leftSection={
-              !toggleEdit ? <IconPencil size={14} /> : <IconX size={14} />
+              !toggleEdit ? <IconPencil size={16} /> : <IconX size={16} />
             }
             onClick={() => {
               // setFormMode('add');
@@ -347,7 +341,6 @@ export default function AcademicFees() {
               accessor: '',
               title: '#',
               sortable: false,
-              //@ts-ignore
               render: (row: any) => listData.data.indexOf(row) + 1,
             },
             {
@@ -374,26 +367,26 @@ export default function AcademicFees() {
                 row.dueDate ? moment(row.dueDate).format('MMMM DD, YYYY') : '',
               // sortable: true,
             },
-            {
-              accessor: 'action',
-              title: '',
-              width: 50,
-              render: (row: any) =>
-                !academicFeeLabelsList.includes(row.name) && (
-                  <Tooltip label="Delete Row">
-                    <ActionIcon
-                      variant="transparent"
-                      p={0}
-                      m={0}
-                      onClick={() => deleteRow(row.id)}
-                    >
-                      <ThemeIcon color="red" variant="outline">
-                        <IconTrash size={16} />
-                      </ThemeIcon>
-                    </ActionIcon>
-                  </Tooltip>
-                ),
-            },
+            // {
+            //   accessor: 'action',
+            //   title: '',
+            //   width: 50,
+            //   render: (row: any) =>
+            //     !academicFeeLabelsList.includes(row.name) && (
+            //       <Tooltip label="Delete Row">
+            //         <ActionIcon
+            //           variant="transparent"
+            //           p={0}
+            //           m={0}
+            //           onClick={() => deleteRow(row.id)}
+            //         >
+            //           <ThemeIcon color="red" variant="outline">
+            //             <IconTrash size={16} />
+            //           </ThemeIcon>
+            //         </ActionIcon>
+            //       </Tooltip>
+            //     ),
+            // },
           ]}
           idAccessor="uid"
         />
@@ -416,7 +409,6 @@ export default function AcademicFees() {
               accessor: '',
               title: '#',
               sortable: false,
-              //@ts-ignore
               render: (row: any) => listData.data.indexOf(row) + 1,
             },
             {
@@ -453,8 +445,7 @@ export default function AcademicFees() {
                     size="xs"
                     min={0}
                     value={row.amount}
-                    decimalScale={2}
-                    fixedDecimalScale
+                    allowDecimal={false}
                     hideControls
                     leftSection={<IconCurrencyRupee size={18} stroke={2} />}
                     styles={{
@@ -498,8 +489,12 @@ export default function AcademicFees() {
 
       {toggleEdit && (
         <Group justify="right" align="center" mt="sm">
-          <Button onClick={addNewRow} leftSection={<IconPlus size={14} />}>
-            Add Row
+          <Button
+            onClick={addNewRow}
+            leftSection={<IconPlus size={16} />}
+            variant="outline"
+          >
+            Add New
           </Button>
           <Button
             onClick={handleSubmit}
