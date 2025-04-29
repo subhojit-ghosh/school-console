@@ -137,4 +137,34 @@ export class AcademicFeeService {
       .set(fee)
       .where(eq(academicFeeTable.id, id));
   }
+
+  async bulkAddEdit(fees: UpdateAcademicFeeDto[]) {
+    const editRecords: UpdateAcademicFeeDto[] = fees.filter((item) => item.id);
+    const addRecords: CreateAcademicFeeDto[] = fees
+      .filter((item) => !item.id)
+      .map((rec) => ({ ...rec, id: undefined }));
+    console.log('debug-fees', editRecords, addRecords);
+
+    if (editRecords.length > 0) {
+      const promises = editRecords.map((rec) =>
+        this.db
+          .update(academicFeeTable)
+          .set({ ...rec })
+          .where(eq(academicFeeTable.id, rec.id))
+      );
+      const data = await Promise.all(promises);
+    }
+
+    if (addRecords.length > 0)
+      await this.db.insert(academicFeeTable).values(addRecords);
+    return {
+      data: 'Data Edited successfully.',
+    };
+  }
+
+  async deleteById(id: string) {
+    return await this.db
+      .delete(academicFeeTable)
+      .where(eq(academicFeeTable.id, Number(id)));
+  }
 }

@@ -45,6 +45,8 @@ const endpoints = {
     list: () => api('academic-fees'),
     create: () => api('academic-fees'),
     update: (id: string) => api(`academic-fees/${id}`),
+    bulkAddEdit: () => api('academic-fees/bulk-add-edit'),
+    deleteById: (id: string) => api(`academic-fees/delete/${id}`),
   },
   transactions: {
     fees: (

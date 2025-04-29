@@ -3,28 +3,64 @@ import {
   Box,
   Button,
   Group,
+  NumberInput,
   Select,
+  Text,
+  TextInput,
+  ThemeIcon,
   Title,
   Tooltip,
 } from '@mantine/core';
-import { useDebouncedState } from '@mantine/hooks';
-import { IconEdit, IconPlus } from '@tabler/icons-react';
+import { randomId, useDebouncedState } from '@mantine/hooks';
+import {
+  IconCalendarStats,
+  IconCurrencyRupee,
+  IconDeviceFloppy,
+  IconEdit,
+  IconPencil,
+  IconPlus,
+  IconTrash,
+  IconX,
+} from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import Currency from '../../components/Currency';
-import AcademicFeeForm from './AcademicFeeForm';
 import IsAccessiable from '../../components/IsAccessiable';
+import { academicFeeNames } from '../../data/academic-fee-names';
+import { DateInput } from '@mantine/dates';
+import { AcademicFeesRecord } from '../../types/academicFees';
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from '../../utils/notification';
 
-export default function AcademicFeesPage() {
+export default function AcademicFees() {
+  const academicFeeLabelsList = academicFeeNames
+    .filter((rec) => rec.value !== 'Other')
+    .map((rec) => rec.label);
+  const academicFeeNamesObj = academicFeeNames.reduce(
+    (acc, item) => ({
+      ...acc,
+      [item.value]: item.label,
+    }),
+    {}
+  );
   const [isListLoading, setIsListLoading] = useState(true);
-  const [listData, setListData] = useState({
+  const [toggleEdit, setToggleEdit] = useState<boolean>(false);
+  const [listData, setListData] = useState<{
+    data: AcademicFeesRecord[];
+    totalRecords: number;
+    totalPages: number;
+    size: number;
+    page: number;
+  }>({
     data: [],
     totalRecords: 0,
     totalPages: 0,
-    size: 20,
+    size: 100,
     page: 1,
   });
   const [filters, setFilters] = useDebouncedState(
@@ -48,6 +84,7 @@ export default function AcademicFeesPage() {
     if (!filters.academicYearId || !filters.classId) {
       return;
     }
+    setToggleEdit(false);
     fetchList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, sortStatus]);
@@ -115,9 +152,50 @@ export default function AcademicFeesPage() {
         },
       });
 
+      const existsNames = data.data.reduce(
+        (acc: any, rec: AcademicFeesRecord) => ({
+          ...acc,
+          [rec.name]: { ...rec },
+        }),
+        {}
+      );
+
+      let tbData: AcademicFeesRecord[] = academicFeeNames
+        .filter((rec) => rec.label !== 'Other')
+        .map((rec: { value: string; label: string }, index: number) => {
+          if (existsNames[rec.value]) {
+            return {
+              uid: randomId(),
+              ...existsNames[rec.value],
+            };
+          }
+          return {
+            uid: randomId(),
+            id: null,
+            academicYearId: filters.academicYearId,
+            classId: filters.classId,
+            name: rec.value,
+            amount: 0,
+            dueDate: undefined,
+          };
+        });
+
+      data.data.forEach((ele: AcademicFeesRecord) => {
+        if (!academicFeeLabelsList.includes(ele.name)) {
+          tbData = [
+            ...tbData,
+            {
+              ...ele,
+              uid: randomId(),
+            },
+          ];
+        }
+      });
+
       setListData({
         ...listData,
         ...data,
+        data: tbData.map((rec: any, index: any) => ({ ...rec, index })),
       });
     } catch (error) {
       console.error(error);
@@ -126,12 +204,89 @@ export default function AcademicFeesPage() {
     setIsListLoading(false);
   };
 
+  const onChangeInput = (v: any, key: string, index: number) => {
+    const data: any = listData;
+    data.data[index][key] = v;
+    setListData({ ...data });
+  };
+
+  function addNewRow() {
+    let { data }: { data: any } = listData;
+    data.push({
+      index: listData.data.length,
+      id: null,
+      academicYearId: filters.academicYearId,
+      classId: filters.classId,
+      name: null,
+      amount: 0,
+      dueDate: null,
+    });
+
+    setListData({
+      ...listData,
+      data: [...data],
+    });
+  }
+
+  function handleSubmit() {
+    let isError: boolean = false;
+    listData.data.every((rec: AcademicFeesRecord, index) => {
+      if (!rec.name) {
+        isError = true;
+        showErrorNotification(`Name is required on row no ${index + 1}`);
+        return false;
+      }
+      return true;
+    });
+
+    if (!isError) {
+      httpClient
+        .post(
+          endpoints.academicFees.bulkAddEdit(),
+          listData.data.map((rec) => ({
+            ...rec,
+            id: rec.id ? rec.id : undefined,
+            academicYearId: Number(rec.academicYearId),
+            classId: Number(rec.classId),
+            index: undefined,
+            dueDate: rec.dueDate
+              ? moment(rec.dueDate).format('YYYY-MM-DD')
+              : undefined,
+          }))
+        )
+        .then((res) => {
+          showSuccessNotification('Data Edited Successfully.');
+          fetchList();
+        })
+        .catch((error) => {
+          if (error.response) {
+            showErrorNotification(`${error.response.data}`);
+          }
+        });
+    }
+  }
+
+  function deleteRow(id: number) {
+    httpClient
+      .post(endpoints.academicFees.deleteById(id.toString()), {})
+      .then((res) => {
+        setToggleEdit(false);
+        showSuccessNotification('Record Deleted Successfully.');
+        fetchList();
+      })
+      .catch((error) => {
+        if (error.response) {
+          showErrorNotification(`${error.response.data}`);
+        }
+      });
+  }
+
   return (
     <>
       <Group justify="space-between" align="center" mb="md">
         <Title size="lg">Academic Fees</Title>
       </Group>
-      <Group justify="space-between" my={10}>
+      <Group justify="space-between" align="flex-end" my={10}>
         <div className="flex flex-row">
           <Select
             label="Academic Year"
@@ -160,88 +315,200 @@ export default function AcademicFeesPage() {
         <IsAccessiable>
           <Button
             variant="filled"
-            leftSection={<IconPlus size={14} />}
+            leftSection={
+              !toggleEdit ? <IconPencil size={14} /> : <IconX size={14} />
+            }
             onClick={() => {
-              setFormMode('add');
-              setFormData(null);
-              setFormOpened(true);
+              // setFormMode('add');
+              // setFormData(null);
+              // setFormOpened(true);
+              setToggleEdit(!toggleEdit);
             }}
           >
-            Add
+            {!toggleEdit ? 'Edit' : 'Cancel'}
           </Button>
         </IsAccessiable>
       </Group>
-      <DataTable
-        withTableBorder
-        withColumnBorders
-        borderRadius="sm"
-        striped
-        highlightOnHover
-        minHeight={300}
-        fetching={isListLoading}
-        totalRecords={listData.totalRecords}
-        recordsPerPage={listData.size}
-        page={listData.page}
-        onPageChange={(p) => fetchList(p)}
-        records={listData.data}
-        sortStatus={sortStatus}
-        onSortStatusChange={setSortStatus}
-        columns={[
-          {
-            accessor: 'name',
-            title: 'Name',
-            sortable: true,
-          },
-          {
-            accessor: 'amount',
-            title: 'Amount',
-            render: (row: any) => <Currency value={row.amount} />,
-            sortable: true,
-          },
-          {
-            accessor: 'dueDate',
-            title: 'Due Date',
-            render: (row: any) =>
-              row.dueDate ? moment(row.dueDate).format('MMMM DD, YYYY') : '',
-            sortable: true,
-          },
-          {
-            accessor: 'actions',
-            title: <Box mr={6}>Actions</Box>,
-            textAlign: 'center',
-            render: (row: any) => (
-              <Group gap={4} justify="center" wrap="nowrap">
-                <IsAccessiable>
-                  <Tooltip label="Edit" withArrow>
+
+      {!toggleEdit && (
+        <DataTable
+          withTableBorder
+          withColumnBorders
+          borderRadius="sm"
+          striped
+          highlightOnHover
+          minHeight={300}
+          fetching={isListLoading}
+          records={listData.data}
+          sortStatus={sortStatus}
+          onSortStatusChange={setSortStatus}
+          columns={[
+            {
+              accessor: '',
+              title: '#',
+              sortable: false,
+              //@ts-ignore
+              render: (row: any) => listData.data.indexOf(row) + 1,
+            },
+            {
+              accessor: 'name',
+              title: 'Name',
+              // sortable: true,
+              render: (row: any) => (
+                <Text size="xs" lh={0}>
+                  {row.name}
+                </Text>
+              ),
+            },
+            {
+              accessor: 'amount',
+              title: 'Amount',
+              width: 207,
+              render: (row: any) => <Currency value={row.amount} />,
+              // sortable: true,
+            },
+            {
+              accessor: 'dueDate',
+              title: 'Due Date',
+              render: (row: any) =>
+                row.dueDate ? moment(row.dueDate).format('MMMM DD, YYYY') : '',
+              // sortable: true,
+            },
+            {
+              accessor: 'action',
+              title: '',
+              width: 50,
+              render: (row: any) =>
+                !academicFeeLabelsList.includes(row.name) && (
+                  <Tooltip label="Delete Row">
                     <ActionIcon
-                      size="sm"
-                      variant="subtle"
-                      onClick={() => {
-                        setFormMode('edit');
-                        setFormData(row);
-                        setFormOpened(true);
-                      }}
+                      variant="transparent"
+                      p={0}
+                      m={0}
+                      onClick={() => deleteRow(row.id)}
                     >
-                      <IconEdit size={16} />
+                      <ThemeIcon color="red" variant="outline">
+                        <IconTrash size={16} />
+                      </ThemeIcon>
                     </ActionIcon>
                   </Tooltip>
-                </IsAccessiable>
-              </Group>
-            ),
-          },
-        ]}
-      />
+                ),
+            },
+          ]}
+          idAccessor="uid"
+        />
+      )}
 
-      <AcademicFeeForm
-        opened={formOpened}
-        close={() => setFormOpened(false)}
-        mode={formMode}
-        data={formData}
-        fetchList={fetchList}
-        academicYears={academicYears}
-        classes={classes}
-        filters={filters}
-      />
+      {toggleEdit && (
+        <DataTable
+          withTableBorder
+          withColumnBorders
+          borderRadius="sm"
+          striped
+          highlightOnHover
+          minHeight={300}
+          fetching={isListLoading}
+          records={listData.data}
+          sortStatus={sortStatus}
+          onSortStatusChange={setSortStatus}
+          columns={[
+            {
+              accessor: '',
+              title: '#',
+              sortable: false,
+              //@ts-ignore
+              render: (row: any) => listData.data.indexOf(row) + 1,
+            },
+            {
+              accessor: 'name',
+              title: 'Name',
+              // sortable: true,
+              render: (row: any) =>
+                !academicFeeLabelsList.includes(row.name) && toggleEdit ? (
+                  <TextInput
+                    size="xs"
+                    value={row.name}
+                    onChange={(e) =>
+                      onChangeInput(e.target.value, 'name', row.index)
+                    }
+                    error={!row.name && 'This field is required.'}
+                  />
+                ) : (
+                  <Text size="xs" lh={0}>
+                    {row.name}
+                  </Text>
+                ),
+            },
+            {
+              accessor: 'amount',
+              title: 'Amount',
+              width: 207,
+              render: (row: any) =>
+                !toggleEdit ? (
+                  <Currency value={row.amount} />
+                ) : (
+                  <NumberInput
+                    maw="190px"
+                    miw="190px"
+                    size="xs"
+                    min={0}
+                    value={row.amount}
+                    decimalScale={2}
+                    fixedDecimalScale
+                    hideControls
+                    leftSection={<IconCurrencyRupee size={18} stroke={2} />}
+                    styles={{
+                      input: {
+                        height: '20px',
+                      },
+                    }}
+                    onChange={(e) => onChangeInput(e || 0, 'amount', row.index)}
+                  />
+                ),
+              // sortable: true,
+            },
+            {
+              accessor: 'dueDate',
+              title: 'Due Date',
+              render: (row: any) =>
+                toggleEdit ? (
+                  <DateInput
+                    valueFormat="DD/MM/YYYY"
+                    value={row.dueDate ? moment(row.dueDate).toDate() : null}
+                    size="xs"
+                    leftSection={<IconCalendarStats size={18} stroke={2} />}
+                    styles={{
+                      input: {
+                        height: '20px',
+                      },
+                    }}
+                    onChange={(e) => onChangeInput(e, 'dueDate', row.index)}
+                  />
+                ) : row.dueDate ? (
+                  moment(row.dueDate).format('MMMM DD, YYYY')
+                ) : (
+                  ''
+                ),
+              // sortable: true,
+            },
+          ]}
+          idAccessor="uid"
+        />
+      )}
+
+      {toggleEdit && (
+        <Group justify="right" align="center" mt="sm">
+          <Button onClick={addNewRow} leftSection={<IconPlus size={14} />}>
+            Add Row
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            leftSection={<IconDeviceFloppy size={16} />}
+          >
+            Save
+          </Button>
+        </Group>
+      )}
     </>
   );
 }
