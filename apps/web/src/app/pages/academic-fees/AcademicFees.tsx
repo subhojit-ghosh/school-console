@@ -1,21 +1,26 @@
 import {
+  ActionIcon,
   Button,
+  Dialog,
   Group,
   NumberInput,
   Select,
   Text,
   TextInput,
-  Title
+  ThemeIcon,
+  Title,
+  Tooltip,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { randomId, useDebouncedState } from '@mantine/hooks';
+import { randomId, useDebouncedState, useDisclosure } from '@mantine/hooks';
 import {
   IconCalendarStats,
   IconCurrencyRupee,
   IconDeviceFloppy,
   IconPencil,
   IconPlus,
-  IconX
+  IconTrash,
+  IconX,
 } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import moment from 'moment';
@@ -32,6 +37,7 @@ import {
 } from '../../utils/notification';
 
 export default function AcademicFees() {
+  const [opened, { toggle, close }] = useDisclosure(false);
   const academicFeeLabelsList = academicFeeNames
     .filter((rec) => rec.value !== 'Other')
     .map((rec) => rec.label);
@@ -43,6 +49,7 @@ export default function AcademicFees() {
     {}
   );
   const [isListLoading, setIsListLoading] = useState(true);
+  const [deleteRowIndex, setDeleteRowIndex] = useState<number | null>(null);
   const [toggleEdit, setToggleEdit] = useState<boolean>(false);
   const [listData, setListData] = useState<{
     data: AcademicFeesRecord[];
@@ -68,9 +75,6 @@ export default function AcademicFees() {
     columnAccessor: '',
     direction: 'asc',
   });
-  const [formOpened, setFormOpened] = useState(false);
-  const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
-  const [formData, setFormData] = useState<any>(null);
   const [academicYears, setAcademicYears] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
 
@@ -275,8 +279,46 @@ export default function AcademicFees() {
       });
   }
 
+  function deleteRowCnfrm({ index }: { index: number }) {
+    setDeleteRowIndex(index);
+    toggle();
+  }
+
+  function deleteRowByIndex() {
+    if (deleteRowIndex === null) return;
+    const { data, ...rest } = listData;
+    data.splice(Number(deleteRowIndex), 1);
+    setListData({
+      ...rest,
+      data,
+    });
+    close();
+  }
+
   return (
     <>
+      <Dialog
+        opened={opened}
+        withCloseButton={false}
+        onClose={close}
+        size="lg"
+        radius="md"
+        position={{ top: '50%', left: '50%' }}
+      >
+        <Group>
+          <Text size="sm" mb="xs" fw={500}>
+            Are you sure want to delete the row?
+          </Text>
+        </Group>
+
+        <Group align="center" justify="right">
+          <Button onClick={() => close()} variant="outline">
+            Cancel
+          </Button>
+          <Button onClick={() => deleteRowByIndex()}>Submit</Button>
+        </Group>
+      </Dialog>
+
       <Group justify="space-between" align="center" mb="md">
         <Title size="lg">Academic Fees</Title>
       </Group>
@@ -463,18 +505,35 @@ export default function AcademicFees() {
               title: 'Due Date',
               render: (row: any) =>
                 toggleEdit ? (
-                  <DateInput
-                    valueFormat="DD/MM/YYYY"
-                    value={row.dueDate ? moment(row.dueDate).toDate() : null}
-                    size="xs"
-                    leftSection={<IconCalendarStats size={18} stroke={2} />}
-                    styles={{
-                      input: {
-                        height: '20px',
-                      },
-                    }}
-                    onChange={(e) => onChangeInput(e, 'dueDate', row.index)}
-                  />
+                  <Group justify="space-between">
+                    <DateInput
+                      valueFormat="DD/MM/YYYY"
+                      value={row.dueDate ? moment(row.dueDate).toDate() : null}
+                      size="xs"
+                      leftSection={<IconCalendarStats size={18} stroke={2} />}
+                      styles={{
+                        input: {
+                          height: '20px',
+                        },
+                      }}
+                      onChange={(e) => onChangeInput(e, 'dueDate', row.index)}
+                    />
+
+                    {!row.id && (
+                      <Tooltip label="Delete Row">
+                        <ActionIcon
+                          variant="transparent"
+                          p={0}
+                          m={0}
+                          onClick={() => deleteRowCnfrm(row)}
+                        >
+                          <ThemeIcon color="red" variant="outline">
+                            <IconTrash size={16} />
+                          </ThemeIcon>
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </Group>
                 ) : row.dueDate ? (
                   moment(row.dueDate).format('MMMM DD, YYYY')
                 ) : (
