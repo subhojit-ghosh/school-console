@@ -32,7 +32,7 @@ export const studentsTable = mysqlTable(
       .references(() => academicYearsTable.id)
       .default(1),
     name: varchar({ length: 100 }),
-    dob: date().notNull(),
+    dob: date(),
     gender: char({ length: 1 }).notNull(),
     religion: varchar({
       length: 11,
