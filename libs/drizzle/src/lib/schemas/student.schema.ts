@@ -46,10 +46,10 @@ export const studentsTable = mysqlTable(
     caste: varchar({
       length: 11,
     }),
-    fathersName: varchar({ length: 100 }).notNull(),
-    fathersPhone: varchar({ length: 10 }).notNull(),
-    mothersName: varchar({ length: 100 }).notNull(),
-    mothersPhone: varchar({ length: 10 }).notNull(),
+    fathersName: varchar({ length: 100 }),
+    fathersPhone: varchar({ length: 10 }),
+    mothersName: varchar({ length: 100 }),
+    mothersPhone: varchar({ length: 10 }),
 
     presentAddess: text(),
     presentPo: text(),
