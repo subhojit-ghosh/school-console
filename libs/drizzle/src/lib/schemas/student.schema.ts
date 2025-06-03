@@ -33,19 +33,19 @@ export const studentsTable = mysqlTable(
       .default(1),
     name: varchar({ length: 100 }),
     dob: date(),
-    gender: char({ length: 1 }).notNull(),
+    gender: char({ length: 1 }),
     religion: varchar({
       length: 11,
-    }).notNull(),
+    }),
     nationality: varchar({
       length: 11,
-    }).notNull(),
+    }),
     nativeLanguage: varchar({
       length: 11,
-    }).notNull(),
+    }),
     caste: varchar({
       length: 11,
-    }).notNull(),
+    }),
     fathersName: varchar({ length: 100 }).notNull(),
     fathersPhone: varchar({ length: 10 }).notNull(),
     mothersName: varchar({ length: 100 }).notNull(),
