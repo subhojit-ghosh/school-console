@@ -32,24 +32,24 @@ export const studentsTable = mysqlTable(
       .references(() => academicYearsTable.id)
       .default(1),
     name: varchar({ length: 100 }),
-    dob: date().notNull(),
-    gender: char({ length: 1 }).notNull(),
+    dob: date(),
+    gender: char({ length: 1 }),
     religion: varchar({
       length: 11,
-    }).notNull(),
+    }),
     nationality: varchar({
       length: 11,
-    }).notNull(),
+    }),
     nativeLanguage: varchar({
       length: 11,
-    }).notNull(),
+    }),
     caste: varchar({
       length: 11,
-    }).notNull(),
-    fathersName: varchar({ length: 100 }).notNull(),
-    fathersPhone: varchar({ length: 10 }).notNull(),
-    mothersName: varchar({ length: 100 }).notNull(),
-    mothersPhone: varchar({ length: 10 }).notNull(),
+    }),
+    fathersName: varchar({ length: 100 }),
+    fathersPhone: varchar({ length: 10 }),
+    mothersName: varchar({ length: 100 }),
+    mothersPhone: varchar({ length: 10 }),
 
     presentAddess: text(),
     presentPo: text(),
