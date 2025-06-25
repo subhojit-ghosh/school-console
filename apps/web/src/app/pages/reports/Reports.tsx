@@ -1,24 +1,27 @@
 import {
+  Button,
   Grid,
   Group,
   Paper,
   Select,
-  SimpleGrid,
   Skeleton,
   Text,
   Title,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
+import { IconDownload } from '@tabler/icons-react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import Currency from '../../components/Currency';
 import DuesTable from './DuesTable';
+import * as XLSX from 'xlsx';
+import moment from 'moment';
 
 export default function ReportsPage() {
   const [isListLoading, setIsListLoading] = useState(true);
-  const [listData, setListData] = useState([]);
+  const [listData, setListData] = useState<any>([]);
   const [filters, setFilters] = useDebouncedState(
     {
       academicYearId: '',
@@ -146,6 +149,60 @@ export default function ReportsPage() {
     setIsListLoading(false);
   };
 
+  const downloadAsExcel = async () => {
+    const data = [];
+
+    for (const student of listData) {
+      for (const item of student.dues) {
+        data.push({
+          student: `${student.name} (${
+            student.isEnrolled ? student.enrolledNo : student.regId
+          })`,
+          feeName: item.name,
+          dueDate: item.dueDate
+            ? moment(item.dueDate).format('YYYY-MM-DD')
+            : '',
+          amount: item.amount,
+          lateFine: item.lateFine,
+          lateDays: item.lateDays,
+          totalConcession: item.totalConcession,
+          totalPayable: item.totalPayable,
+          totalPaid: item.totalPaid,
+          totalDue: item.totalDue,
+          overdue: item.isOverdue ? 'Yes' : 'No',
+        });
+      }
+    }
+
+    console.log('Data to be exported:', data);
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet);
+
+    const filterParts = [
+      filters.academicYearId
+        ? academicYears.find(
+            (item) => item.id === Number(filters.academicYearId)
+          )?.name
+        : null,
+      filters.classId
+        ? classes.find((item) => item.id === Number(filters.classId))?.name
+        : null,
+      filters.studentId
+        ? students.find((item) => item.value === filters.studentId)?.label
+        : null,
+    ]
+      .filter((value) => value)
+      .join(' - ');
+
+    const filename = `Dues Report - ${filterParts}.xlsx`;
+
+    console.log('Downloading file:', filename);
+
+    XLSX.writeFile(workbook, filename);
+  };
+
   return (
     <>
       <Group justify="space-between" align="center" mb="md">
@@ -193,48 +250,60 @@ export default function ReportsPage() {
             }
           />
         </Grid.Col>
+        <Grid.Col span={2} style={{ display: 'flex', alignItems: 'end' }}>
+          <Button
+            rightSection={<IconDownload size={14} />}
+            disabled={isListLoading}
+            onClick={downloadAsExcel}
+          >
+            Download
+          </Button>
+        </Grid.Col>
       </Grid>
 
-      <SimpleGrid cols={{ base: 1, sm: 3 }}>
-        <Paper withBorder p="md" key="q" mb="md">
-          <Group justify="apart">
-            <div>
-              <Text tt="uppercase" fw={700} fz="sm" c="indigo">
-                Total student(s)
-              </Text>
-              {isListLoading ? (
-                <Skeleton height={20} mt={10} />
-              ) : (
-                <Text fw={700} fz="xl">
-                  {listData.length}
+      <Grid>
+        <Grid.Col span={4}>
+          <Paper withBorder p="md" key="q" mb="md">
+            <Group justify="apart">
+              <div>
+                <Text tt="uppercase" fw={700} fz="sm" c="indigo">
+                  Total student(s)
                 </Text>
-              )}
-            </div>
-          </Group>
-        </Paper>
-
-        <Paper withBorder p="md" key="q" mb="md">
-          <Group justify="apart">
-            <div>
-              <Text tt="uppercase" fw={700} fz="sm" c="indigo">
-                Total Overdue
-              </Text>
-              {isListLoading ? (
-                <Skeleton height={20} mt={10} />
-              ) : (
-                <Text fw={700} fz="xl">
-                  <Currency
-                    value={listData.reduce(
-                      (acc, rec: any) => acc + rec?.totalOverdue,
-                      0
-                    )}
-                  />
+                {isListLoading ? (
+                  <Skeleton height={20} mt={10} />
+                ) : (
+                  <Text fw={700} fz="xl">
+                    {listData.length}
+                  </Text>
+                )}
+              </div>
+            </Group>
+          </Paper>
+        </Grid.Col>
+        <Grid.Col span={4}>
+          <Paper withBorder p="md" key="q" mb="md">
+            <Group justify="apart">
+              <div>
+                <Text tt="uppercase" fw={700} fz="sm" c="indigo">
+                  Total Overdue
                 </Text>
-              )}
-            </div>
-          </Group>
-        </Paper>
-      </SimpleGrid>
+                {isListLoading ? (
+                  <Skeleton height={20} mt={10} />
+                ) : (
+                  <Text fw={700} fz="xl">
+                    <Currency
+                      value={listData.reduce(
+                        (acc: any, rec: any) => acc + rec?.totalOverdue,
+                        0
+                      )}
+                    />
+                  </Text>
+                )}
+              </div>
+            </Group>
+          </Paper>
+        </Grid.Col>
+      </Grid>
 
       <DataTable
         withTableBorder

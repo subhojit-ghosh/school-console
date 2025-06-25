@@ -130,6 +130,7 @@ export class ReportsService {
           id: fee.id,
           name: fee.name,
           amount: fee.amount,
+          dueDate: fee.dueDate,
           totalConcession,
           totalPaid,
           totalPayable,

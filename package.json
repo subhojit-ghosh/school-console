@@ -115,6 +115,7 @@
     "rxjs": "^7.8.2",
     "uuid": "^11.1.0",
     "written-number": "^0.11.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yup": "^1.6.1",
     "zustand": "^5.0.3"
   },
