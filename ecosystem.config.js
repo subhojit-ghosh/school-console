@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'school-console-api:3009',
+      name: 'school-console-api:3000',
       script: './dist/apps/api/main.js',
     },
   ],
