@@ -17,6 +17,11 @@ export class BaseReportFilterDto {
   academicYearId?: number;
 
   @IsOptional()
+  @Transform(({ value }) =>
+    value === '' || value === null || typeof value === 'undefined'
+      ? undefined
+      : Number(value)
+  )
   @Type(() => Number)
   @IsInt()
   @IsPositive()
@@ -70,4 +75,39 @@ export class DuesReportQueryDto extends BaseReportFilterDto {
       : Number(value)
   )
   studentId?: number;
+}
+
+export class TransactionHistoryQueryDto extends BaseReportFilterDto {
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === '' || value === null || typeof value === 'undefined'
+      ? undefined
+      : String(value)
+  )
+  @IsIn(['Cash', 'Card', 'Online', 'UPI', 'Cheque'])
+  mode?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  size?: number;
+
+  @IsOptional()
+  @IsIn(['createdAt'])
+  sortBy?: 'createdAt';
+
+  @IsOptional()
+  @IsIn(['asc', 'desc'])
+  sortOrder?: 'asc' | 'desc';
+
+  @IsOptional()
+  @Transform(({ value }) => (value ? String(value) : undefined))
+  student?: string;
 }

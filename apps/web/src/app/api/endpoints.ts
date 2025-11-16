@@ -64,6 +64,8 @@ const endpoints = {
     duesExport: () => api('reports/dues/export'),
     collectionSummary: () => api('reports/collection-summary'),
     collectionSummaryExport: () => api('reports/collection-summary/export'),
+    transactions: () => api('reports/transactions'),
+    transactionsExport: () => api('reports/transactions/export'),
   },
   transports: {
     saveSettings: (id?: string) => api(`transport/settings`),

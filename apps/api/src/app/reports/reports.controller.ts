@@ -1,6 +1,10 @@
 import { Controller, Get, Query, Res } from '@nestjs/common';
 import { ReportsService } from './reports.service';
-import { CollectionSummaryQueryDto, DuesReportQueryDto } from './reports.dto';
+import {
+  CollectionSummaryQueryDto,
+  DuesReportQueryDto,
+  TransactionHistoryQueryDto,
+} from './reports.dto';
 import { Response } from 'express';
 
 @Controller('reports')
@@ -28,5 +32,18 @@ export class ReportsController {
   @Get('dues/export')
   exportDues(@Query() query: DuesReportQueryDto, @Res() res: Response) {
     return this.reportsService.exportDues(query, res);
+  }
+
+  @Get('transactions')
+  getTransactionHistory(@Query() query: TransactionHistoryQueryDto) {
+    return this.reportsService.getTransactionHistory(query);
+  }
+
+  @Get('transactions/export')
+  exportTransactionHistory(
+    @Query() query: TransactionHistoryQueryDto,
+    @Res() res: Response
+  ) {
+    return this.reportsService.exportTransactionHistory(query, res);
   }
 }

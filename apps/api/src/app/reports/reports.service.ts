@@ -2,14 +2,19 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   academicFeeTable,
   academicYearsTable,
+  classesTable,
   DRIZZLE,
   DrizzleDB,
   studentsTable,
   transactionItemTable,
   transactionTable,
 } from '@school-console/drizzle';
-import { and, eq, inArray, gte, lte, sql } from 'drizzle-orm';
-import { CollectionSummaryQueryDto, DuesReportQueryDto } from './reports.dto';
+import { and, asc, count, desc, eq, inArray, like, gte, lte, or, sql } from 'drizzle-orm';
+import {
+  CollectionSummaryQueryDto,
+  DuesReportQueryDto,
+  TransactionHistoryQueryDto,
+} from './reports.dto';
 import ExcelJS from 'exceljs';
 import { Response } from 'express';
 
@@ -103,6 +108,124 @@ export class ReportsService {
     return rows;
   }
 
+  async getTransactionHistory(query: TransactionHistoryQueryDto) {
+    const {
+      page = 1,
+      size = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      academicYearId,
+      classId,
+      isEnrolled,
+      student,
+      dateFrom,
+      dateTo,
+      mode,
+    } = query;
+
+    const offset = (page - 1) * size;
+
+    const whereConditions: any[] = [];
+
+    if (academicYearId) {
+      whereConditions.push(eq(transactionTable.academicYearId, academicYearId));
+    }
+
+    if (classId) {
+      whereConditions.push(eq(transactionTable.classId, classId));
+    }
+
+    if (typeof isEnrolled === 'boolean') {
+      whereConditions.push(eq(studentsTable.isEnrolled, isEnrolled));
+    }
+
+    if (student) {
+      whereConditions.push(
+        or(
+          like(studentsTable.enrolledNo, `%${student}%`),
+          like(studentsTable.regId, `%${student}%`),
+          like(studentsTable.name, `%${student}%`)
+        )
+      );
+    }
+
+    if (dateFrom) {
+      whereConditions.push(
+        gte(transactionTable.createdAt, new Date(dateFrom))
+      );
+    }
+
+    if (dateTo) {
+      const to = new Date(dateTo);
+      to.setHours(23, 59, 59, 999);
+      whereConditions.push(lte(transactionTable.createdAt, to));
+    }
+
+    if (mode) {
+      whereConditions.push(eq(transactionTable.mode, mode));
+    }
+
+    const [transactions, totalRecords] = await Promise.all([
+      this.db
+        .select({
+          id: transactionTable.id,
+          academicYearId: transactionTable.academicYearId,
+          studentId: transactionTable.studentId,
+          classId: transactionTable.classId,
+          totalAmount: transactionTable.totalAmount,
+          lateFine: transactionTable.lateFine,
+          payable: transactionTable.payable,
+          concession: transactionTable.concession,
+          paid: transactionTable.paid,
+          due: transactionTable.due,
+          mode: transactionTable.mode,
+          createdAt: transactionTable.createdAt,
+          class: classesTable.name,
+          studentName: studentsTable.name,
+          isEnrolled: studentsTable.isEnrolled,
+          enrolledNo: studentsTable.enrolledNo,
+          regId: studentsTable.regId,
+        })
+        .from(transactionTable)
+        .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
+        .innerJoin(
+          studentsTable,
+          eq(transactionTable.studentId, studentsTable.id)
+        )
+        .where(
+          whereConditions.length > 0 ? and(...(whereConditions as [any, ...any[]])) : undefined
+        )
+        .orderBy(
+          sortOrder === 'asc'
+            ? asc(transactionTable[sortBy])
+            : desc(transactionTable[sortBy])
+        )
+        .limit(size)
+        .offset(offset),
+      this.db
+        .select({ count: count() })
+        .from(transactionTable)
+        .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
+        .innerJoin(
+          studentsTable,
+          eq(transactionTable.studentId, studentsTable.id)
+        )
+        .where(
+          whereConditions.length > 0 ? and(...(whereConditions as [any, ...any[]])) : undefined
+        )
+        .then((res) => res[0].count),
+    ]);
+
+    const totalPages = Math.ceil(totalRecords / size);
+    return {
+      size,
+      page,
+      totalPages,
+      totalRecords,
+      data: transactions,
+    };
+  }
+
   async exportCollectionSummary(
     query: CollectionSummaryQueryDto,
     res: Response
@@ -143,6 +266,65 @@ export class ReportsService {
     res.setHeader(
       'Content-Disposition',
       'attachment; filename="collection-summary.xlsx"'
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  }
+
+  async exportTransactionHistory(
+    query: TransactionHistoryQueryDto,
+    res: Response
+  ) {
+    // For now reuse current page/size; can be extended to batch later
+    const history = await this.getTransactionHistory({
+      ...query,
+      page: query.page ?? 1,
+      size: query.size ?? 1000,
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Transaction History');
+
+    worksheet.columns = [
+      { header: 'ID', key: 'id', width: 10 },
+      { header: 'Student', key: 'student', width: 30 },
+      { header: 'Class', key: 'className', width: 15 },
+      { header: 'Total Amount', key: 'totalAmount', width: 15 },
+      { header: 'Late Fine', key: 'lateFine', width: 12 },
+      { header: 'Concession', key: 'concession', width: 12 },
+      { header: 'Payable', key: 'payable', width: 15 },
+      { header: 'Paid', key: 'paid', width: 15 },
+      { header: 'Due', key: 'due', width: 15 },
+      { header: 'Mode', key: 'mode', width: 12 },
+      { header: 'Date', key: 'createdAt', width: 20 },
+    ];
+
+    history.data.forEach((row) => {
+      worksheet.addRow({
+        id: row.id,
+        student: `${row.studentName} (${
+          row.isEnrolled ? row.enrolledNo : row.regId
+        })`,
+        className: row.class,
+        totalAmount: row.totalAmount,
+        lateFine: row.lateFine,
+        concession: row.concession,
+        payable: row.payable,
+        paid: row.paid,
+        due: row.due,
+        mode: row.mode,
+        createdAt: row.createdAt,
+      });
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="transaction-history.xlsx"'
     );
 
     await workbook.xlsx.write(res);
