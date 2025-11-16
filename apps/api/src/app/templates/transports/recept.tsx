@@ -599,16 +599,6 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
         <View style={{ ...styles.flexCol, alignItems: 'center' }}>
           <Text
             style={{
-              ...styles.infoText,
-              textAlign: 'center',
-              fontSize: 10,
-              fontWeight: 500,
-            }}
-          >
-            {data.receivedBy}
-          </Text>
-          <Text
-            style={{
               ...styles.defaultText,
               ...styles.boldText,
               textAlign: 'center',
@@ -617,6 +607,16 @@ const TransactionReceipt = ({ logo, data }: { logo: string; data: any }) => {
             }}
           >
             Received By
+          </Text>
+          <Text
+            style={{
+              ...styles.infoText,
+              textAlign: 'center',
+              fontSize: 10,
+              fontWeight: 500,
+            }}
+          >
+            {data.receivedBy}
           </Text>
         </View>
       </View>
