@@ -9,11 +9,24 @@ import {
   transactionItemTable,
   transactionTable,
 } from '@school-console/drizzle';
-import { and, asc, count, desc, eq, inArray, like, gte, lte, or, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  inArray,
+  like,
+  gte,
+  lte,
+  or,
+  sql,
+} from 'drizzle-orm';
 import {
   CollectionSummaryQueryDto,
   DuesReportQueryDto,
   TransactionHistoryQueryDto,
+  ConcessionReportQueryDto,
 } from './reports.dto';
 import ExcelJS from 'exceljs';
 import { Response } from 'express';
@@ -325,6 +338,170 @@ export class ReportsService {
     res.setHeader(
       'Content-Disposition',
       'attachment; filename="transaction-history.xlsx"'
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  }
+
+  async getConcessionReport(query: ConcessionReportQueryDto) {
+    const {
+      page = 1,
+      size = 10,
+      academicYearId,
+      classId,
+      isEnrolled,
+      student,
+      dateFrom,
+      dateTo,
+      mode,
+    } = query;
+
+    const offset = (page - 1) * size;
+
+    const whereConditions: any[] = [];
+
+    if (academicYearId) {
+      whereConditions.push(eq(transactionTable.academicYearId, academicYearId));
+    }
+
+    if (classId) {
+      whereConditions.push(eq(transactionTable.classId, classId));
+    }
+
+    if (typeof isEnrolled === 'boolean') {
+      whereConditions.push(eq(studentsTable.isEnrolled, isEnrolled));
+    }
+
+    if (student) {
+      whereConditions.push(
+        or(
+          like(studentsTable.enrolledNo, `%${student}%`),
+          like(studentsTable.regId, `%${student}%`),
+          like(studentsTable.name, `%${student}%`)
+        )
+      );
+    }
+
+    if (dateFrom) {
+      whereConditions.push(
+        gte(transactionTable.createdAt, new Date(dateFrom))
+      );
+    }
+
+    if (dateTo) {
+      const to = new Date(dateTo);
+      to.setHours(23, 59, 59, 999);
+      whereConditions.push(lte(transactionTable.createdAt, to));
+    }
+
+    if (mode) {
+      whereConditions.push(eq(transactionTable.mode, mode));
+    }
+
+    const [rows, totalRecords] = await Promise.all([
+      this.db
+        .select({
+          studentId: studentsTable.id,
+          studentName: studentsTable.name,
+          isEnrolled: studentsTable.isEnrolled,
+          enrolledNo: studentsTable.enrolledNo,
+          regId: studentsTable.regId,
+          classId: classesTable.id,
+          className: classesTable.name,
+          academicYearId: transactionTable.academicYearId,
+          totalConcession: sql<number>`SUM(${transactionTable.concession})`,
+          transactionCount: count(transactionTable.id),
+        })
+        .from(transactionTable)
+        .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
+        .innerJoin(
+          studentsTable,
+          eq(transactionTable.studentId, studentsTable.id)
+        )
+        .where(
+          whereConditions.length > 0
+            ? and(...(whereConditions as [any, ...any[]]))
+            : undefined
+        )
+        .groupBy(
+          studentsTable.id,
+          studentsTable.name,
+          studentsTable.isEnrolled,
+          studentsTable.enrolledNo,
+          studentsTable.regId,
+          classesTable.id,
+          classesTable.name,
+          transactionTable.academicYearId
+        )
+        .orderBy(desc(sql`SUM(${transactionTable.concession})`))
+        .limit(size)
+        .offset(offset),
+      this.db
+        .select({ count: count() })
+        .from(transactionTable)
+        .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
+        .innerJoin(
+          studentsTable,
+          eq(transactionTable.studentId, studentsTable.id)
+        )
+        .where(
+          whereConditions.length > 0
+            ? and(...(whereConditions as [any, ...any[]]))
+            : undefined
+        )
+        .then((res) => res[0].count),
+    ]);
+
+    const totalPages = Math.ceil(totalRecords / size);
+
+    return {
+      size,
+      page,
+      totalPages,
+      totalRecords,
+      data: rows,
+    };
+  }
+
+  async exportConcessionReport(
+    query: ConcessionReportQueryDto,
+    res: Response
+  ) {
+    const report = await this.getConcessionReport({
+      ...query,
+      page: query.page ?? 1,
+      size: query.size ?? 5000,
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Concession Report');
+
+    worksheet.columns = [
+      { header: 'Student', key: 'student', width: 30 },
+      { header: 'Class', key: 'className', width: 15 },
+      { header: 'Total Concession', key: 'totalConcession', width: 18 },
+      { header: 'Transactions', key: 'transactionCount', width: 15 },
+    ];
+
+    report.data.forEach((row) => {
+      worksheet.addRow({
+        student: `${row.studentName} (${
+          row.isEnrolled ? row.enrolledNo : row.regId
+        })`,
+        className: row.className,
+        totalConcession: row.totalConcession,
+        transactionCount: row.transactionCount,
+      });
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="concession-report.xlsx"'
     );
 
     await workbook.xlsx.write(res);

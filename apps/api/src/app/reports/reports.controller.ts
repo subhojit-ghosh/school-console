@@ -4,6 +4,7 @@ import {
   CollectionSummaryQueryDto,
   DuesReportQueryDto,
   TransactionHistoryQueryDto,
+  ConcessionReportQueryDto,
 } from './reports.dto';
 import { Response } from 'express';
 
@@ -45,5 +46,18 @@ export class ReportsController {
     @Res() res: Response
   ) {
     return this.reportsService.exportTransactionHistory(query, res);
+  }
+
+  @Get('concessions')
+  getConcessionReport(@Query() query: ConcessionReportQueryDto) {
+    return this.reportsService.getConcessionReport(query);
+  }
+
+  @Get('concessions/export')
+  exportConcessionReport(
+    @Query() query: ConcessionReportQueryDto,
+    @Res() res: Response
+  ) {
+    return this.reportsService.exportConcessionReport(query, res);
   }
 }

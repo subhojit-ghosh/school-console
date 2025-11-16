@@ -111,3 +111,21 @@ export class TransactionHistoryQueryDto extends BaseReportFilterDto {
   @Transform(({ value }) => (value ? String(value) : undefined))
   student?: string;
 }
+
+export class ConcessionReportQueryDto extends BaseReportFilterDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  size?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => (value ? String(value) : undefined))
+  student?: string;
+}

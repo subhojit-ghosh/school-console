@@ -66,6 +66,8 @@ const endpoints = {
     collectionSummaryExport: () => api('reports/collection-summary/export'),
     transactions: () => api('reports/transactions'),
     transactionsExport: () => api('reports/transactions/export'),
+    concessions: () => api('reports/concessions'),
+    concessionsExport: () => api('reports/concessions/export'),
   },
   transports: {
     saveSettings: (id?: string) => api(`transport/settings`),
