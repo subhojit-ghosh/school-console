@@ -179,15 +179,18 @@ export class TransactionsService {
         )
       );
 
-    const transactionItems = await this.db
-      .select()
-      .from(transactionItemTable)
-      .where(
-        inArray(
-          transactionItemTable.transactionId,
-          transactions.map((transaction) => transaction.id)
-        )
-      );
+    const transactionItems =
+      transactions.length > 0
+        ? await this.db
+            .select()
+            .from(transactionItemTable)
+            .where(
+              inArray(
+                transactionItemTable.transactionId,
+                transactions.map((transaction) => transaction.id)
+              )
+            )
+        : [];
 
     const feesWithDue = academicFees.map((fee) => {
       const relatedItems = transactionItems.filter(

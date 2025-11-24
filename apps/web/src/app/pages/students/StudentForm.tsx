@@ -319,13 +319,17 @@ export default function StudentForm({ action }: StudentFormProps) {
       previousSchoolDetails: (values.previousSchoolDetails || []).map(
         (rec) => ({
           ...rec,
-          periodStart: moment(rec.periodStart).format('YYYY-MM-DD'),
-          periodEnd: moment(rec.periodEnd).format('YYYY-MM-DD'),
+          periodStart: rec.periodStart
+            ? moment(rec.periodStart).format('YYYY-MM-DD')
+            : null,
+          periodEnd: rec.periodEnd
+            ? moment(rec.periodEnd).format('YYYY-MM-DD')
+            : null,
         })
       ),
       siblingDetails: (values.siblingDetails || []).map((rec) => ({
         ...rec,
-        dob: moment(rec.dob).format('YYYY-MM-DD'),
+        dob: rec.dob ? moment(rec.dob).format('YYYY-MM-DD') : null,
       })),
     }),
   });

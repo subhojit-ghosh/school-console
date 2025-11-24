@@ -178,7 +178,7 @@ export default function TransactionForm() {
     console.log(form.values);
     let isGreaterError = false;
     feesRight.every((item: any, index: number) => {
-      if (Number(item.concession + item.paid) > item.totalDue) {
+      if (Number(item.concession) + Number(item.paid) > item.totalDue) {
         isGreaterError = true;
         showInfoNotification(
           `Sum of concession & paid can not be greater than total due which is ${
