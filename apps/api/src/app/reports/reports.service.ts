@@ -622,7 +622,7 @@ export class ReportsService {
           }
         }
 
-        const lateFine = lateDays * (academicYear.lateFinePerDay || 0);
+        const lateFine = lateDays * (academicYear?.lateFinePerDay || 0);
 
         totalDue += lateFine;
 

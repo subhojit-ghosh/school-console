@@ -73,10 +73,12 @@ export default function TransactionsPage() {
       const { data } = await httpClient.get(endpoints.academicYears.dropdown());
       setAcademicYears(data.data);
       const currentAcademicYear = data.data.find((item: any) => item.isActive);
-      setFilters({
-        ...filters,
-        academicYearId: String(currentAcademicYear.id),
-      });
+      if (currentAcademicYear) {
+        setFilters({
+          ...filters,
+          academicYearId: String(currentAcademicYear.id),
+        });
+      }
     } catch (error) {
       console.error(error);
     }

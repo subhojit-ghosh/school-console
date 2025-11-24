@@ -223,7 +223,7 @@ export class TransactionsService {
         }
       }
 
-      const lateFine = lateDays * academicYear.lateFinePerDay;
+      const lateFine = lateDays * (academicYear?.lateFinePerDay || 0);
 
       totalDue += lateFine;
 
