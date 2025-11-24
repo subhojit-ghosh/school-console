@@ -1,9 +1,7 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join } = require('path');
 
-const serverless = false;
-
-const main = serverless ? './src/serverless.ts' : './src/main.ts';
+const main = './src/main.ts';
 
 module.exports = {
   output: {

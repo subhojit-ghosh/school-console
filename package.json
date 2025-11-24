@@ -9,8 +9,7 @@
     "nx": "nx",
     "reset": "nx reset",
     "serve": "nx serve",
-    "build": "nx build",
-    "serverless": "serverless"
+    "build": "nx build"
   },
   "private": true,
   "devDependencies": {
@@ -32,7 +31,6 @@
     "@swc/core": "~1.5.29",
     "@swc/helpers": "~0.5.17",
     "@tanstack/eslint-plugin-query": "^5.91.2",
-    "@types/aws-lambda": "^8.10.158",
     "@types/express": "^5.0.5",
     "@types/multer": "^1.4.13",
     "@types/node": "18.16.9",
@@ -58,8 +56,6 @@
     "postcss-simple-vars": "^7.0.1",
     "prettier": "^2.8.8",
     "sass": "^1.94.0",
-    "serverless-offline": "^14.4.0",
-    "serverless-plugin-optimize": "4.2.1-rc.1",
     "tailwindcss": "3.4.3",
     "tslib": "^2.8.1",
     "tsx": "^4.20.6",
@@ -70,7 +66,6 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@codegenie/serverless-express": "^4.17.0",
     "@mantine/core": "^7.17.8",
     "@mantine/dates": "^7.17.8",
     "@mantine/form": "^7.17.8",
@@ -88,7 +83,6 @@
     "@tabler/icons-react": "^3.35.0",
     "@tanstack/react-query": "^5.90.9",
     "@types/cookie-parser": "^1.4.10",
-    "aws-lambda": "^1.0.7",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
@@ -127,7 +121,6 @@
       "aws-sdk",
       "esbuild",
       "nx",
-      "serverless",
       "unrs-resolver"
     ]
   }
