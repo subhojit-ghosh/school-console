@@ -206,14 +206,21 @@ export class TransactionsService {
       let lateDays = 0;
 
       if (fee.dueDate && totalDue > 0) {
-        isOverdue = fee.dueDate ? new Date(fee.dueDate) < new Date() : false;
+        const dueDate = new Date(fee.dueDate);
+        const today = new Date();
+        // Set both dates to midnight for accurate day comparison
+        dueDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
 
-        lateDays = isOverdue
-          ? Math.ceil(
-              (new Date().getTime() - new Date(fee.dueDate).getTime()) /
-                (1000 * 60 * 60 * 24)
-            ) - 1
-          : 0;
+        isOverdue = dueDate < today;
+
+        if (isOverdue) {
+          const diffTime = today.getTime() - dueDate.getTime();
+          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          lateDays = Math.max(0, diffDays);
+        } else {
+          lateDays = 0;
+        }
       }
 
       const lateFine = lateDays * academicYear.lateFinePerDay;
