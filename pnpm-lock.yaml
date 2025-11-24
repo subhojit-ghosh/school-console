@@ -101,9 +101,6 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
-      i:
-        specifier: ^0.3.7
-        version: 0.3.7
       joi:
         specifier: ^17.13.3
         version: 17.13.3
@@ -6584,10 +6581,6 @@ packages:
 
   hyphen@1.10.6:
     resolution: {integrity: sha512-fXHXcGFTXOvZTSkPJuGOQf5Lv5T/R2itiiCVPg9LxAje5D00O0pP83yJShFq5V89Ly//Gt6acj7z8pbBr34stw==}
-
-  i@0.3.7:
-    resolution: {integrity: sha512-FYz4wlXgkQwIPqhzC5TdNMLSE5+GS1IIDJZY/1ZiEPCT2S3COUVZeT5OW4BmW4r5LHLQuOosSwsvnroG9GR59Q==}
-    engines: {node: '>=0.4'}
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -18263,8 +18256,6 @@ snapshots:
   hyperdyperid@1.2.0: {}
 
   hyphen@1.10.6: {}
-
-  i@0.3.7: {}
 
   iconv-lite@0.4.24:
     dependencies:
