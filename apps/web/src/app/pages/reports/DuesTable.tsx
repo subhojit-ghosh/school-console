@@ -18,7 +18,7 @@ export default function DuesTable({ items }: any) {
           title: 'Name',
         },
         {
-          accessor: 'totalAmount',
+          accessor: 'amount',
           title: 'Amount',
           render: (row: any) => <Currency value={row.amount} />,
         },

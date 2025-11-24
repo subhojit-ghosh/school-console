@@ -193,7 +193,7 @@ export class ReportsService {
           due: transactionTable.due,
           mode: transactionTable.mode,
           createdAt: transactionTable.createdAt,
-          class: classesTable.name,
+          className: classesTable.name,
           studentName: studentsTable.name,
           isEnrolled: studentsTable.isEnrolled,
           enrolledNo: studentsTable.enrolledNo,
@@ -319,7 +319,7 @@ export class ReportsService {
         student: `${row.studentName} (${
           row.isEnrolled ? row.enrolledNo : row.regId
         })`,
-        className: row.class,
+        className: row.className,
         totalAmount: row.totalAmount,
         lateFine: row.lateFine,
         concession: row.concession,
@@ -438,7 +438,9 @@ export class ReportsService {
         .limit(size)
         .offset(offset),
       this.db
-        .select({ count: count() })
+        .select({
+          count: sql<number>`COUNT(DISTINCT ${studentsTable.id})`,
+        })
         .from(transactionTable)
         .innerJoin(classesTable, eq(transactionTable.classId, classesTable.id))
         .innerJoin(
@@ -450,7 +452,7 @@ export class ReportsService {
             ? and(...(whereConditions as [any, ...any[]]))
             : undefined
         )
-        .then((res) => res[0].count),
+        .then((res) => Number(res[0].count)),
     ]);
 
     const totalPages = Math.ceil(totalRecords / size);
@@ -603,14 +605,21 @@ export class ReportsService {
         let lateDays = 0;
 
         if (fee.dueDate && totalDue > 0) {
-          isOverdue = fee.dueDate ? new Date(fee.dueDate) < new Date() : false;
+          const dueDate = new Date(fee.dueDate);
+          const today = new Date();
+          // Set both dates to midnight for accurate day comparison
+          dueDate.setHours(0, 0, 0, 0);
+          today.setHours(0, 0, 0, 0);
+          
+          isOverdue = dueDate < today;
 
-          lateDays = isOverdue
-            ? Math.ceil(
-                (new Date().getTime() - new Date(fee.dueDate).getTime()) /
-                  (1000 * 60 * 60 * 24)
-              ) - 1
-            : 0;
+          if (isOverdue) {
+            const diffTime = today.getTime() - dueDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            lateDays = Math.max(0, diffDays);
+          } else {
+            lateDays = 0;
+          }
         }
 
         const lateFine = lateDays * (academicYear.lateFinePerDay || 0);

@@ -100,8 +100,8 @@ export class TransactionHistoryQueryDto extends BaseReportFilterDto {
   size?: number;
 
   @IsOptional()
-  @IsIn(['createdAt'])
-  sortBy?: 'createdAt';
+  @IsIn(['id', 'createdAt', 'totalAmount', 'lateFine', 'payable', 'concession', 'paid', 'due', 'mode'])
+  sortBy?: 'id' | 'createdAt' | 'totalAmount' | 'lateFine' | 'payable' | 'concession' | 'paid' | 'due' | 'mode';
 
   @IsOptional()
   @IsIn(['asc', 'desc'])

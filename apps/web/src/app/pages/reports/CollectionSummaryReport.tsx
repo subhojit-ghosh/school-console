@@ -4,10 +4,12 @@ import {
   Group,
   Select,
 } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
 import { useDebouncedState } from '@mantine/hooks';
 import { IconDownload } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 import endpoints from '../../api/endpoints';
 import httpClient from '../../api/http-client';
 import Currency from '../../components/Currency';
@@ -28,6 +30,36 @@ export default function CollectionSummaryReport() {
     },
     200
   );
+
+  const today = dayjs();
+  const datePresets = [
+    {
+      value: [today.subtract(2, 'day').toDate(), today.toDate()],
+      label: 'Last two days',
+    },
+    {
+      value: [today.subtract(7, 'day').toDate(), today.toDate()],
+      label: 'Last 7 days',
+    },
+    {
+      value: [today.startOf('month').toDate(), today.toDate()],
+      label: 'This month',
+    },
+    {
+      value: [
+        today.subtract(1, 'month').startOf('month').toDate(),
+        today.subtract(1, 'month').endOf('month').toDate(),
+      ],
+      label: 'Last month',
+    },
+    {
+      value: [
+        today.subtract(1, 'year').startOf('year').toDate(),
+        today.subtract(1, 'year').endOf('year').toDate(),
+      ],
+      label: 'Last year',
+    },
+  ];
 
   useEffect(() => {
     fetchDropdowns();
@@ -217,7 +249,24 @@ export default function CollectionSummaryReport() {
             }
           />
         </Grid.Col>
-        <Grid.Col span={2} style={{ display: 'flex', alignItems: 'end' }}>
+        <Grid.Col span={3}>
+          <DatePickerInput
+            type="range"
+            allowSingleDateInRange
+            label="Date range"
+            placeholder="Select date range"
+            value={[collectionFilters.dateFrom, collectionFilters.dateTo]}
+            onChange={([from, to]) =>
+              setCollectionFilters((prev) => ({
+                ...prev,
+                dateFrom: from,
+                dateTo: to,
+              }))
+            }
+            presets={datePresets}
+          />
+        </Grid.Col>
+        <Grid.Col span={1} style={{ display: 'flex', alignItems: 'end' }}>
           <Button
             rightSection={<IconDownload size={14} />}
             disabled={isCollectionLoading}

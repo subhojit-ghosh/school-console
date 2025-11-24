@@ -124,6 +124,12 @@ export default function ConcessionReport() {
           : undefined,
         size: listData.size,
         page: page || listData.page,
+        ...(sortStatus.columnAccessor
+          ? {
+              sortBy: sortStatus.columnAccessor,
+              sortOrder: sortStatus.direction,
+            }
+          : {}),
       };
 
       const { data } = await httpClient.get(
@@ -157,6 +163,12 @@ export default function ConcessionReport() {
           : undefined,
         size: 5000,
         page: 1,
+        ...(sortStatus.columnAccessor
+          ? {
+              sortBy: sortStatus.columnAccessor,
+              sortOrder: sortStatus.direction,
+            }
+          : {}),
       };
 
       const { data } = await httpClient.get(
