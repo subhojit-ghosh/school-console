@@ -1,9 +1,4 @@
-import {
-  Button,
-  Grid,
-  Group,
-  Select,
-} from '@mantine/core';
+import { Button, Grid, Group, Select } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { useDebouncedState } from '@mantine/hooks';
 import { IconDownload } from '@tabler/icons-react';
@@ -17,6 +12,7 @@ import moment from 'moment';
 
 export default function CollectionSummaryReport() {
   const [isCollectionLoading, setIsCollectionLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [collectionData, setCollectionData] = useState<any[]>([]);
   const [academicYears, setAcademicYears] = useState<any[]>([]);
   const [classes, setClasses] = useState<any[]>([]);
@@ -145,6 +141,7 @@ export default function CollectionSummaryReport() {
   }, [collectionFilters]);
 
   const downloadCollectionSummaryExcel = async () => {
+    setIsDownloading(true);
     try {
       const { data } = await httpClient.get(
         endpoints.reports.collectionSummaryExport(),
@@ -185,15 +182,15 @@ export default function CollectionSummaryReport() {
         if (klass) parts.push(klass.name);
       }
 
-      link.download = `Collection Summary - ${
-        parts.join(' - ') || 'All'
-      }.xlsx`;
+      link.download = `Collection Summary - ${parts.join(' - ') || 'All'}.xlsx`;
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -266,10 +263,11 @@ export default function CollectionSummaryReport() {
             presets={datePresets}
           />
         </Grid.Col>
-        <Grid.Col span={1} style={{ display: 'flex', alignItems: 'end' }}>
+        <Grid.Col span={3} style={{ display: 'flex', alignItems: 'end' }}>
           <Button
             rightSection={<IconDownload size={14} />}
             disabled={isCollectionLoading}
+            loading={isDownloading}
             onClick={downloadCollectionSummaryExcel}
           >
             Download
@@ -329,5 +327,3 @@ export default function CollectionSummaryReport() {
     </>
   );
 }
-
-

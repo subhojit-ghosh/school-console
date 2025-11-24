@@ -12,6 +12,7 @@ import Currency from '../../components/Currency';
 
 export default function TransactionHistoryReport() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [listData, setListData] = useState<any>({
     data: [],
     totalRecords: 0,
@@ -151,6 +152,7 @@ export default function TransactionHistoryReport() {
   };
 
   const downloadExcel = async () => {
+    setIsDownloading(true);
     try {
       const params: any = {
         academicYearId: filters.academicYearId || undefined,
@@ -211,6 +213,8 @@ export default function TransactionHistoryReport() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -297,6 +301,7 @@ export default function TransactionHistoryReport() {
             <Button
               rightSection={<IconDownload size={14} />}
               disabled={isLoading}
+              loading={isDownloading}
               onClick={downloadExcel}
             >
               Download

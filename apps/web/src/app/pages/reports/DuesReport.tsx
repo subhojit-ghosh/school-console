@@ -18,6 +18,7 @@ import DuesTable from './DuesTable';
 
 export default function DuesReport() {
   const [isListLoading, setIsListLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [listData, setListData] = useState<any>([]);
   const [filters, setFilters] = useDebouncedState(
     {
@@ -147,9 +148,11 @@ export default function DuesReport() {
   };
 
   const downloadAsExcel = async () => {
+    setIsDownloading(true);
     try {
       const { data } = await httpClient.get(
-        endpoints.reports.duesExport?.() ?? `${endpoints.reports.dues()}/export`,
+        endpoints.reports.duesExport?.() ??
+          `${endpoints.reports.dues()}/export`,
         {
           params: {
             academicYearId: filters.academicYearId,
@@ -190,6 +193,8 @@ export default function DuesReport() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -241,6 +246,7 @@ export default function DuesReport() {
           <Button
             rightSection={<IconDownload size={14} />}
             disabled={isListLoading}
+            loading={isDownloading}
             onClick={downloadAsExcel}
           >
             Download
@@ -343,5 +349,3 @@ export default function DuesReport() {
     </>
   );
 }
-
-
