@@ -1,12 +1,17 @@
 import {
+  Anchor,
+  Box,
   Button,
-  Container,
   Divider,
-  Grid,
+  Flex,
+  Group,
   Image,
   Paper,
   PasswordInput,
+  Stack,
+  Text,
   TextInput,
+  Title,
 } from '@mantine/core';
 import { useForm, yupResolver } from '@mantine/form';
 import { useState } from 'react';
@@ -59,47 +64,67 @@ function LoginPage() {
   };
 
   return (
-    <Container
-      fluid
-      style={{
-        background: 'linear-gradient(135deg, #1E3C72, #2A5298)',
-        height: '100vh',
-        width: '100vw',
-      }}
-    >
-      <Container size={420} py={40}>
-        {/* <Title ta="center" c="white">Fees Collection</Title> */}
-        <Paper withBorder shadow="md" p={30} mt={30}>
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            <Grid>
-              <Grid.Col span={12}>
-                <Image src={logo} alt="JDS Public School" />
-              </Grid.Col>
-              <Grid.Col span={12}>
-                <Divider />
-              </Grid.Col>
-              <Grid.Col span={12}>
+    <Box className="login-shell">
+      <Paper
+        withBorder
+        shadow="xl"
+        p={{ base: 'lg', md: 40 }}
+        className="login-panel"
+      >
+        <Flex
+          gap={{ base: 'lg', md: 40 }}
+          align="stretch"
+          direction={{ base: 'column', md: 'row' }}
+        >
+          <Stack
+            gap="sm"
+            justify="center"
+            flex={1}
+            p={{ base: 0, md: 'sm' }}
+            style={{ minWidth: 0 }}
+          >
+            <Image src={logo} alt="JDS Public School" maw={180} />
+            <Title order={2}>Welcome back</Title>
+            <Text c="dimmed">
+              Sign in to manage students, fees, transport, and reports from a
+              single, secure console.
+            </Text>
+          </Stack>
+          <Divider visibleFrom="md" orientation="vertical" />
+          <Box flex={1}>
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <Stack gap="md">
                 <TextInput
                   label="Username"
+                  placeholder="Enter your username"
                   withAsterisk
+                  autoComplete="username"
                   {...form.getInputProps('username')}
                 />
-              </Grid.Col>
-              <Grid.Col span={12}>
                 <PasswordInput
                   label="Password"
+                  placeholder="Enter your password"
                   withAsterisk
+                  autoComplete="current-password"
                   {...form.getInputProps('password')}
                 />
-              </Grid.Col>
-            </Grid>
-            <Button fullWidth mt="xl" type="submit" loading={loading}>
-              Login
-            </Button>
-          </form>
-        </Paper>
-      </Container>
-    </Container>
+                <Group justify="space-between" gap="xs">
+                  <Text size="sm" c="dimmed">
+                    Need help?
+                  </Text>
+                  <Anchor size="sm" href="mailto:support@jdschool.com">
+                    Contact support
+                  </Anchor>
+                </Group>
+                <Button fullWidth mt="sm" type="submit" loading={loading}>
+                  Login
+                </Button>
+              </Stack>
+            </form>
+          </Box>
+        </Flex>
+      </Paper>
+    </Box>
   );
 }
 

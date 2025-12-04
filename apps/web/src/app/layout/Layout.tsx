@@ -12,12 +12,20 @@ function Layout() {
       padding="md"
     >
       <AppShell.Navbar
-        style={{ background: 'linear-gradient(135deg, #1E3C72, #2A5298)' }}
+        style={{
+          background: 'linear-gradient(180deg, #1f3f78 0%, #294f96 100%)',
+          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+        }}
       >
         <Navbar />
       </AppShell.Navbar>
 
-      <AppShell.Main style={{ background: '#F4F6F8' }}>
+      <AppShell.Main
+        style={{
+          background: 'linear-gradient(180deg, #f7f9fc 0%, #eef2f7 100%)',
+          minHeight: '100vh',
+        }}
+      >
         <Container size="xl" p={0}>
           <Outlet />
         </Container>

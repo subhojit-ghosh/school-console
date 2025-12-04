@@ -314,7 +314,7 @@ export default function TransactionHistoryReport() {
         my={10}
         withTableBorder
         withColumnBorders
-        borderRadius="sm"
+       
         striped
         highlightOnHover
         minHeight={300}

@@ -9,6 +9,7 @@ import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
 import { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { DataTable } from 'mantine-datatable';
 import endpoints from './api/endpoints';
 import httpClient from './api/http-client';
 import Layout from './layout/Layout';
@@ -29,8 +30,86 @@ import RedirectIfAuthenticatedRoutes from './route-guards/redirect-if-authentica
 import { useAuthStore } from './stores/authStore';
 import AcademicFees from './pages/academic-fees/AcademicFees';
 
+const dataTableComponent =
+  (DataTable as any).extend?.({
+    styles: (theme: any) => ({
+      root: {
+        borderRadius: theme.radius.md,
+        overflow: 'hidden',
+        border: `1px solid ${theme.colors.gray[3]}`,
+      },
+      scrollArea: {
+        borderRadius: theme.radius.md,
+      },
+    }),
+  }) ?? {
+    styles: (theme: any) => ({
+      root: {
+        borderRadius: theme.radius.md,
+        overflow: 'hidden',
+        border: `1px solid ${theme.colors.gray[3]}`,
+      },
+      scrollArea: {
+        borderRadius: theme.radius.md,
+      },
+    }),
+  };
+
 const theme = createTheme({
   primaryColor: 'indigo',
+  primaryShade: 6,
+  fontFamily:
+    'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+  headings: {
+    fontWeight: '600',
+    fontFamily:
+      'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+  },
+  defaultRadius: 'md',
+  colors: {
+    brandGray: [
+      '#f8f9fb',
+      '#f1f3f7',
+      '#e2e8f0',
+      '#cbd5e1',
+      '#94a3b8',
+      '#64748b',
+      '#475569',
+      '#334155',
+      '#1e293b',
+      '#0f172a',
+    ],
+  },
+  components: {
+    Button: {
+      defaultProps: {
+        fw: 600,
+        radius: 'md',
+      },
+    },
+    ActionIcon: {
+      defaultProps: {
+        radius: 'md',
+      },
+    },
+    Paper: {
+      defaultProps: {
+        shadow: 'sm',
+        radius: 'md',
+      },
+    },
+    Tabs: {
+      defaultProps: {
+        radius: 'md',
+      },
+    },
+    Container: {
+      defaultProps: {
+        size: 'lg',
+      },
+    },
+    DataTable: dataTableComponent,
+  },
 });
 
 export function App() {

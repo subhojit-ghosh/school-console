@@ -278,7 +278,7 @@ export default function CollectionSummaryReport() {
       <DataTable
         withTableBorder
         withColumnBorders
-        borderRadius="sm"
+       
         striped
         highlightOnHover
         minHeight={200}

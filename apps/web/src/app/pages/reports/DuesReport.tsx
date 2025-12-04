@@ -301,7 +301,7 @@ export default function DuesReport() {
       <DataTable
         withTableBorder
         withColumnBorders
-        borderRadius="sm"
+       
         striped
         highlightOnHover
         minHeight={300}

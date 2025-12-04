@@ -191,10 +191,11 @@ export default function StudentsPage() {
       <DataTable
         withTableBorder
         withColumnBorders
-        borderRadius="sm"
         striped
         highlightOnHover
         minHeight={300}
+        noRecordsText="No students found"
+        loaderColor="indigo"
         fetching={isListLoading}
         totalRecords={listData.totalRecords}
         recordsPerPage={listData.size}

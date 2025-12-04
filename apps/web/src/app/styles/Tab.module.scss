@@ -4,18 +4,26 @@
   background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-6));
 
   &:first-of-type {
-    border-radius: 4px 0 0 4px;
+    border-top-left-radius: var(--mantine-radius-md);
+    border-bottom-left-radius: var(--mantine-radius-md);
 
     @mixin rtl {
-      border-radius: 0 4px 4px 0;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      border-top-right-radius: var(--mantine-radius-md);
+      border-bottom-right-radius: var(--mantine-radius-md);
     }
   }
 
   &:last-of-type {
-    border-radius: 0 4px 4px 0;
+    border-top-right-radius: var(--mantine-radius-md);
+    border-bottom-right-radius: var(--mantine-radius-md);
 
     @mixin rtl {
-      border-radius: 4px 0 0 4px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-top-left-radius: var(--mantine-radius-md);
+      border-bottom-left-radius: var(--mantine-radius-md);
     }
   }
 

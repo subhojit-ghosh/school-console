@@ -312,7 +312,7 @@ export default function ConcessionReport() {
         my={10}
         withTableBorder
         withColumnBorders
-        borderRadius="sm"
+       
         striped
         highlightOnHover
         minHeight={300}

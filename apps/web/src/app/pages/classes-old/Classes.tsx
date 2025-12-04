@@ -95,7 +95,7 @@ export default function ClassesPage() {
       <DataTable
         withTableBorder
         withColumnBorders
-        borderRadius="sm"
+       
         striped
         highlightOnHover
         minHeight={300}

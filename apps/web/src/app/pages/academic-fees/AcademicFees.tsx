@@ -302,7 +302,6 @@ export default function AcademicFees() {
         withCloseButton={false}
         onClose={close}
         size="lg"
-        radius="md"
         position={{ top: '50%', left: '50%' }}
       >
         <Group>
@@ -370,7 +369,7 @@ export default function AcademicFees() {
         <DataTable
           withTableBorder
           withColumnBorders
-          borderRadius="sm"
+         
           striped
           highlightOnHover
           minHeight={300}
@@ -438,7 +437,7 @@ export default function AcademicFees() {
         <DataTable
           withTableBorder
           withColumnBorders
-          borderRadius="sm"
+         
           striped
           highlightOnHover
           minHeight={300}
