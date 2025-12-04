@@ -98,9 +98,10 @@ export function Navbar() {
                 <Group>
                   <Avatar
                     name={authStore.user.name}
-                    color="indigo"
                     size="md"
                     radius="xl"
+                    bg="var(--mantine-color-indigo-6)"
+                    color="white"
                   />
 
                   <div style={{ flex: 1 }}>
