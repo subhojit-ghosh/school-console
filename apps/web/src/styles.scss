@@ -28,6 +28,27 @@
   background: rgba(255, 255, 255, 0.98);
 }
 
+.app-navbar {
+  background: linear-gradient(180deg, #1d3a8a 0%, #274bba 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05),
+    4px 0 16px rgba(3, 9, 20, 0.3);
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      120% 120% at 20% -10%,
+      rgba(255, 255, 255, 0.18),
+      transparent 55%
+    );
+    pointer-events: none;
+  }
+}
+
 .mantine-datatable {
   border-radius: var(--mantine-radius-md);
   border: 1px solid var(--mantine-color-gray-3);

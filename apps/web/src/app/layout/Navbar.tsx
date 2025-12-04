@@ -94,21 +94,21 @@ export function Navbar() {
         {authStore.user && (
           <Menu width={200} withArrow position="top-end">
             <Menu.Target>
-              <UnstyledButton w="100%">
+              <UnstyledButton w="100%" className={classes.profileCard}>
                 <Group>
                   <Avatar
                     name={authStore.user.name}
                     color="indigo"
                     size="md"
-                    bg="white"
+                    radius="xl"
                   />
 
                   <div style={{ flex: 1 }}>
-                    <Text fw={500} c="white">
+                    <Text fw={600} c="white" className={classes.profileName}>
                       {authStore.user.name}
                     </Text>
 
-                    <Text c="white" size="sm">
+                    <Text c="white" className={classes.profileRole}>
                       {titleCase(authStore.user.role)}
                     </Text>
                   </div>

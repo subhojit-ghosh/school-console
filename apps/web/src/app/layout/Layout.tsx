@@ -11,12 +11,7 @@ function Layout() {
       }}
       padding="md"
     >
-      <AppShell.Navbar
-        style={{
-          background: 'linear-gradient(180deg, #1f3f78 0%, #294f96 100%)',
-          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
-        }}
-      >
+      <AppShell.Navbar className="app-navbar">
         <Navbar />
       </AppShell.Navbar>
 
