@@ -92,7 +92,7 @@ export default function StudentsPage() {
       </Group>
       <Tabs value={type} onChange={setType} my={10}>
         <Tabs.List>
-          <Tabs.Tab value="enrolled" color='green'>Enrolled</Tabs.Tab>
+          <Tabs.Tab value="enrolled" color='teal'>Enrolled</Tabs.Tab>
           <Tabs.Tab value="registration">New Registrations</Tabs.Tab>
         </Tabs.List>
       </Tabs>

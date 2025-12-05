@@ -189,7 +189,7 @@ export default function UsersPage() {
             render: (row: any) => (
               <Switch
                 checked={row.isActive}
-                color="green"
+                color="teal"
                 size="xs"
                 style={{ cursor: 'pointer' }}
                 onChange={() => updateStatus(row.id, !row.isActive)}

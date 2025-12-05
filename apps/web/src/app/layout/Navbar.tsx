@@ -100,7 +100,7 @@ export function Navbar() {
                     name={authStore.user.name}
                     size="md"
                     radius="xl"
-                    bg="var(--mantine-color-indigo-6)"
+                    bg="var(--mantine-color-teal-6)"
                     color="white"
                   />
 

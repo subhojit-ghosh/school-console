@@ -259,7 +259,7 @@ export default function DuesReport() {
           <Paper withBorder p="md" key="q" mb="md">
             <Group justify="apart">
               <div>
-                <Text tt="uppercase" fw={700} fz="sm" c="indigo">
+                <Text tt="uppercase" fw={700} fz="sm" c="teal">
                   Total student(s)
                 </Text>
                 {isListLoading ? (
@@ -277,7 +277,7 @@ export default function DuesReport() {
           <Paper withBorder p="md" key="q" mb="md">
             <Group justify="apart">
               <div>
-                <Text tt="uppercase" fw={700} fz="sm" c="indigo">
+                <Text tt="uppercase" fw={700} fz="sm" c="teal">
                   Total Overdue
                 </Text>
                 {isListLoading ? (

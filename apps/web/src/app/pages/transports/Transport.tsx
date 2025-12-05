@@ -532,7 +532,7 @@ export default function TransportPage() {
       <Group justify="space-between" align="center" mb="md">
         <Title size="lg">Transport</Title>
         <IsAccessiable>
-          <ActionIcon color="indigo" variant="transparent" onClick={open}>
+          <ActionIcon color="teal" variant="transparent" onClick={open}>
             <ThemeIcon variant="transparent">
               <IconSettings />
             </ThemeIcon>

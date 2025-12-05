@@ -98,11 +98,11 @@ function StatCard({ title, value, loading, icon: Icon }: StatCardProps) {
         </Stack>
         <ActionIcon
           variant="light"
-          color="indigo"
+          color="teal"
           size={40}
           aria-label={title}
         >
-          <Icon size={22} color={theme.colors.indigo[6]} />
+          <Icon size={22} color={theme.colors.teal[6]} />
         </ActionIcon>
       </Group>
     </Paper>

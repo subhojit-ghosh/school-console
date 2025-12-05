@@ -87,7 +87,7 @@ export default function ClassesPage() {
           <Grid.Col key={cls.id} span={4}>
             <Card withBorder>
               <Group justify="space-between" align="center">
-                <Text fw="bold" c="indigo">
+                <Text fw="bold" c="teal">
                   {cls.name}
                 </Text>
                 <IsAccessiable>

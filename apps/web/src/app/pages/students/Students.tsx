@@ -175,7 +175,7 @@ export default function StudentsPage() {
         <Tabs.List grow>
           <Tabs.Tab
             value="enrolled"
-            color="green"
+            color="teal"
             leftSection={<IconUserCheck size={18} />}
           >
             Enrolled Students
@@ -195,7 +195,7 @@ export default function StudentsPage() {
         highlightOnHover
         minHeight={300}
         noRecordsText="No students found"
-        loaderColor="indigo"
+        loaderColor="teal"
         fetching={isListLoading}
         totalRecords={listData.totalRecords}
         recordsPerPage={listData.size}
@@ -322,7 +322,7 @@ export default function StudentsPage() {
           </Button>
           <Button
             size="xs"
-            color="indigo"
+            color="teal"
             onClick={() => enrolledStudent(clickedStudent)}
           >
             Enroll

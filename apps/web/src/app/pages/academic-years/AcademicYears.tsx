@@ -171,7 +171,7 @@ export default function AcademicYearsPage() {
               <Switch
                 disabled={DeniedUserRoles.includes(authStore.user?.role || '')}
                 checked={row.isActive}
-                color="green"
+                color="teal"
                 size="xs"
                 style={{ cursor: 'pointer' }}
                 onChange={() => updateStatus(row.id, !row.isActive)}

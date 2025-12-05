@@ -5,7 +5,7 @@ export const showSuccessNotification = (title = '', message = '') =>
   showNotification({
     title,
     message,
-    color: 'green',
+    color: 'teal',
     icon: <IconCheck />,
     autoClose: 3000,
   });

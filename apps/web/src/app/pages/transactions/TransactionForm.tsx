@@ -353,7 +353,7 @@ export default function TransactionForm() {
                   <Grid>
                     <Grid.Col span={4}>
                       <Text>Total Paid</Text>
-                      <Badge color="green">
+                      <Badge color="teal">
                         <Currency value={fees.stats.totalPaid} />
                       </Badge>
                     </Grid.Col>

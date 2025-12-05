@@ -1164,7 +1164,7 @@ export default function StudentForm({ action }: StudentFormProps) {
                     variant="dashed"
                     labelPosition="center"
                     label={
-                      <Text c="indigo" fw={600} size="sm">
+                      <Text c="teal" fw={600} size="sm">
                         {item.head}
                       </Text>
                     }

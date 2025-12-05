@@ -164,7 +164,7 @@ export default function TransactionsPage() {
         <Tabs.List grow>
           <Tabs.Tab
             value="enrolled"
-            color="green"
+            color="teal"
             leftSection={<IconUserCheck size={18} />}
           >
             Enrolled Students

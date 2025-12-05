@@ -56,7 +56,7 @@ const dataTableComponent =
   };
 
 const theme = createTheme({
-  primaryColor: 'indigo',
+  primaryColor: 'teal',
   primaryShade: 6,
   fontFamily:
     'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',

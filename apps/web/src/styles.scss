@@ -13,10 +13,10 @@
   width: 100%;
   background: radial-gradient(
       circle at top left,
-      rgba(39, 94, 254, 0.25),
+      rgba(20, 184, 166, 0.25),
       transparent 45%
     ),
-    linear-gradient(135deg, #162c55, #27467f, #3357a5);
+    linear-gradient(135deg, #0f766e, #14b8a6, #2dd4bf);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,7 +29,7 @@
 }
 
 .app-navbar {
-  background: linear-gradient(180deg, #1f3f78 0%, #2b56ba 100%);
+  background: linear-gradient(180deg, #0d9488 0%, #14b8a6 100%);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04),
     4px 0 20px rgba(9, 15, 30, 0.25);
